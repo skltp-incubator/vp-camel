@@ -10,8 +10,10 @@ import se.skl.tp.vp.vagval.VagvalProcessor;
 public class VPRouter extends RouteBuilder {
 
     public static final String VP_HTTP_ROUTE = "vp-http-route";
-    public static final String NETTY4_HTTP_FROM = "netty4-http:http://localhost:12312/vp";
+    public static final String VP_ROUTE = "vp-route";
+    public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}";
     public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
+    public static final String DIRECT_VP = "direct:vp";
 
     @Autowired
     VagvalProcessor vagvalProcessor;
@@ -23,8 +25,12 @@ public class VPRouter extends RouteBuilder {
     public void configure() throws Exception {
 
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
+                .to(DIRECT_VP);
+
+        from(DIRECT_VP).routeId(VP_ROUTE)
                 .process(requestReaderProcessor)
                 .process(vagvalProcessor)
                 .toD(NETTY4_HTTP_TOD);
+
     }
 }
