@@ -88,18 +88,18 @@ public class PemConverter {
 		return false;
 	}
 
-	static boolean containsCorrectPemHeaders(String pemCertString) {
+	private static boolean containsCorrectPemHeaders(String pemCertString) {
 		int beginHeader = pemCertString.indexOf(BEGIN_HEADER);
 		int endHeader = pemCertString.indexOf(END_HEADER);
 		return beginHeader != -1 && endHeader != -1;
 	}
 
-	static boolean isX509Certificate(Object certificate) {
+	/*static boolean isX509Certificate(Object certificate) {
 		if (certificate instanceof X509Certificate) {
 			log.debug("Found X509Certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 }

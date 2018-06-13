@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
+import se.skl.tp.vp.constants.ApplicationProperties;
 
 
 @RunWith( SpringJUnit4ClassRunner.class )
@@ -75,14 +76,14 @@ public class CertificateReaderTest extends CamelTestSupport {
     @Override
     protected JndiRegistry createRegistry() throws Exception {
         KeyStoreParameters incomingksp = new KeyStoreParameters();
-        incomingksp.setResource(env.getProperty("TP_TLS_STORE_LOCATION") + env.getProperty("TP_TLS_STORE_PRODUCER_FILE"));
-        incomingksp.setPassword(env.getProperty("TP_TLS_STORE_PRODUCER_PASSWORD"));
+        incomingksp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_PRODUCER_FILE));
+        incomingksp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_PRODUCER_PASSWORD));
         KeyManagersParameters incomingkmp = new KeyManagersParameters();
-        incomingkmp.setKeyPassword(env.getProperty("TP_TLS_STORE_PRODUCER_KEY_PASSWORD"));
+        incomingkmp.setKeyPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_PRODUCER_KEY_PASSWORD));
         incomingkmp.setKeyStore(incomingksp);
         KeyStoreParameters incomingtsp = new KeyStoreParameters();
-        incomingtsp.setResource(env.getProperty("TP_TLS_STORE_LOCATION") + env.getProperty("TP_TLS_STORE_TRUSTSTORE_FILE"));
-        incomingtsp.setPassword(env.getProperty("TP_TLS_STORE_TRUSTSTORE_PASSWORD"));
+        incomingtsp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_FILE));
+        incomingtsp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_PASSWORD));
         TrustManagersParameters incomingtmp = new TrustManagersParameters();
         incomingtmp.setKeyStore(incomingtsp);
         SSLContextParameters incomingsslContextParameters = new SSLContextParameters();
@@ -90,14 +91,14 @@ public class CertificateReaderTest extends CamelTestSupport {
         incomingsslContextParameters.setTrustManagers(incomingtmp);
 
         KeyStoreParameters outgoingksp = new KeyStoreParameters();
-        outgoingksp.setResource(env.getProperty("TP_TLS_STORE_LOCATION") + env.getProperty("TP_TLS_STORE_CONSUMER_FILE"));
-        outgoingksp.setPassword(env.getProperty("TP_TLS_STORE_CONSUMER_PASSWORD"));
+        outgoingksp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_CONSUMER_FILE));
+        outgoingksp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_CONSUMER_PASSWORD));
         KeyManagersParameters outgoingkmp = new KeyManagersParameters();
-        outgoingkmp.setKeyPassword(env.getProperty("TP_TLS_STORE_CONSUMER_KEY_PASSWORD"));
+        outgoingkmp.setKeyPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_CONSUMER_KEY_PASSWORD));
         outgoingkmp.setKeyStore(outgoingksp);
         KeyStoreParameters outgoingtsp = new KeyStoreParameters();
-        outgoingtsp.setResource(env.getProperty("TP_TLS_STORE_LOCATION") + env.getProperty("TP_TLS_STORE_TRUSTSTORE_FILE"));
-        outgoingtsp.setPassword(env.getProperty("TP_TLS_STORE_TRUSTSTORE_PASSWORD"));
+        outgoingtsp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_FILE));
+        outgoingtsp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_PASSWORD));
         TrustManagersParameters outgoingtmp = new TrustManagersParameters();
         outgoingtmp.setKeyStore(outgoingtsp);
         SSLContextParameters outgoingsslContextParameters = new SSLContextParameters();

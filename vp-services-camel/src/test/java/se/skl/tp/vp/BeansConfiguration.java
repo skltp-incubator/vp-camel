@@ -7,6 +7,7 @@ import org.springframework.core.env.Environment;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessorImpl;
 import se.skl.tp.vp.certificate.CertificateSenderIDPatternConfig;
+import se.skl.tp.vp.constants.ApplicationProperties;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
 
@@ -32,6 +33,6 @@ public class BeansConfiguration
 
     @Bean
     public Pattern certificateSenderIDPattern() {
-        return Pattern.compile(environment.getProperty("certificate.senderid.subject")+CertificateSenderIDPatternConfig.CERT_SENDERID_PATTERN);
+        return Pattern.compile(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CertificateSenderIDPatternConfig.CERT_SENDERID_PATTERN);
     }
 }
