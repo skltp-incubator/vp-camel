@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
-import se.skl.tp.vp.certificate.SenderIpExtractor;
 import se.skl.tp.vp.constants.ApplicationProperties;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;

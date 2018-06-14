@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.httpheader.SenderIpExtractor;
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)

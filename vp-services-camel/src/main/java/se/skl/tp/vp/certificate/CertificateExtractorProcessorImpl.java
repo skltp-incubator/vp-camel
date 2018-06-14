@@ -3,7 +3,9 @@ package se.skl.tp.vp.certificate;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.NettyConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.ApplicationProperties;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
 import java.util.regex.Matcher;
@@ -15,9 +17,14 @@ import org.apache.logging.log4j.LogManager;
 public class CertificateExtractorProcessorImpl implements CertificateExtractorProcessor {
 
     private static final Logger LOGGER = LogManager.getLogger(CertificateExtractorProcessorImpl.class);
+    public static final String CERT_SENDERID_PATTERN = "=([^,]+)";
+
+    private Pattern certificateSenderIDPattern;
 
     @Autowired
-    Pattern certificateSenderIDPattern;
+    public CertificateExtractorProcessorImpl(Environment env) {
+        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CERT_SENDERID_PATTERN);
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {

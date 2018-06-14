@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import se.skl.tp.vp.certificate.*;
 import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.httpheader.SenderIpExtractor;
+import se.skl.tp.vp.httpheader.SenderIpExtractorFromHeader;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
 
@@ -26,12 +28,12 @@ public class BeansConfiguration
     @Bean(name = "certificateExtractorProcessor")
     public CertificateExtractorProcessor certificateExtractorProcessor()
     {
-        return new CertificateExtractorProcessorImpl();
+        return new CertificateExtractorProcessorImpl(environment);
     }
 
     @Bean
     public Pattern certificateSenderIDPattern() {
-        return Pattern.compile(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CertificateSenderIDPatternConfig.CERT_SENDERID_PATTERN);
+        return Pattern.compile(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CertificateExtractorProcessorImpl.CERT_SENDERID_PATTERN);
     }
 
     @Bean

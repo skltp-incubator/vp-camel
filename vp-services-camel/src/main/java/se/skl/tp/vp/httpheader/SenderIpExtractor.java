@@ -1,4 +1,4 @@
-package se.skl.tp.vp.certificate;
+package se.skl.tp.vp.httpheader;
 
 import org.apache.camel.Message;
 

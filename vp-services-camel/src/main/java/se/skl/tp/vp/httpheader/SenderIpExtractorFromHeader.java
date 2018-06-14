@@ -1,8 +1,9 @@
-package se.skl.tp.vp.certificate;
+package se.skl.tp.vp.httpheader;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.netty4.NettyConstants;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.httpheader.SenderIpExtractor;
 
 import java.net.InetSocketAddress;
 

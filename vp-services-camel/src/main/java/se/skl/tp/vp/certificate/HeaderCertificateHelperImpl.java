@@ -1,7 +1,9 @@
 package se.skl.tp.vp.certificate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.ApplicationProperties;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -11,8 +13,14 @@ import java.util.regex.Pattern;
 @Service
 public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
 
+    public static final String CERT_SENDERID_PATTERN = "=([^,]+)";
+
+    private Pattern certificateSenderIDPattern;
+
     @Autowired
-    Pattern certificateSenderIDPattern;
+    public HeaderCertificateHelperImpl(Environment env) {
+        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CERT_SENDERID_PATTERN);
+    }
 
     public String getSenderIDFromHeaderCertificate(Object certificate) {
 

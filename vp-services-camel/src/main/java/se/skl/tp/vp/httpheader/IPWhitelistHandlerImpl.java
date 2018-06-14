@@ -1,10 +1,18 @@
 package se.skl.tp.vp.httpheader;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.ApplicationProperties;
+
+@Service
 public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     private String [] whiteListArray;
 
-    public IPWhitelistHandlerImpl(String whitelistString) {
+    @Autowired
+    public IPWhitelistHandlerImpl(Environment env) {
+        String whitelistString = env.getProperty(ApplicationProperties.IP_WHITELIST);
 
         if(whitelistString != null && !whitelistString.isEmpty()) {
             whiteListArray = whitelistString.split(",");
