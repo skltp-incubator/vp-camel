@@ -13,26 +13,26 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)
 @TestPropertySource("classpath:application.properties")
-public class IPWhitelistHandlerTest extends CamelTestSupport {
+public class IPWhitelistHandlerTest {
 
     @Autowired
-    Environment env;
+    IPWhitelistHandler ipWhitelistHandler;
 
-    /*@Test
+    @Test
     public void ipInWhitelistTest() {
-        IPWhitelistHandler ipWhitelistHandler = new IPWhitelistHandlerImpl(env);
+
         Assert.assertTrue(ipWhitelistHandler.isCallerOnWhiteList("5.6.7.8"));
-    }*/
+    }
 
     @Test
     public void ipNotInWhitelistTest() {
-        IPWhitelistHandler ipWhitelistHandler = new IPWhitelistHandlerImpl(env);
+
         Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.1"));
     }
 
     @Test
     public void whitelistMissingTest() {
-        IPWhitelistHandler ipWhitelistHandler = new IPWhitelistHandlerImpl(env);
+
         Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.1"));
     }
 
@@ -44,7 +44,7 @@ public class IPWhitelistHandlerTest extends CamelTestSupport {
 
     @Test
     public void senderIDEmptyTest() {
-        IPWhitelistHandler ipWhitelistHandler = new IPWhitelistHandlerImpl(env);
+
         Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList(""));
     }
 }

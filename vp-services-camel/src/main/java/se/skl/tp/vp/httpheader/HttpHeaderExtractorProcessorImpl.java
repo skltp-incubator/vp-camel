@@ -4,6 +4,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
 import se.skl.tp.vp.constants.ApplicationProperties;
@@ -13,18 +14,21 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 @Service
 public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProcessor {
 
+    private IPWhitelistHandler ipWhitelistHandler;
+    private HeaderCertificateHelper headerCertificateHelper;
+    private SenderIpExtractor senderIpExtractor;
+    private String vpInstanceId;
 
     @Autowired
-    IPWhitelistHandler ipWhitelistHandler;
-
-    @Autowired
-    HeaderCertificateHelper headerCertificateHelper;
-
-    @Autowired
-    SenderIpExtractor senderIpExtractor;
-
-    @Value("${" + ApplicationProperties.VP_INSTANCE_ID + "}")
-    String vpInstanceId;
+    public HttpHeaderExtractorProcessorImpl(Environment env,
+                                            SenderIpExtractor senderIpExtractor,
+                                            HeaderCertificateHelper headerCertificateHelper,
+                                            IPWhitelistHandler ipWhitelistHandler) {
+        this.headerCertificateHelper = headerCertificateHelper;
+        this.ipWhitelistHandler = ipWhitelistHandler;
+        this.senderIpExtractor = senderIpExtractor;
+        vpInstanceId = env.getProperty(ApplicationProperties.VP_INSTANCE_ID);
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {

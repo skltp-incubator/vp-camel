@@ -12,6 +12,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
+import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
 public class CertificateExtractorProcessorImpl implements CertificateExtractorProcessor {
@@ -39,8 +41,8 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
             String id = senderId.startsWith("#") ? this.convertFromHexToString(senderId.substring(5)) : senderId;
             exchange.setProperty(VPExchangeProperties.SENDER_ID, id);
         } else {
-            /*throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " No senderId found in Certificate: " + name,
-                    VpSemanticErrorCodeEnum.VP002);*/
+            throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " No senderId found in Certificate: " + name,
+                    VpSemanticErrorCodeEnum.VP002);
         }
     }
 
