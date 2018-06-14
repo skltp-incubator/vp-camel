@@ -8,9 +8,13 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 @Service
 public class CertificateExtractorProcessorImpl implements CertificateExtractorProcessor {
+
+    private static final Logger LOGGER = LogManager.getLogger(CertificateExtractorProcessorImpl.class);
 
     @Autowired
     Pattern certificateSenderIDPattern;
@@ -24,7 +28,7 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
         if (matcher.find()) {
             final String senderId = matcher.group(1);
 
-            //log.debug("Found sender id: {}", senderId);
+            LOGGER.debug("Found sender id: {}", senderId);
             String id = senderId.startsWith("#") ? this.convertFromHexToString(senderId.substring(5)) : senderId;
             exchange.setProperty(VPExchangeProperties.SENDER_ID, id);
         } else {
