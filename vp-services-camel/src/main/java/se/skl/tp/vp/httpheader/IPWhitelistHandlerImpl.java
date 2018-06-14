@@ -6,7 +6,7 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     public IPWhitelistHandlerImpl(String whitelistString) {
 
-        if(!whitelistString.isEmpty()) {
+        if(whitelistString != null && !whitelistString.isEmpty()) {
             whiteListArray = whitelistString.split(",");
         }
     }
