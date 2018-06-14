@@ -119,6 +119,12 @@
         <artifactId>camel-spring</artifactId>
         <version>${camel.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-ext-jdk16</artifactId>
+        <version>1.46</version>
+        <scope>test</scope>
+      </dependency>
 
       <!-- connector -->
       <dependency>

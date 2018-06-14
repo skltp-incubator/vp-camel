@@ -58,6 +58,11 @@
       <artifactId>camel-test-spring</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-ext-jdk16</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <!-- connector -->
     <dependency>

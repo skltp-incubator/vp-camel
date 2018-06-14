@@ -1,4 +1,4 @@
-package se.skl.tp.vp;
+package se.skl.tp.vp.certificate;
 
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
@@ -16,7 +16,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.ApplicationProperties;
 
 

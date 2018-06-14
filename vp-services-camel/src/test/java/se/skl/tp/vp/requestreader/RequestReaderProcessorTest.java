@@ -1,4 +1,4 @@
-package se.skl.tp.vp;
+package se.skl.tp.vp.requestreader;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
