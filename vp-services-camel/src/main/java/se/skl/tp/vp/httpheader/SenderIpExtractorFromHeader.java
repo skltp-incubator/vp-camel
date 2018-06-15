@@ -15,9 +15,10 @@ public class SenderIpExtractorFromHeader implements SenderIpExtractor {
         InetSocketAddress inetSocketAddress = message.getHeader(NettyConstants.NETTY_REMOTE_ADDRESS, InetSocketAddress.class);
         String senderIpAdress = inetSocketAddress.getAddress().getHostAddress();
 
-        if(senderIpAdress == null){
+        //TODO: Mule-VP extractIpAddress använder mule-properties, behövs något liknande?
+        //if(senderIpAdress == null){
             //senderIpAdress = VPUtil.extractIpAddress(message);
-        }
+        //}
         return senderIpAdress;
     }
 }

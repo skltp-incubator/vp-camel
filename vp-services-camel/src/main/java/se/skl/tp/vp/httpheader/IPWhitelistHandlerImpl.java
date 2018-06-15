@@ -1,5 +1,8 @@
 package se.skl.tp.vp.httpheader;
 
+import org.apache.camel.component.netty4.NettyConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -7,6 +10,8 @@ import se.skl.tp.vp.constants.ApplicationProperties;
 
 @Service
 public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
+
+    private static Logger LOGGER = LogManager.getLogger(IPWhitelistHandlerImpl.class);
 
     private String [] whiteListArray;
 
@@ -21,30 +26,30 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     @Override
     public boolean isCallerOnWhiteList(String senderIpAdress) {
-        //log.debug("Check if caller {} is in white list berfore using HTTP header {}...", callerIp, httpHeader);
+        LOGGER.debug("Check if caller {} is in white list berfore using HTTP header {}...", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
 
         //When no ip address exist we can not validate against whitelist
         if (senderIpAdress == null || senderIpAdress.trim().isEmpty()) {
-            //log.warn("A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ", callerIp, httpHeader);
+            LOGGER.warn("A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
             return false;
         }
 
 
         //When no whitelist exist we can not validate incoming ip address
         if (whiteListArray == null) {
-            //log.warn("A check against the ip address whitelist was requested, but the whitelist is configured empty. Update VP configuration property IP_WHITE_LIST");
+            LOGGER.warn("A check against the ip address whitelist was requested, but the whitelist is configured empty. Update VP configuration property IP_WHITE_LIST");
             return false;
         }
 
 
         for (String ipAddress : whiteListArray) {
             if(senderIpAdress.trim().startsWith(ipAddress.trim())){
-                //log.debug("Caller matches ip address/subdomain in white list");
+                LOGGER.debug("Caller matches ip address/subdomain in white list");
                 return true;
             }
         }
 
-        //log.warn("Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST: {}", callerIp, this.toString());
+        LOGGER.warn("Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST: {}", senderIpAdress, this.toString());
         return false;
     }
 }

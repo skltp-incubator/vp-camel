@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.VPConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
 import java.util.regex.Matcher;
@@ -19,13 +20,12 @@ import se.skl.tp.vp.exceptions.VpSemanticException;
 public class CertificateExtractorProcessorImpl implements CertificateExtractorProcessor {
 
     private static final Logger LOGGER = LogManager.getLogger(CertificateExtractorProcessorImpl.class);
-    public static final String CERT_SENDERID_PATTERN = "=([^,]+)";
 
     private Pattern certificateSenderIDPattern;
 
     @Autowired
     public CertificateExtractorProcessorImpl(Environment env) {
-        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CERT_SENDERID_PATTERN);
+        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+VPConstants.CERT_SENDERID_PATTERN);
     }
 
     @Override

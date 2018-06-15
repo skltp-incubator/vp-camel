@@ -1,9 +1,15 @@
 package se.skl.tp.vp.certificate;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.HttpHeaders;
+import se.skl.tp.vp.constants.VPConstants;
+import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
+import se.skl.tp.vp.exceptions.VpSemanticException;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -13,36 +19,34 @@ import java.util.regex.Pattern;
 @Service
 public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
 
-    public static final String CERT_SENDERID_PATTERN = "=([^,]+)";
+    private static Logger LOGGER = LogManager.getLogger(HeaderCertificateHelperImpl.class);
 
     private Pattern certificateSenderIDPattern;
 
     @Autowired
     public HeaderCertificateHelperImpl(Environment env) {
-        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CERT_SENDERID_PATTERN);
+        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+VPConstants.CERT_SENDERID_PATTERN);
     }
 
     public String getSenderIDFromHeaderCertificate(Object certificate) {
-
         try {
             if (isX509Certificate(certificate)) {
                 return extractFromX509Certificate(certificate);
             } else if (PemConverter.isPEMCertificate(certificate)) {
                 return extractFromPemFormatCertificate(certificate);
             } else {
-                    /*log.error("Unkown certificate type found in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
+                LOGGER.error("Unkown certificate type found in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
                     throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002
                             + " Exception, unkown certificate type found in httpheader "
                             + HttpHeaders.REVERSE_PROXY_HEADER_NAME,
-                            VpSemanticErrorCodeEnum.VP002);*/
+                            VpSemanticErrorCodeEnum.VP002);
             }
         } catch (Exception e) {
-                /*log.error("Error occured parsing certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME, e);
+            LOGGER.error("Error occured parsing certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME, e);
                 throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002
                         + " Exception occured parsing certificate in httpheader "
-                        + HttpHeaders.REVERSE_PROXY_HEADER_NAME, VpSemanticErrorCodeEnum.VP002);*/
+                        + HttpHeaders.REVERSE_PROXY_HEADER_NAME, VpSemanticErrorCodeEnum.VP002);
         }
-        return null;
     }
 
     private String extractFromPemFormatCertificate(Object certificate) throws CertificateException {
@@ -57,7 +61,7 @@ public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
 
     private static boolean isX509Certificate(Object certificate) {
         if (certificate instanceof X509Certificate) {
-            //log.debug("Found X509Certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
+            LOGGER.debug("Found X509Certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
             return true;
         }
         return false;
@@ -65,7 +69,7 @@ public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
 
     private String extractSenderIdFromCertificate(final X509Certificate certificate) {
 
-        //log.debug("Extracting sender id from certificate.");
+        LOGGER.debug("Extracting sender id from certificate.");
 
         if (certificate == null) {
             throw new IllegalArgumentException("Cannot extract any sender because the certificate was null");
@@ -94,12 +98,11 @@ public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
         if (matcher.find()) {
             final String senderId = matcher.group(1);
 
-            //log.debug("Found sender id: {}", senderId);
+            LOGGER.debug("Found sender id: {}", senderId);
             return senderId.startsWith("#") ? this.convertFromHexToString(senderId.substring(5)) : senderId;
         } else {
-            /*throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " No senderId found in Certificate: " + principalName,
-                    VpSemanticErrorCodeEnum.VP002);*/
-            return "";
+            throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " No senderId found in Certificate: " + principalName,
+                    VpSemanticErrorCodeEnum.VP002);
         }
     }
 }

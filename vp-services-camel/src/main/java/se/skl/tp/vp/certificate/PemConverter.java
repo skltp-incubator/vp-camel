@@ -1,7 +1,5 @@
 package se.skl.tp.vp.certificate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import se.skl.tp.vp.constants.HttpHeaders;
 
 import java.io.BufferedInputStream;
@@ -11,6 +9,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class PemConverter {
 	private static final String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
 	private static final String END_HEADER = "-----END CERTIFICATE-----";
 
-	private static Logger log = LoggerFactory.getLogger(PemConverter.class);
+	private static Logger LOGGER = LogManager.getLogger(PemConverter.class);
 
 	/*
 	 * PEM - (Privacy Enhanced Mail) Base64 encoded DER certificate, enclosed
@@ -30,9 +30,9 @@ public class PemConverter {
 	 */
 	public static X509Certificate buildCertificate(Object pemCert) throws CertificateException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("Got possible PEM-encoded certificate");
-			log.debug((String) pemCert);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Got possible PEM-encoded certificate");
+			LOGGER.debug((String) pemCert);
 		}
 
 		String pemCertString = (String) pemCert;
@@ -43,8 +43,8 @@ public class PemConverter {
 			Certificate certificate = generateCertificate(certificateInfo);
 
 			if (certificate instanceof X509Certificate) {
-				log.debug("Certificate converted to X509Certificate!");
-				log.debug("Certificate principalname: "
+				LOGGER.debug("Certificate converted to X509Certificate!");
+				LOGGER.debug("Certificate principalname: "
 						+ ((X509Certificate) certificate).getSubjectX500Principal().getName());
 				return (X509Certificate) certificate;
 			} else {
@@ -82,7 +82,7 @@ public class PemConverter {
 
 	public static boolean isPEMCertificate(Object certificate) {
 		if (certificate != null && certificate instanceof String && containsCorrectPemHeaders((String) certificate)) {
-			log.debug("Found possible PEM-encoded certificate in httpheader {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
+			LOGGER.debug("Found possible PEM-encoded certificate in httpheader {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
 			return true;
 		}
 		return false;
@@ -96,7 +96,7 @@ public class PemConverter {
 
 	/*static boolean isX509Certificate(Object certificate) {
 		if (certificate instanceof X509Certificate) {
-			log.debug("Found X509Certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
+			LOGGER.debug("Found X509Certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
 			return true;
 		}
 		return false;

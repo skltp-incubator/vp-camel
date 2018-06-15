@@ -2,17 +2,23 @@ package se.skl.tp.vp.httpheader;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+import org.apache.camel.component.netty4.NettyConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
 import se.skl.tp.vp.constants.ApplicationProperties;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
+import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
 public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProcessor {
+
+    private static Logger LOGGER = LogManager.getLogger(HttpHeaderExtractorProcessorImpl.class);
 
     private IPWhitelistHandler ipWhitelistHandler;
     private HeaderCertificateHelper headerCertificateHelper;
@@ -43,14 +49,17 @@ public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProc
         exchange.setProperty(VPExchangeProperties.SENDER_IP_ADRESS, senderIpAdress);
 
         if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
-            //log.debug("Yes, sender id extracted from inbound property {}: {}, check whitelist!", HttpHeaders.X_VP_SENDER_ID, senderId);
+            LOGGER.debug("Yes, sender id extracted from inbound property {}: {}, check whitelist!", HttpHeaders.X_VP_SENDER_ID, senderId);
 
             /*
              * x-vp-sender-id exist as inbound property and x-vp-instance-id macthes this VP instance, a mandatory check against the whitelist of
              * ip addresses is needed. VPUtil.checkCallerOnWhiteList throws VpSemanticException in case ip address is not in whitelist.
              */
             if(!ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress)){
-                //throw VPUtil.createVP011Exception(senderIpAdress, HttpHeaders.X_VP_SENDER_ID);
+                throw new VpSemanticException(VpSemanticErrorCodeEnum.VP011.getCode()
+                        + " IP-address: " + senderIpAdress
+                        + ". HTTP header that caused checking: " + NettyConstants.NETTY_REMOTE_ADDRESS,
+                        VpSemanticErrorCodeEnum.VP011);
             }
 
             // Make sure the sender id is set in session scoped property for authorization and logging
