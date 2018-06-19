@@ -6,23 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.ApplicationProperties;
-import se.skl.tp.vp.httpheader.SenderIpExtractor;
 
 import java.net.InetSocketAddress;
 
 @Service
 public class SenderIpExtractorFromHeader implements SenderIpExtractor {
 
-    private String vagvalrouter_sender_ip_adress_http_header;
+    private String vagvalrouterSenderIpAdressHttpHeader;
 
     @Autowired
     public SenderIpExtractorFromHeader(Environment env) {
-        vagvalrouter_sender_ip_adress_http_header = env.getProperty(ApplicationProperties.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER);
+        vagvalrouterSenderIpAdressHttpHeader = env.getProperty(ApplicationProperties.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER);
     }
 
     @Override
     public String extractSenderIpAdress(Message message) {
-        String senderIpAdress  = message.getHeader(vagvalrouter_sender_ip_adress_http_header, String.class);
+        String senderIpAdress  = message.getHeader(vagvalrouterSenderIpAdressHttpHeader, String.class);
         
         if(senderIpAdress == null){
             InetSocketAddress inetSocketAddress = message.getHeader(NettyConstants.NETTY_REMOTE_ADDRESS, InetSocketAddress.class);
