@@ -3,6 +3,7 @@ package se.skl.tp.vp.requestreader;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.http.NettyChannelBufferStreamCache;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.VPExchangeProperties;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -17,6 +18,10 @@ import java.util.Stack;
 
 @Service
 public class RequestReaderProcessorXMLEventReader implements RequestReaderProcessor {
+
+    public static final String RIVTABP_21 = "rivtabp21";
+    public static final String RIVTABP_20 = "rivtabp20";
+
     @Override
     public void process(Exchange exchange) throws Exception {
         NettyChannelBufferStreamCache body = (NettyChannelBufferStreamCache)exchange.getIn().getBody();
@@ -41,10 +46,12 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
                     }
                 } else if(event.isCharacters()) {
                     if(elementHierarchy.peek().equalsIgnoreCase("LogicalAddress")) {
-                        exchange.setProperty("LogicalAddress" , event.asCharacters().getData());
+                        exchange.setProperty(VPExchangeProperties.RECEIVER_ID, event.asCharacters().getData());
+                        exchange.setProperty(VPExchangeProperties.RIV_VERSION, RIVTABP_21);
                     }
                     if(elementHierarchy.peek().equalsIgnoreCase("To")) {
-                        exchange.setProperty("LogicalAddress" , event.asCharacters().getData());
+                        exchange.setProperty(VPExchangeProperties.RECEIVER_ID , event.asCharacters().getData());
+                        exchange.setProperty(VPExchangeProperties.RIV_VERSION, RIVTABP_20);
                     }
                 } else if(event.isEndElement()) {
                     elementHierarchy.pop();
@@ -64,7 +71,7 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
         namespaces.forEachRemaining(o -> ns.add(o));
         for (Object obj: ns) {
             if(((Namespace)obj).getNamespaceURI().toLowerCase().contains("responder")) {
-                exchange.setProperty("tjanstekontrakt" , ((Namespace)obj).getNamespaceURI());
+                exchange.setProperty(VPExchangeProperties.SERVICECONTRACT_NAMESPACE , ((Namespace)obj).getNamespaceURI());
             }
         }
     }

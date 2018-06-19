@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 
 @RunWith( SpringJUnit4ClassRunner.class )
@@ -42,8 +43,9 @@ public class RequestReaderProcessorTest extends CamelTestSupport {
                 "</soapenv:Envelope>";
 
         resultEndpoint.expectedBodiesReceived(expectedBody);
-        resultEndpoint.expectedPropertyReceived("LogicalAddress", "1");
-        resultEndpoint.expectedPropertyReceived("tjanstekontrakt", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
+        resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RECEIVER_ID, "1");
+        resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RIV_VERSION, RequestReaderProcessorXMLEventReader.RIVTABP_20);
+        resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
 
         template.sendBody(expectedBody);
         resultEndpoint.assertIsSatisfied();

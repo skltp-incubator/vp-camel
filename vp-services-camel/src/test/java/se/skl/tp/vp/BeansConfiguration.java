@@ -45,6 +45,6 @@ public class BeansConfiguration
 
     @Bean
     public SenderIpExtractor senderIpExtractor() {
-        return new SenderIpExtractorFromHeader();
+        return new SenderIpExtractorFromHeader(environment);
     }
 }
