@@ -18,4 +18,6 @@ public class ApplicationProperties {
     public static final String TP_TLS_STORE_CONSUMER_PASSWORD = "tp.tls.store.consumer.password";
     public static final String TP_TLS_STORE_CONSUMER_KEY_PASSWORD = "tp.tls.store.consumer.key.password";
 
+    public static final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = "vagvalrouter.sender.ip.adress.http.header";
+
 }
