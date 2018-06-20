@@ -10,8 +10,8 @@
         </Console>
 
         <RollingRandomAccessFile name="RollingRandomAccessFile"
-                                 fileName="${sys:log.dir}/mule-app-vp.log"
-                                 filePattern="${sys:log.dir}/mule-app-vp.log.%i">
+                                 fileName="${sys:log.dir}/camel-app-vp.log"
+                                 filePattern="${sys:log.dir}/camel-app-vp.log.%i">
             <PatternLayout>
                 <Pattern>${LOG_PATTERN}</Pattern>
             </PatternLayout>
