@@ -9,6 +9,7 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
+import se.skl.tp.vp.vagval.BehorighetProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 
 @Component
@@ -28,6 +29,9 @@ public class VPRouter extends RouteBuilder {
 
     @Autowired
     VagvalProcessor vagvalProcessor;
+
+    @Autowired
+    BehorighetProcessor behorighetProcessor;
 
     @Autowired
     CertificateExtractorProcessor certificateExtractorProcessor;
@@ -58,6 +62,7 @@ public class VPRouter extends RouteBuilder {
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .process(requestReaderProcessor)
                 .process(vagvalProcessor)
+                .process(behorighetProcessor)
                 .choice()
                     .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
                         .toD(NETTY4_HTTPS_OUTGOING_TOD)
