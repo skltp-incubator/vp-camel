@@ -1,15 +1,8 @@
 package se.skl.tp.vp.vagval.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import static se.skl.tp.vp.constants.ApplicationProperties.DEFAULT_ROUTING_ADDRESS_DELIMITER;
 
 public class DefaultRoutingUtil {
 

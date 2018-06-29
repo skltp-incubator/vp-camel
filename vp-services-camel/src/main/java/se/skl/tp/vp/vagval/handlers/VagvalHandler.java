@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.skl.tp.hsa.cache.HsaCache;
-import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
-import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skl.tp.vp.vagval.util.DefaultRoutingUtil;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
@@ -33,13 +31,6 @@ public class VagvalHandler {
         defaultRoutingAddressDelimiter = delimiter;
     }
 
-    private void raiseError(VpSemanticErrorCodeEnum codeEnum, String suffix) {
-        // TODO fix errmsg
-        String errmsg="";
-//        String errmsg = MessageProperties.getInstance().get(codeEnum, suffix);
-        LOGGER.error(errmsg);
-        throw new VpSemanticException(errmsg, codeEnum);
-    }
 
     public List<RoutingInfo> getRoutingInfo(String tjanstegranssnitt, String receiverAddress){
 

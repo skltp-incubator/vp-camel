@@ -1,15 +1,14 @@
 package se.skl.tp.vp.vagval;
 
-import org.apache.camel.*;
-import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,12 +20,12 @@ import se.skl.tp.vp.Application;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skltp.takcache.TakCache;
-import se.skltp.takcache.services.TakService;
 
 import java.net.URL;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
+import static org.mockito.ArgumentMatchers.eq;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.*;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 
 @RunWith( SpringJUnit4ClassRunner.class )
@@ -43,12 +42,8 @@ public class BehorighetProcessorTest  extends CamelTestSupport {
     @MockBean
     TakCache takCache;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Before
     public void beforeTest()  {
-//        MockitoAnnotations.initMocks(this);
         URL url = getClass().getClassLoader().getResource("hsacache.xml");
         URL urlHsaRoot = getClass().getClassLoader().getResource("hsacachecomplementary.xml");
         hsaCache.init(url.getFile(), urlHsaRoot.getFile());
@@ -61,11 +56,60 @@ public class BehorighetProcessorTest  extends CamelTestSupport {
 
         Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, RECEIVER_1);
         behorighetProcessor.process(ex);
-
     }
 
     @Test
-    public void testNotAuthorizedThrowsAException() throws Exception {
+    public void testAuthorizonByClimbingHsaTree() throws Exception {
+
+        Mockito.when(takCache.isAuthorized(anyString(), anyString(), eq(AUTHORIZED_RECEIVER_IN_HSA_TREE) )).thenReturn(true);
+        Mockito.when(takCache.isAuthorized(anyString(), anyString(), AdditionalMatchers.not(eq(AUTHORIZED_RECEIVER_IN_HSA_TREE)) )).thenReturn(false);
+
+        Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE);
+        behorighetProcessor.process(ex);
+    }
+
+    @Test
+    public void testAuthorizonByDefaultRouting() throws Exception {
+
+        Mockito.when(takCache.isAuthorized(anyString(), anyString(), eq(RECEIVER_2) )).thenReturn(true);
+        Mockito.when(takCache.isAuthorized(anyString(), anyString(),  AdditionalMatchers.not(eq(RECEIVER_2)) )).thenReturn(false);
+
+        Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, RECEIVER_1_DEFAULT_RECEIVER_2);
+        behorighetProcessor.process(ex);
+    }
+
+    @Test
+    public void testNoSenderIdShouldThrowVP002Exception() throws Exception {
+
+        Mockito.when(takCache.isAuthorized(anyString(),anyString(),anyString())).thenReturn(true);
+
+        try {
+            Exchange ex = createExchangeWithProperties(null, NAMNRYMD_1, RECEIVER_1);
+            behorighetProcessor.process(ex);
+            fail("Förväntade ett VP002 SemanticException");
+        }catch(VpSemanticException vpSemanticException){
+            assertEquals(VP002, vpSemanticException.getErrorCode());
+            // TODO assert that message contain good information
+        }
+    }
+
+    @Test
+    public void testNoLogicalAddressShouldThrowVP003Exception() throws Exception {
+
+        Mockito.when(takCache.isAuthorized(anyString(),anyString(),anyString())).thenReturn(true);
+
+        try {
+            Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, null);
+            behorighetProcessor.process(ex);
+            fail("Förväntade ett VP003 SemanticException");
+        }catch(VpSemanticException vpSemanticException){
+            assertEquals(VP003, vpSemanticException.getErrorCode());
+            // TODO assert that message contain good information
+        }
+    }
+
+    @Test
+    public void testNotAuthorizedShouldThrowVP007Exception() throws Exception {
 
         Mockito.when(takCache.isAuthorized(anyString(),anyString(),anyString())).thenReturn(false);
 

@@ -4,10 +4,11 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.vagval.handlers.BehorighetHandler;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
-import se.skl.tp.vp.exceptions.VpSemanticException;
+import se.skl.tp.vp.vagval.handlers.BehorighetHandler;
+
+import static se.skl.tp.vp.vagval.util.ErrorUtil.raiseError;
 
 @Service
 public class BehorighetProcessor implements Processor {
@@ -24,13 +25,12 @@ public class BehorighetProcessor implements Processor {
         validateRequest(senderId, receiverId);
 
         if( !behorighetHandler.isAuthorized(senderId, servicecontractNamespace, receiverId)){
-            raiseError( VpSemanticErrorCodeEnum.VP007, null);
+            raiseError( VpSemanticErrorCodeEnum.VP007, "Not authorized call, " + getRequestSummaryString(senderId, servicecontractNamespace, receiverId));
         }
     }
 
     private void validateRequest(String senderId, String receiverId) {
         //TODO Kontrollera servicecontractNamespace ?
-
 
 //        // No RIV version configured
 //        raiseError(request.rivVersion == null, VpSemanticErrorCodeEnum.VP001);
@@ -42,17 +42,8 @@ public class BehorighetProcessor implements Processor {
         raiseError(receiverId == null, VpSemanticErrorCodeEnum.VP003);
     }
 
-    private void raiseError(boolean test, VpSemanticErrorCodeEnum codeenum) {
-        if(test) {
-            raiseError(codeenum, null);
-        }
+    private String getRequestSummaryString(String senderId, String serviceNamespace, String logicalAddress) {
+        return String.format( "SenderId: %s serviceNamespace: %s, logicalAddress: %s",senderId, serviceNamespace, logicalAddress);
     }
 
-    private void raiseError(VpSemanticErrorCodeEnum codeEnum, String suffix) {
-        // TODO fix errmsg
-        String errmsg="";
-//        String errmsg = MessageProperties.getInstance().get(codeEnum, suffix);
-//        LOGGER.error(errmsg);
-        throw new VpSemanticException(errmsg, codeEnum);
-    }
 }
