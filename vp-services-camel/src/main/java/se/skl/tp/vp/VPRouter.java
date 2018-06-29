@@ -1,5 +1,6 @@
 package se.skl.tp.vp;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -7,6 +8,7 @@ import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
+import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 
 @Component
@@ -14,7 +16,10 @@ public class VPRouter extends RouteBuilder {
 
     public static final String VP_HTTP_ROUTE = "vp-http-route";
     public static final String VP_ROUTE = "vp-route";
+    public static final String RESET_HSA_CACHE_ROUTE = "reset-hsa-cache-route";
+
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}";
+    public static final String NETTY4_HTTP_FROM_RESET_CACHE = "netty4-http:{{vp.hsa.reset.cache.url}}";
     public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
     public static final String DIRECT_VP = "direct:vp";
     public static final String VP_HTTPS_ROUTE = "vp-https-route";
@@ -31,6 +36,9 @@ public class VPRouter extends RouteBuilder {
     HttpHeaderExtractorProcessor httpHeaderExtractorProcessor;
 
     @Autowired
+    ResetHsaCacheProcessor resetHsaCacheProcessor;
+
+    @Autowired
     RequestReaderProcessor requestReaderProcessor;
 
     @Override
@@ -42,6 +50,10 @@ public class VPRouter extends RouteBuilder {
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
                 .process(httpHeaderExtractorProcessor)
                 .to(DIRECT_VP);
+
+        from(NETTY4_HTTP_FROM_RESET_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
+                .process(resetHsaCacheProcessor);
+                //.setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200));
 
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .process(requestReaderProcessor)

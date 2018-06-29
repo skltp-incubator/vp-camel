@@ -20,4 +20,6 @@ public class ApplicationProperties {
 
     public static final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = "vagvalrouter.sender.ip.adress.http.header";
 
+    public static final String HSA_FILES= "hsa.files";
+
 }
