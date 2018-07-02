@@ -6,8 +6,11 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -16,11 +19,20 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
+import se.skltp.takcache.RoutingInfo;
+import se.skltp.takcache.TakCache;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.*;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @SpringBootTest(classes = Application.class)
 @ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)
 @TestPropertySource("classpath:application.properties")
+@DirtiesContext
 public class ErrorInResponseTest extends CamelTestSupport {
 
     public static final String EXCEPTION_MESSAGE = "Fel fel fel";
@@ -36,6 +48,9 @@ public class ErrorInResponseTest extends CamelTestSupport {
     @Autowired
     ExceptionMessageProcessor exceptionMessageProcessor;
 
+    @MockBean
+    TakCache takCache;
+
     @Test
     public void errorInResponseTest() throws Exception {
         String expectedBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n" +
@@ -50,6 +65,11 @@ public class ErrorInResponseTest extends CamelTestSupport {
                 "      </urn:GetCertificateRequest>\n" +
                 "   </soapenv:Body>\n" +
                 "</soapenv:Envelope>";
+
+        List<RoutingInfo> list = new ArrayList<>();
+        list.add(new RoutingInfo("http://localhost:12123/vp",RIV20));
+        Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
+        Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
 
         resultEndpoint.expectedBodiesReceived(SoapFaultHelper.generateSoap11FaultWithCause(EXCEPTION_MESSAGE));
 
@@ -70,7 +90,7 @@ public class ErrorInResponseTest extends CamelTestSupport {
 
                 from("netty4-http:http://localhost:12123/vp")
                         .process((Exchange exchange)-> {
-                            exchange.setProperty(Exchange.EXCEPTION_CAUGHT, new VpSemanticException(EXCEPTION_MESSAGE, VpSemanticErrorCodeEnum.VP007));
+                            exchange.setProperty(Exchange.EXCEPTION_CAUGHT, new VpSemanticException(EXCEPTION_MESSAGE, VP007));
                         })
                         .process(exceptionMessageProcessor);
             }
