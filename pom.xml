@@ -21,6 +21,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring.boot-version>${spring-boot-version}</spring.boot-version>
     <lmax_disruptor-version>3.3.6</lmax_disruptor-version>
+    <commons.lang-version>${commons-lang-version}</commons.lang-version>
     <camel.version>2.21.1</camel.version>
   </properties>
 
@@ -153,6 +154,12 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-core</artifactId>
         <version>${camel.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-lang</groupId>
+        <artifactId>commons-lang</artifactId>
+        <version>${commons.lang-version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

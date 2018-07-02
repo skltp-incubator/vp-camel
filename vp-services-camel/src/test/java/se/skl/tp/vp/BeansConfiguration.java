@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import se.skl.tp.vp.certificate.*;
 import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
+import se.skl.tp.vp.errorhandling.ExceptionMessageProcessorImpl;
 import se.skl.tp.vp.httpheader.IPWhitelistHandler;
 import se.skl.tp.vp.httpheader.IPWhitelistHandlerImpl;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
@@ -42,6 +44,11 @@ public class BeansConfiguration
     public Pattern certificateSenderIDPattern() {
         return Pattern.compile(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CertificateExtractorProcessorImpl.CERT_SENDERID_PATTERN);
     }*/
+
+    @Bean
+    ExceptionMessageProcessor exceptionMessageProcessor() {
+        return new ExceptionMessageProcessorImpl();
+    }
 
     @Bean
     public SenderIpExtractor senderIpExtractor() {

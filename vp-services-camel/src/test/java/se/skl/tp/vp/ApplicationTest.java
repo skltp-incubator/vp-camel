@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @RunWith(CamelSpringBootRunner.class)
-@SpringBootTest(classes = Application.class)
+
 @EnableRouteCoverage
 public class ApplicationTest {
 

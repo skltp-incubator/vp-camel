@@ -11,4 +11,10 @@ public class VPExchangeProperties {
     public static final String WSDL_NAMESPACE = "wsdl_namespace";
     public static final String SERVICECONTRACT_NAMESPACE = "servicecontract_namespace";
 
+    public static final String SESSION_ERROR = "sessionStatus";
+    public static final String SESSION_ERROR_DESCRIPTION = "sessionErrorDescription";
+    public static final String SESSION_ERROR_TECHNICAL_DESCRIPTION = "sessionErrorTechnicalDescription";
+    public static final String SESSION_ERROR_CODE = "errorCode";
+    public static final String SESSION_HTML_STATUS = "statusCode";
+
 }

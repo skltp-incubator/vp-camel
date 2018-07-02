@@ -4,6 +4,7 @@ import org.apache.camel.Exchange;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
+import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
 public class VagvalProcessorMock implements VagvalProcessor {
@@ -17,12 +18,16 @@ public class VagvalProcessorMock implements VagvalProcessor {
                 case "1" : exchange.setProperty(VPExchangeProperties.VAGVAL, "http://localhost:8123/"); break;
                 case "2" : exchange.setProperty(VPExchangeProperties.VAGVAL, "http://localhost:8234/"); break;
                 default: exchange.setProperty("errorCode", VpSemanticErrorCodeEnum.VP004);
+                    throw new VpSemanticException("Inget vägval i VagvalProcessorMock", VpSemanticErrorCodeEnum.VP004);
+
             }
         }
         else if ("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1".equalsIgnoreCase(servicecontractNamespace)) {
             switch (receiverid) {
                 case "1" : exchange.setProperty(VPExchangeProperties.VAGVAL, "http://localhost:8345/"); break;
+                case "UnitTest" : exchange.setProperty(VPExchangeProperties.VAGVAL, "http://localhost:12123/vp"); break;
                 default: exchange.setProperty("errorCode", VpSemanticErrorCodeEnum.VP004);
+                    throw new VpSemanticException("Inget vägval i VagvalProcessorMock", VpSemanticErrorCodeEnum.VP004);
             }
         }
     }
