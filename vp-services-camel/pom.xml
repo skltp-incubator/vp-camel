@@ -107,6 +107,12 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
+    <dependency>
+      <groupId>se.skltp.hsa-cache</groupId>
+      <artifactId>hsa-cache</artifactId>
+      <version>1.0.2-SNAPSHOT</version>
+    </dependency>
+
   </dependencies>
 
   <!--<profiles>-->

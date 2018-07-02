@@ -10,6 +10,7 @@ import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
+import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
 import se.skl.tp.vp.vagval.BehorighetProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 
@@ -22,7 +23,10 @@ public class VPRouter extends RouteBuilder {
 
     public static final String VP_HTTP_ROUTE = "vp-http-route";
     public static final String VP_ROUTE = "vp-route";
+    public static final String RESET_HSA_CACHE_ROUTE = "reset-hsa-cache-route";
+
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}";
+    public static final String NETTY4_HTTP_FROM_RESET_CACHE = "netty4-http:{{vp.hsa.reset.cache.url}}";
     public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
     public static final String DIRECT_VP = "direct:vp";
     public static final String VP_HTTPS_ROUTE = "vp-https-route";
@@ -40,6 +44,9 @@ public class VPRouter extends RouteBuilder {
 
     @Autowired
     HttpHeaderExtractorProcessor httpHeaderExtractorProcessor;
+
+    @Autowired
+    ResetHsaCacheProcessor resetHsaCacheProcessor;
 
     @Autowired
     RequestReaderProcessor requestReaderProcessor;
@@ -64,6 +71,9 @@ public class VPRouter extends RouteBuilder {
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
                 .process(httpHeaderExtractorProcessor)
                 .to(DIRECT_VP);
+
+        from(NETTY4_HTTP_FROM_RESET_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
+                .process(resetHsaCacheProcessor);
 
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .streamCaching()
