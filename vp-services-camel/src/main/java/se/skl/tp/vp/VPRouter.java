@@ -57,7 +57,6 @@ public class VPRouter extends RouteBuilder {
 
         from(NETTY4_HTTP_FROM_RESET_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
                 .process(resetHsaCacheProcessor);
-                //.setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200));
 
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .process(requestReaderProcessor)
