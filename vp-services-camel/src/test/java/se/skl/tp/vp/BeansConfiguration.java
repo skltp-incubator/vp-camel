@@ -20,6 +20,8 @@ import se.skltp.takcache.TakCacheImpl;
 
 import java.util.regex.Pattern;
 
+import static se.skl.tp.vp.constants.ApplicationProperties.HSA_FILES;
+
 @Configuration
 @ComponentScan(basePackages = {"se.skltp.takcache", "se.skl.tp.hsa.cache"})
 public class BeansConfiguration
@@ -44,6 +46,13 @@ public class BeansConfiguration
         return new IPWhitelistHandlerImpl(environment);
     }
 
+    @Bean
+    public HsaCache hsaCache(){
+        String [] hsaFiles = environment.getProperty(HSA_FILES).split(",");
+        HsaCache hsaCache = new HsaCacheImpl();
+        hsaCache.init(hsaFiles);
+        return hsaCache;
+    }
 
     /*@Bean
     public Pattern certificateSenderIDPattern() {

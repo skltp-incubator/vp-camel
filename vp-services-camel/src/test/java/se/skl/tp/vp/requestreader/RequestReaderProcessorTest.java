@@ -10,12 +10,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 
 @RunWith( SpringJUnit4ClassRunner.class )
 @ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)
+@TestPropertySource("classpath:application.properties")
 public class RequestReaderProcessorTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")

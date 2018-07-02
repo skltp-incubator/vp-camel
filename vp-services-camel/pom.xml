@@ -103,7 +103,11 @@
       <version>${lmax_disruptor-version}</version>
     </dependency>
 
-
+    <dependency>
+      <groupId>se.skltp.hsa-cache</groupId>
+      <artifactId>hsa-cache</artifactId>
+      <version>1.0.2-SNAPSHOT</version>
+    </dependency>
 
   </dependencies>
 

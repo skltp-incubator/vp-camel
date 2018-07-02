@@ -23,8 +23,8 @@
         </RollingRandomAccessFile>
 
         <!--<RollingRandomAccessFile name="RollingRandomAccessFile_Monitoring"-->
-                                 <!--fileName="${sys:log.dir}/mule-app-vp-monitoring.log"-->
-                                 <!--filePattern="${sys:log.dir}/mule-app-vp-monitoring.log.%i">-->
+                                 <!--fileName="${sys:log.dir}/camel-app-vp-monitoring.log"-->
+                                 <!--filePattern="${sys:log.dir}/camel-app-vp-monitoring.log.%i">-->
             <!--<PatternLayout>-->
                 <!--<Pattern>${LOG_PATTERN}</Pattern>-->
             <!--</PatternLayout>-->
