@@ -12,6 +12,7 @@ import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
 import se.skl.tp.vp.vagval.BehorighetProcessor;
+import se.skl.tp.vp.vagval.ResetTakCacheProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 
 import java.net.SocketException;
@@ -22,15 +23,17 @@ import static org.apache.camel.builder.PredicateBuilder.or;
 public class VPRouter extends RouteBuilder {
 
     public static final String VP_HTTP_ROUTE = "vp-http-route";
+    public static final String VP_HTTPS_ROUTE = "vp-https-route";
     public static final String VP_ROUTE = "vp-route";
     public static final String RESET_HSA_CACHE_ROUTE = "reset-hsa-cache-route";
+    public static final String RESET_TAK_CACHE_ROUTE = "reset-tak-cache-route";
 
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}";
-    public static final String NETTY4_HTTP_FROM_RESET_CACHE = "netty4-http:{{vp.hsa.reset.cache.url}}";
-    public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
+    public static final String NETTY4_HTTP_FROM_RESET_HSA_CACHE = "netty4-http:{{vp.hsa.reset.cache.url}}";
+    public static final String NETTY4_HTTP_FROM_RESET_TAK_CACHE = "netty4-http:{{vp.reset.cache.url}}";
+        public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
     public static final String DIRECT_VP = "direct:vp";
-    public static final String VP_HTTPS_ROUTE = "vp-https-route";
-    public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true";
+        public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${exchange.getProperty('vagval')}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
 
     @Autowired
@@ -47,6 +50,9 @@ public class VPRouter extends RouteBuilder {
 
     @Autowired
     ResetHsaCacheProcessor resetHsaCacheProcessor;
+
+    @Autowired
+    ResetTakCacheProcessor resetTakCacheProcessor;
 
     @Autowired
     RequestReaderProcessor requestReaderProcessor;
@@ -71,9 +77,6 @@ public class VPRouter extends RouteBuilder {
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
                 .process(httpHeaderExtractorProcessor)
                 .to(DIRECT_VP);
-
-        from(NETTY4_HTTP_FROM_RESET_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
-                .process(resetHsaCacheProcessor);
 
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .streamCaching()
@@ -112,5 +115,13 @@ public class VPRouter extends RouteBuilder {
                 .process((Exchange exchange)-> {
                     log.debug("");
                 });
+
+        from(NETTY4_HTTP_FROM_RESET_TAK_CACHE).routeId(RESET_TAK_CACHE_ROUTE)
+                .process(resetHsaCacheProcessor);
+
+        from(NETTY4_HTTP_FROM_RESET_HSA_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
+                .process(resetTakCacheProcessor);
+
+
     }
 }

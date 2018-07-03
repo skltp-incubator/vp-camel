@@ -48,14 +48,6 @@ public class BeansConfiguration
         return new IPWhitelistHandlerImpl(environment);
     }
 
-//    @Bean
-//    public HsaCache hsaCache(){
-//        String [] hsaFiles = environment.getProperty(HSA_FILES).split(",");
-//        HsaCache hsaCache = new HsaCacheImpl();
-//        hsaCache.init(hsaFiles);
-//        return hsaCache;
-//    }
-
     /*@Bean
     public Pattern certificateSenderIDPattern() {
         return Pattern.compile(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CertificateExtractorProcessorImpl.CERT_SENDERID_PATTERN);
