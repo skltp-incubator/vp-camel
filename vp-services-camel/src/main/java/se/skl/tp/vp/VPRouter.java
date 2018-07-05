@@ -10,10 +10,12 @@ import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
+import se.skl.tp.vp.timeout.RequestTimoutProcessor;
 import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
 import se.skl.tp.vp.vagval.BehorighetProcessor;
 import se.skl.tp.vp.vagval.ResetTakCacheProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
+import se.skl.tp.vp.wsdl.WsdlProcessor;
 
 import java.net.SocketException;
 
@@ -28,12 +30,12 @@ public class VPRouter extends RouteBuilder {
     public static final String RESET_HSA_CACHE_ROUTE = "reset-hsa-cache-route";
     public static final String RESET_TAK_CACHE_ROUTE = "reset-tak-cache-route";
 
-    public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}";
+    public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?matchOnUriPrefix=true";
     public static final String NETTY4_HTTP_FROM_RESET_HSA_CACHE = "netty4-http:{{vp.hsa.reset.cache.url}}";
     public static final String NETTY4_HTTP_FROM_RESET_TAK_CACHE = "netty4-http:{{vp.reset.cache.url}}";
-        public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
+    public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
     public static final String DIRECT_VP = "direct:vp";
-        public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true";
+    public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${exchange.getProperty('vagval')}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
 
     @Autowired
@@ -63,6 +65,12 @@ public class VPRouter extends RouteBuilder {
     @Autowired
     CheckPayloadProcessor checkPayloadProcessor;
 
+    @Autowired
+    WsdlProcessor wsdlProcessor;
+
+    @Autowired
+    RequestTimoutProcessor requestTimoutProcessor;
+
     @Override
     public void configure() throws Exception {
 
@@ -71,18 +79,27 @@ public class VPRouter extends RouteBuilder {
                 .handled(true);
 
         from(NETTY4_HTTPS_INCOMING_FROM).routeId(VP_HTTPS_ROUTE)
-                .process(certificateExtractorProcessor)
-                .to(DIRECT_VP);
+                .choice().when(header("wsdl").isNotNull())
+                    .process(wsdlProcessor)
+                .otherwise()
+                    .process(certificateExtractorProcessor)
+                    .to(DIRECT_VP)
+                .end();
 
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
-                .process(httpHeaderExtractorProcessor)
-                .to(DIRECT_VP);
+                .choice().when(header("wsdl").isNotNull())
+                    .process(wsdlProcessor)
+                .otherwise()
+                    .process(httpHeaderExtractorProcessor)
+                    .to(DIRECT_VP)
+                .end();
 
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .streamCaching()
                 .process(requestReaderProcessor)
                 .process(vagvalProcessor)
                 .process(behorighetProcessor)
+                .process(requestTimoutProcessor)
                 .doTry()
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
@@ -93,13 +110,6 @@ public class VPRouter extends RouteBuilder {
                 .endDoTry()
                 .doCatch(SocketException.class)
                 .end()
-                /*.choice().when(exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNotNull())
-                    .process((Exchange exchange)-> {
-                        log.debug("");
-                    })
-                    .setProperty(VPExchangeProperties.EXCEPTION_ON_PRODUCER_CALL, constant(true))
-                    //.removeProperty(Exchange.EXCEPTION_CAUGHT)
-                .end()*/
                 .choice()
                     .when(exchangeProperty(VPExchangeProperties.SESSION_ERROR))
                         .log("Do Nothing")
@@ -111,17 +121,13 @@ public class VPRouter extends RouteBuilder {
                             .endChoice()
                         .end()
                     .endChoice()
-                .end()
-                .process((Exchange exchange)-> {
-                    log.debug("");
-                });
+                .end();
 
         from(NETTY4_HTTP_FROM_RESET_TAK_CACHE).routeId(RESET_TAK_CACHE_ROUTE)
                 .process(resetHsaCacheProcessor);
 
         from(NETTY4_HTTP_FROM_RESET_HSA_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
                 .process(resetTakCacheProcessor);
-
 
     }
 }
