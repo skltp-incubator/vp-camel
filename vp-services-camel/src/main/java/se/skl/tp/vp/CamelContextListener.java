@@ -8,11 +8,11 @@ import se.skl.tp.hsa.cache.HsaCache;
 
 import static se.skl.tp.vp.constants.ApplicationProperties.HSA_FILES;
 
-public class ContextListener implements StartupListener {
+public class CamelContextListener implements StartupListener {
     private final Environment env;
     private final HsaCache hsaCache;
 
-    public ContextListener(@Autowired Environment env, @Autowired HsaCache hsaCache) {
+    public CamelContextListener(@Autowired Environment env, @Autowired HsaCache hsaCache) {
         this.env = env;
         this.hsaCache = hsaCache;
     }
