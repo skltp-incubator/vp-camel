@@ -19,9 +19,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.Application;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
-import se.skl.tp.vp.errorhandling.SoapFaultHelper;
-import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
@@ -29,7 +26,6 @@ import se.skltp.takcache.TakCache;
 import java.util.ArrayList;
 import java.util.List;
 
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 @RunWith( SpringJUnit4ClassRunner.class )
@@ -39,7 +35,6 @@ import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 @DirtiesContext
 public class ProducerTimeoutTest extends CamelTestSupport {
 
-    public static final String EXCEPTION_MESSAGE = "Fel fel fel";
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -49,15 +44,15 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     @Autowired
     SenderIpExtractor senderIpExtractor;
 
-    @Autowired
-    ExceptionMessageProcessor exceptionMessageProcessor;
-
     @MockBean
     TakCache takCache;
 
+    @MockBean
+    TimeoutConfiguration timeoutConfiguration;
+
     @Test
-    public void errorInResponseTest() throws Exception {
-        String expectedBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n" +
+    public void timeoutInResponseTest() throws Exception {
+        String requestBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n" +
                 "   <soapenv:Header>\n" +
                 "      <add:To>UnitTest</add:To>\n" +
                 "   </soapenv:Header>\n" +
@@ -74,10 +69,15 @@ public class ProducerTimeoutTest extends CamelTestSupport {
         list.add(new RoutingInfo("http://localhost:12123/vp",RIV20));
         Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
         Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
+        TimeoutConfig timeoutConfig = new TimeoutConfig();
+        timeoutConfig.setProducertimeout(500);
+        Mockito.when(timeoutConfiguration.getOnTjanstekontrakt("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1")).thenReturn(timeoutConfig);
 
-        resultEndpoint.expectedBodiesReceived(SoapFaultHelper.generateSoap11FaultWithCause(EXCEPTION_MESSAGE));
+        template.sendBody(requestBody);
 
-        template.sendBody(expectedBody);
+        resultEndpoint.expectedHeaderReceived("http.status", 500);
+        String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
+        assertStringContains(resultBody , "Timeout");
         resultEndpoint.assertIsSatisfied();
     }
 
@@ -95,8 +95,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
                 from("netty4-http:http://localhost:12123/vp")
                         .process((Exchange exchange)-> {
                             Thread.sleep(1000);
-                        })
-                        .process(exceptionMessageProcessor);
+                        });
             }
         };
     }

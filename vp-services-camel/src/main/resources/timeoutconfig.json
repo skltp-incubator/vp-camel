@@ -1,9 +1,9 @@
 [
   {
-    "tjanstekontrakt": "default",
+    "tjanstekontrakt": "default_timeouts",
     "routetimeout": 30000,
     "producertimeout": 29000
-  },
+  }
   {
     "tjanstekontrakt": "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1",
     "routetimeout": 30000,

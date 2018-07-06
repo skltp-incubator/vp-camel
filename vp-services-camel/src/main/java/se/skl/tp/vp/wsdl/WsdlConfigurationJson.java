@@ -2,6 +2,8 @@ package se.skl.tp.vp.wsdl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -17,6 +19,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,13 +28,20 @@ import java.util.stream.Stream;
 @Service
 public class WsdlConfigurationJson implements WsdlConfiguration {
 
+    private static Logger LOGGER = LogManager.getLogger(WsdlConfigurationJson.class);
+
     private List<WsdlConfig> wsdlConfigs;
     private HashMap<String, WsdlConfig> mapOnTjanstekontrakt;
     private HashMap<String, WsdlConfig> mapOnWsdlUrl;
 
     public WsdlConfigurationJson(Environment env) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        wsdlConfigs = objectMapper.readValue(new File(env.getProperty(ApplicationProperties.WSDL_JSON_FILE)), new TypeReference<List<WsdlConfig>>(){});
+        try {
+            wsdlConfigs = objectMapper.readValue(new File(env.getProperty(ApplicationProperties.WSDL_JSON_FILE)), new TypeReference<List<WsdlConfig>>(){});
+        } catch(FileNotFoundException e) {
+            wsdlConfigs = new ArrayList<>();
+            LOGGER.warn("Json file for wsdlconfiguration not found at "+ env.getProperty(ApplicationProperties.WSDL_JSON_FILE) +", unless wsdl paths are generated from base wsdl directory no wsdls are available.");
+        }
 
         createConfigurationFromWsdlFiles(env.getProperty(ApplicationProperties.WSDLFILES_DIRECTORY));
         initMaps();
@@ -50,7 +60,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
         try (Stream<Path> paths = Files.walk(Paths.get(wsdlDirectory))) {
             paths.filter(Files::isRegularFile).forEach(file -> createConfigFromWsdlFile(file));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Problem when trying to read wsdl files in " + wsdlDirectory +". No wsdl paths are automatically genereted.", e);
         }
     }
 
@@ -108,15 +118,10 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
                 } else if(attribute.toLowerCase().contains("responder")) {
                     wsdlInfo.setServiceContractName(attribute);
                 }
-                System.out.println();
             }
 
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
+        } catch (IOException | SAXException | ParserConfigurationException e) {
+            LOGGER.error("Error when trying to parse wsdl file " + file.toString(), e);
         }
         return wsdlInfo;
     }

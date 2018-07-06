@@ -1,5 +1,6 @@
 package se.skl.tp.vp.errorhandling;
 
+import io.netty.handler.timeout.ReadTimeoutException;
 import org.apache.camel.Exchange;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,6 +48,9 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
 
                 Throwable throwable = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
                 String message = throwable.getMessage();
+                if(throwable instanceof ReadTimeoutException){
+                    message = "Timeout when waitning on response from producer.";
+                }
 
                 LOGGER.debug("Exception Caught by Camel when contacting producer. Exception information: " + left(message, 200) + "...");
                 cause = get(VpSemanticErrorCodeEnum.VP009 , addr + ". Exception Caught by Camel when contacting producer. Exception information: " + message);
@@ -61,14 +65,6 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
             LOGGER.error("An error occured in CheckPayloadTransformer!.", e);
         }
     }
-
-    /*private void logException(MuleMessage message, Throwable t) {
-        SessionInfo extraInfo = new SessionInfo();
-        extraInfo.addSessionInfo(message);
-        extraInfo.addSource(getClass().getName());
-        eventLogger.setContext(super.muleContext);
-        eventLogger.logErrorEvent(t, message, null, extraInfo);
-    }*/
 
     private String left(String s, int len) {
         if(s == null)

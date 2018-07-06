@@ -1,5 +1,6 @@
 package se.skl.tp.vp;
 
+import io.netty.handler.timeout.ReadTimeoutException;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +109,7 @@ public class VPRouter extends RouteBuilder {
                             .toD(NETTY4_HTTP_TOD)
                     .endChoice()
                 .endDoTry()
-                .doCatch(SocketException.class)
+                .doCatch(SocketException.class, ReadTimeoutException.class)
                 .end()
                 .choice()
                     .when(exchangeProperty(VPExchangeProperties.SESSION_ERROR))
