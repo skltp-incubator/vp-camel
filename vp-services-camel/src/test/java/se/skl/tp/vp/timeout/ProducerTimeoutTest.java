@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,7 +29,7 @@ import java.util.List;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 @RunWith( CamelSpringBootRunner.class )
-@ContextConfiguration(classes = TestBeanConfiguration.class)
+@SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext
 public class ProducerTimeoutTest extends CamelTestSupport {
