@@ -5,6 +5,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +22,8 @@ import se.skl.tp.vp.Application;
 import static org.mockito.ArgumentMatchers.any;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class)
-@DirtiesContext
+@RunWith( CamelSpringBootRunner.class )
+@SpringBootTest(classes = VagvalTestConfiguration.class)
 public class ResetHsaCacheProcessorTest extends CamelTestSupport {
     @Autowired
     ResetHsaCacheProcessor processor;

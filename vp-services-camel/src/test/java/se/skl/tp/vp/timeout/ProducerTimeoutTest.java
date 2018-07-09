@@ -7,19 +7,18 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import se.skl.tp.vp.Application;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
+import se.skl.tp.vp.inneTest.TestBeanConfiguration;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
@@ -28,9 +27,8 @@ import java.util.List;
 
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@SpringBootTest(classes = Application.class)
-@ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)
+@RunWith( CamelSpringBootRunner.class )
+@ContextConfiguration(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext
 public class ProducerTimeoutTest extends CamelTestSupport {

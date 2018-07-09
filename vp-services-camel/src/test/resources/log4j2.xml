@@ -11,6 +11,7 @@
     </Appenders>
     <Loggers>
         <AsyncLogger name="se.skl.tp.vp" level="INFO"/>
+        <AsyncLogger name="org.springframework.test.context.cache" level="debug"/>
 
         <AsyncRoot level="info">
             <AppenderRef ref="Console"/>

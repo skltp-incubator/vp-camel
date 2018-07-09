@@ -1,10 +1,11 @@
-package se.skl.tp.vp.certificate;
+package se.skl.tp.vp.inneTest.certificate;
 
 import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.apache.camel.util.jsse.KeyManagersParameters;
 import org.apache.camel.util.jsse.KeyStoreParameters;
 import org.apache.camel.util.jsse.SSLContextParameters;
@@ -12,15 +13,18 @@ import org.apache.camel.util.jsse.TrustManagersParameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.inneTest.TestBeanConfiguration;
 
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)
+@RunWith( CamelSpringBootRunner.class )
+@SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 public class CertificateReaderTest extends CamelTestSupport {
 

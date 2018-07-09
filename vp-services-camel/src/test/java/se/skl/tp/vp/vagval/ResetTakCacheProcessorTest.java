@@ -5,6 +5,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,9 +25,8 @@ import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class)
-@DirtiesContext
+@RunWith( CamelSpringBootRunner.class )
+@SpringBootTest(classes = VagvalTestConfiguration.class)
 public class ResetTakCacheProcessorTest extends CamelTestSupport {
     @Autowired
     private ResetTakCacheProcessor processor;

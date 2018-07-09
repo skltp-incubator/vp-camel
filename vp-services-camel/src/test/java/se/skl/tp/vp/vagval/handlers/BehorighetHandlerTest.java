@@ -1,5 +1,6 @@
 package se.skl.tp.vp.vagval.handlers;
 
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.hsa.cache.HsaCache;
 import se.skl.tp.vp.Application;
 import se.skl.tp.vp.logging.ThreadContextLogTrace;
+import se.skl.tp.vp.vagval.VagvalTestConfiguration;
 import se.skltp.takcache.TakCache;
 
 import java.net.URL;
@@ -25,8 +27,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@SpringBootTest(classes = Application.class)
+@RunWith( CamelSpringBootRunner.class )
+@SpringBootTest(classes = VagvalTestConfiguration.class)
 public class BehorighetHandlerTest {
 
     @Value("${vagvalrouter.default.routing.address.delimiter}")

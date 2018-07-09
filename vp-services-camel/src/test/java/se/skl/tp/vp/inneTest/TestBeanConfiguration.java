@@ -1,14 +1,13 @@
-package se.skl.tp.vp;
+package se.skl.tp.vp.inneTest;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import se.skl.tp.hsa.cache.HsaCache;
-import se.skl.tp.hsa.cache.HsaCacheImpl;
-import se.skl.tp.vp.certificate.*;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
+import se.skl.tp.vp.certificate.CertificateExtractorProcessorImpl;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessorImpl;
 import se.skl.tp.vp.httpheader.IPWhitelistHandler;
@@ -17,29 +16,23 @@ import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.httpheader.SenderIpExtractorFromHeader;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
-import se.skltp.takcache.TakCache;
-import se.skltp.takcache.TakCacheImpl;
 
-import java.util.regex.Pattern;
 
-import static se.skl.tp.vp.constants.ApplicationProperties.HSA_FILES;
+import javax.annotation.PostConstruct;
 
-@Configuration
+@TestConfiguration
 @ComponentScan(basePackages = {"se.skltp.takcache", "se.skl.tp.hsa.cache"})
-public class BeansConfiguration
-{
+public class TestBeanConfiguration {
     @Autowired
     private Environment environment;
 
     @Bean(name = "requestReaderProcessor")
-    public RequestReaderProcessor requestReaderProcessor()
-    {
+    public RequestReaderProcessor requestReaderProcessor() {
         return new RequestReaderProcessorXMLEventReader();
     }
 
     @Bean(name = "certificateExtractorProcessor")
-    public CertificateExtractorProcessor certificateExtractorProcessor()
-    {
+    public CertificateExtractorProcessor certificateExtractorProcessor() {
         return new CertificateExtractorProcessorImpl(environment);
     }
 
@@ -63,3 +56,4 @@ public class BeansConfiguration
         return new SenderIpExtractorFromHeader(environment);
     }
 }
+

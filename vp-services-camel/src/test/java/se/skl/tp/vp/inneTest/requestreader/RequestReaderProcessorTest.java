@@ -1,4 +1,4 @@
-package se.skl.tp.vp.requestreader;
+package se.skl.tp.vp.inneTest.requestreader;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
@@ -6,6 +6,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.inneTest.TestBeanConfiguration;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
+import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@ContextConfiguration(classes = se.skl.tp.vp.BeansConfiguration.class)
+@RunWith( CamelSpringBootRunner.class )
+@ContextConfiguration(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 public class RequestReaderProcessorTest extends CamelTestSupport {
 

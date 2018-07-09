@@ -4,6 +4,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,9 +31,8 @@ import static org.junit.Assert.fail;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.*;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 
-@RunWith( SpringJUnit4ClassRunner.class )
-@SpringBootTest(classes = Application.class)
-@DirtiesContext
+@RunWith( CamelSpringBootRunner.class )
+@SpringBootTest(classes = VagvalTestConfiguration.class)
 public class VagvalProcessorTest {
     @Autowired
     VagvalProcessor vagvalProcessor;

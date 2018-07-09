@@ -1,10 +1,11 @@
-package se.skl.tp.vp.certificate;
+package se.skl.tp.vp.inneTest.certificate;
 
 import io.undertow.util.FileUtils;
 import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.X509Principal;
 import org.junit.Test;
+import se.skl.tp.vp.certificate.PemConverter;
 
 import java.net.URL;
 import java.security.cert.CertificateException;
