@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -34,16 +34,18 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     private HashMap<String, WsdlConfig> mapOnTjanstekontrakt;
     private HashMap<String, WsdlConfig> mapOnWsdlUrl;
 
-    public WsdlConfigurationJson(Environment env) throws IOException {
+    public WsdlConfigurationJson(@Value("${" + ApplicationProperties.WSDL_JSON_FILE + "}") String wsdl_json_file,
+                                 @Value("${" + ApplicationProperties.WSDLFILES_DIRECTORY + "}") String wsdlfiles_directory) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            wsdlConfigs = objectMapper.readValue(new File(env.getProperty(ApplicationProperties.WSDL_JSON_FILE)), new TypeReference<List<WsdlConfig>>(){});
-        } catch(FileNotFoundException e) {
+            wsdlConfigs = objectMapper.readValue(new File(wsdl_json_file), new TypeReference<List<WsdlConfig>>() {
+            });
+        } catch (FileNotFoundException e) {
             wsdlConfigs = new ArrayList<>();
-            LOGGER.warn("Json file for wsdlconfiguration not found at "+ env.getProperty(ApplicationProperties.WSDL_JSON_FILE) +", unless wsdl paths are generated from base wsdl directory no wsdls are available.");
+            LOGGER.warn("Json file for wsdlconfiguration not found at " + wsdl_json_file + ", unless wsdl paths are generated from base wsdl directory no wsdls are available.");
         }
 
-        createConfigurationFromWsdlFiles(env.getProperty(ApplicationProperties.WSDLFILES_DIRECTORY));
+        createConfigurationFromWsdlFiles(wsdlfiles_directory);
         initMaps();
     }
 
@@ -60,7 +62,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
         try (Stream<Path> paths = Files.walk(Paths.get(wsdlDirectory))) {
             paths.filter(Files::isRegularFile).forEach(file -> createConfigFromWsdlFile(file));
         } catch (IOException e) {
-            LOGGER.warn("Problem when trying to read wsdl files in " + wsdlDirectory +". No wsdl paths are automatically genereted.", e);
+            LOGGER.warn("Problem when trying to read wsdl files in " + wsdlDirectory + ". No wsdl paths are automatically genereted.", e);
         }
     }
 
@@ -68,29 +70,31 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
         WsdlInfo wsdlInfo = getWsdlInfoFromFile(file);
         String serviceInteractionNameSpace = wsdlInfo.getServiceInteractionNameSpace();
 
-        if(serviceInteractionNameSpace != null) {
+        if (serviceInteractionNameSpace != null) {
             String[] serviceNameSpaceArray = serviceInteractionNameSpace.split(":");
             String maindomain = serviceNameSpaceArray[2];
 
-            int serviceNameSpaceSize=serviceNameSpaceArray.length-1;
+            int serviceNameSpaceSize = serviceNameSpaceArray.length - 1;
             String rivtaVersion = serviceNameSpaceArray[serviceNameSpaceSize];
-            String serviceVersion = serviceNameSpaceArray[serviceNameSpaceSize-1];
-            String serviceName = serviceNameSpaceArray[serviceNameSpaceSize-2];
-            String subdomain=serviceNameSpaceArray[3];
+            String serviceVersion = serviceNameSpaceArray[serviceNameSpaceSize - 1];
+            String serviceName = serviceNameSpaceArray[serviceNameSpaceSize - 2];
 
-            int i= serviceNameSpaceSize-3;
+            StringBuilder subdomainBuilder = new StringBuilder();
+            subdomainBuilder.append(serviceNameSpaceArray[3]);
+            int i = serviceNameSpaceSize - 3;
             for (int y = 4; i >= y; y++) {
-                subdomain = subdomain + ":" + serviceNameSpaceArray[y];
+                subdomainBuilder.append(":").append(serviceNameSpaceArray[y]);
             }
+            String subdomain = subdomainBuilder.toString();
 
             String subdomainAdress = subdomain.replaceAll(":", "/");
             String serviceRelativePath = serviceName + "/" + serviceVersion + "/" + rivtaVersion;
 
-            String wsdlurl = "vp/" + maindomain +"/" + subdomainAdress + "/" + serviceRelativePath;
+            String wsdlurl = "vp/" + maindomain + "/" + subdomainAdress + "/" + serviceRelativePath;
             String wsdlPath = file.toString();
             String tjanstekontrakt = wsdlInfo.getServiceContractName();
 
-            if(wsdlConfigs != null && !wsdlConfigs.contains(tjanstekontrakt)) {
+            if (!tjantekontraktHasConfig(tjanstekontrakt)) {
                 WsdlConfig wsdlConfig = new WsdlConfig();
                 wsdlConfig.setWsdlurl(wsdlurl);
                 wsdlConfig.setWsdlfilepath(wsdlPath);
@@ -100,10 +104,18 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
         }
     }
 
+    private boolean tjantekontraktHasConfig(String tjanstekontrakt) {
+        for (WsdlConfig wsdlConfig : wsdlConfigs) {
+            if(wsdlConfig.getTjanstekontrakt().equalsIgnoreCase(tjanstekontrakt)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private WsdlInfo getWsdlInfoFromFile(Path file) {
         WsdlInfo wsdlInfo = new WsdlInfo();
-        try {
-            InputStream is = new FileInputStream(file.toFile());
+        try (InputStream is = new FileInputStream(file.toFile())){
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -111,11 +123,11 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
             Node node = document.getDocumentElement();
 
             NamedNodeMap attributes = node.getAttributes();
-            for(int i = 0; i < attributes.getLength(); i++) {
+            for (int i = 0; i < attributes.getLength(); i++) {
                 String attribute = attributes.item(i).getNodeValue();
-                if(attribute.toLowerCase().contains("rivtabp")) {
+                if (attribute.toLowerCase().contains("rivtabp")) {
                     wsdlInfo.setServiceInteractionNameSpace(attribute);
-                } else if(attribute.toLowerCase().contains("responder")) {
+                } else if (attribute.toLowerCase().contains("responder")) {
                     wsdlInfo.setServiceContractName(attribute);
                 }
             }

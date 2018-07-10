@@ -22,14 +22,14 @@ public class WsdlProcessorImpl implements WsdlProcessor {
     public void process(Exchange exchange) throws Exception {
         String callURL = exchange.getIn().getHeader(Exchange.HTTP_URI, String.class);
         WsdlConfig wsdlConfig = wsdlConfiguration.getOnWsdlUrl(callURL);
-        if(wsdlConfig != null) {
+        if (wsdlConfig != null) {
             Path path = Paths.get(wsdlConfig.getWsdlfilepath());
             String stringFromFile = java.nio.file.Files.lines(path).collect(Collectors.joining());
             exchange.getOut().setBody(stringFromFile);
         } else {
             StringBuilder builder = new StringBuilder();
             builder.append("No wsdl found on this path, try any of the following paths:");
-            for (String url: wsdlConfiguration.getAllWsdlUrl()) {
+            for (String url : wsdlConfiguration.getAllWsdlUrl()) {
                 builder.append(System.lineSeparator());
                 builder.append(url);
             }

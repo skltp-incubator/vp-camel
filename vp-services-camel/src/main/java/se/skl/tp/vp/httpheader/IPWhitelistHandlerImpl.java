@@ -4,6 +4,7 @@ import org.apache.camel.component.netty4.NettyConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.ApplicationProperties;
@@ -16,9 +17,7 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
     private String [] whiteListArray;
 
     @Autowired
-    public IPWhitelistHandlerImpl(Environment env) {
-        String whitelistString = env.getProperty(ApplicationProperties.IP_WHITELIST);
-
+    public IPWhitelistHandlerImpl(@Value("${" + ApplicationProperties.IP_WHITELIST + "}") String whitelistString) {
         if(whitelistString != null && !whitelistString.isEmpty()) {
             whiteListArray = whitelistString.split(",");
         }

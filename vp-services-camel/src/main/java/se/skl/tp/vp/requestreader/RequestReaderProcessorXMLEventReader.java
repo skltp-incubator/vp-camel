@@ -2,7 +2,6 @@ package se.skl.tp.vp.requestreader;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.http.NettyChannelBufferStreamCache;
-import org.apache.camel.spi.InterceptStrategy;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
@@ -25,7 +24,6 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        List<InterceptStrategy> interceptStrategies = exchange.getContext().getInterceptStrategies();
         NettyChannelBufferStreamCache body = (NettyChannelBufferStreamCache)exchange.getIn().getBody();
         XMLInputFactory inputFactory = XMLInputFactory.newInstance();
         XMLEventReader eventReader = null;

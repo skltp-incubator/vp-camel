@@ -3,7 +3,6 @@ package se.skl.tp.vp.timeout;
 import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.ApplicationProperties;
 import se.skl.tp.vp.constants.VPExchangeProperties;
@@ -17,9 +16,10 @@ public class RequestTimoutProcessorImpl implements RequestTimoutProcessor {
     private final String DEFAULT_TJANSTEKONTRAKT;
 
     @Autowired
-    public RequestTimoutProcessorImpl(TimeoutConfiguration timeoutConfiguration, Environment env) {
+    public RequestTimoutProcessorImpl(TimeoutConfiguration timeoutConfiguration,
+                                      @Value("${" + ApplicationProperties.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String default_tjanstekontrakt) {
         this.timeoutConfiguration = timeoutConfiguration;
-        DEFAULT_TJANSTEKONTRAKT = env.getProperty(ApplicationProperties.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME);
+        this.DEFAULT_TJANSTEKONTRAKT = default_tjanstekontrakt;
     }
 
     @Override

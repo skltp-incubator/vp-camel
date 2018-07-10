@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessorImpl;
+import se.skl.tp.vp.constants.ApplicationProperties;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessorImpl;
 import se.skl.tp.vp.httpheader.IPWhitelistHandler;
@@ -33,12 +34,12 @@ public class TestBeanConfiguration {
 
     @Bean(name = "certificateExtractorProcessor")
     public CertificateExtractorProcessor certificateExtractorProcessor() {
-        return new CertificateExtractorProcessorImpl(environment);
+        return new CertificateExtractorProcessorImpl(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT));
     }
 
     @Bean
     public IPWhitelistHandler ipWhitelistHandler() {
-        return new IPWhitelistHandlerImpl(environment);
+        return new IPWhitelistHandlerImpl(environment.getProperty(ApplicationProperties.IP_WHITELIST));
     }
 
     /*@Bean
@@ -53,7 +54,7 @@ public class TestBeanConfiguration {
 
     @Bean
     public SenderIpExtractor senderIpExtractor() {
-        return new SenderIpExtractorFromHeader(environment);
+        return new SenderIpExtractorFromHeader(environment.getProperty(ApplicationProperties.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER));
     }
 }
 

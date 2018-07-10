@@ -3,6 +3,7 @@ package se.skl.tp.vp.certificate;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.NettyConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.ApplicationProperties;
@@ -24,8 +25,8 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
     private Pattern certificateSenderIDPattern;
 
     @Autowired
-    public CertificateExtractorProcessorImpl(Environment env) {
-        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+VPConstants.CERT_SENDERID_PATTERN);
+    public CertificateExtractorProcessorImpl(@Value("${" + ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT + "}") String certificate_senderid_subject) {
+        certificateSenderIDPattern = Pattern.compile(certificate_senderid_subject+VPConstants.CERT_SENDERID_PATTERN);
     }
 
     @Override
