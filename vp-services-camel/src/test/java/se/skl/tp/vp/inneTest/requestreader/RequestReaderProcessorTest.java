@@ -17,6 +17,7 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.inneTest.TestBeanConfiguration;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
+import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 @RunWith( CamelSpringBootRunner.class )
 @ContextConfiguration(classes = TestBeanConfiguration.class)
@@ -34,25 +35,12 @@ public class RequestReaderProcessorTest extends CamelTestSupport {
 
     @Test
     public void testSendRivta20Message() throws Exception {
-        String expectedBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n" +
-                "   <soapenv:Header>\n" +
-                "      <add:To>1</add:To>\n" +
-                "   </soapenv:Header>\n" +
-                "   <soapenv:Body>\n" +
-                "      <urn:GetCertificateRequest>\n" +
-                "         <urn:certificateId>?</urn:certificateId>\n" +
-                "         <urn:nationalIdentityNumber>?</urn:nationalIdentityNumber>\n" +
-                "         <!--You may enter ANY elements at this point-->\n" +
-                "      </urn:GetCertificateRequest>\n" +
-                "   </soapenv:Body>\n" +
-                "</soapenv:Envelope>";
-
-        resultEndpoint.expectedBodiesReceived(expectedBody);
+        resultEndpoint.expectedBodiesReceived(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
         resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RECEIVER_ID, "1");
         resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RIV_VERSION, RequestReaderProcessorXMLEventReader.RIVTABP_20);
         resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
 
-        template.sendBody(expectedBody);
+        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
         resultEndpoint.assertIsSatisfied();
     }
 

@@ -19,9 +19,13 @@ public class IPWhitelistHandlerTest {
     @Autowired
     IPWhitelistHandler ipWhitelistHandler;
 
+    @Autowired
+    IPWhitelistHandler emptyIpWhitelistHandler;
+
     @Test
     public void ipInWhitelistTest() {
 
+        Assert.assertTrue(ipWhitelistHandler.isCallerOnWhiteList("1.2.3.4"));
         Assert.assertTrue(ipWhitelistHandler.isCallerOnWhiteList("5.6.7.8"));
     }
 
@@ -34,14 +38,13 @@ public class IPWhitelistHandlerTest {
     @Test
     public void whitelistMissingTest() {
 
-        Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.1"));
+        Assert.assertFalse(emptyIpWhitelistHandler.isCallerOnWhiteList("1.2.3.4"));
     }
 
-    /*@Test
+    @Test
     public void senderIDNullTest() {
-        IPWhitelistHandler ipWhitelistHandler = new IPWhitelistHandlerImpl(env);
         Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList(null));
-    }*/
+    }
 
     @Test
     public void senderIDEmptyTest() {

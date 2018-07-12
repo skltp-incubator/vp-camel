@@ -43,13 +43,13 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
             if (strPayload == null || strPayload.length() == 0 || strPayload.equals(nullPayload)) {
 
                 LOGGER.debug("Found return message with length 0, replace with SoapFault because CXF doesn't like the empty string");
-                cause = get(VpSemanticErrorCodeEnum.VP009, addr + ". Server responded with status code: " + SoapFaultHelper.getStatusMessage(status_in, "NULL"));
+                cause = get(VpSemanticErrorCodeEnum.VP009, addr + ". Empty message when server responded with status code: " + SoapFaultHelper.getStatusMessage(status_in, "NULL"));
             } else if(exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
 
                 Throwable throwable = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
                 String message = throwable.getMessage();
                 if(throwable instanceof ReadTimeoutException){
-                    message = "Timeout when waitning on response from producer.";
+                    message = "Timeout when waiting on response from producer.";
                 }
 
                 LOGGER.debug("Exception Caught by Camel when contacting producer. Exception information: " + left(message, 200) + "...");

@@ -20,7 +20,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.inneTest.TestBeanConfiguration;
+import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 
 @RunWith( CamelSpringBootRunner.class )
@@ -42,23 +44,10 @@ public class CertificateReaderTest extends CamelTestSupport {
 
     @Test
     public void testSendRivta20MessageHttps() throws Exception {
-        String expectedBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n" +
-                "   <soapenv:Header>\n" +
-                "      <add:To>1</add:To>\n" +
-                "   </soapenv:Header>\n" +
-                "   <soapenv:Body>\n" +
-                "      <urn:GetCertificateRequest>\n" +
-                "         <urn:certificateId>?</urn:certificateId>\n" +
-                "         <urn:nationalIdentityNumber>?</urn:nationalIdentityNumber>\n" +
-                "         <!--You may enter ANY elements at this point-->\n" +
-                "      </urn:GetCertificateRequest>\n" +
-                "   </soapenv:Body>\n" +
-                "</soapenv:Envelope>";
+        resultEndpoint.expectedBodiesReceived(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SENDER_ID, "tp");
 
-        resultEndpoint.expectedBodiesReceived(expectedBody);
-        resultEndpoint.expectedPropertyReceived("senderid", "tp");
-
-        template.sendBody(expectedBody);
+        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
         resultEndpoint.assertIsSatisfied();
     }
 

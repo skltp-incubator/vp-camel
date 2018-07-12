@@ -12,14 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import se.skl.tp.vp.Application;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.inneTest.TestBeanConfiguration;
+import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
@@ -35,7 +33,8 @@ import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 @DirtiesContext
 public class ErrorInResponseTest extends CamelTestSupport {
 
-    public static final String EXCEPTION_MESSAGE = "Fel fel fel";
+    public static final String REMOTE_EXCEPTION_MESSAGE = "Fel fel fel";
+
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -51,30 +50,65 @@ public class ErrorInResponseTest extends CamelTestSupport {
     @MockBean
     TakCache takCache;
 
-    @Test
+    @Test //Test för när ett SOAP-fault kommer från Producenten
     public void errorInResponseTest() throws Exception {
-        String expectedBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n" +
-                "   <soapenv:Header>\n" +
-                "      <add:To>UnitTest</add:To>\n" +
-                "   </soapenv:Header>\n" +
-                "   <soapenv:Body>\n" +
-                "      <urn:GetCertificateRequest>\n" +
-                "         <urn:certificateId>?</urn:certificateId>\n" +
-                "         <urn:nationalIdentityNumber>?</urn:nationalIdentityNumber>\n" +
-                "         <!--You may enter ANY elements at this point-->\n" +
-                "      </urn:GetCertificateRequest>\n" +
-                "   </soapenv:Body>\n" +
-                "</soapenv:Envelope>";
-
         List<RoutingInfo> list = new ArrayList<>();
         list.add(new RoutingInfo("http://localhost:12123/vp",RIV20));
+        mockRoutingAndAuthorized(list);
+
+        resultEndpoint.expectedBodiesReceived(SoapFaultHelper.generateSoap11FaultWithCause(
+            REMOTE_EXCEPTION_MESSAGE));
+
+        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        resultEndpoint.assertIsSatisfied();
+    }
+
+    @Test //Test för när en Producent inte går att nå
+    public void noProducerOnURLResponseTest() throws Exception {
+        List<RoutingInfo> list = new ArrayList<>();
+        String address = "http://localhost:12100/vp";
+        list.add(new RoutingInfo(address,RIV20));
+        mockRoutingAndAuthorized(list);
+
+        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
+        assertStringContains(resultBody , "VP009");
+        assertStringContains(resultBody , "address");
+        assertStringContains(resultBody , "Exception Caught by Camel when contacting producer.");
+        resultEndpoint.assertIsSatisfied();
+    }
+
+    @Test //Test för när en Producent svara med ett tomt svar
+    public void emptyResponseTest() throws Exception {
+        List<RoutingInfo> list = new ArrayList<>();
+        String address = "http://localhost:12124/vp";
+        list.add(new RoutingInfo(address,RIV20));
+        mockRoutingAndAuthorized(list);
+
+        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
+        assertStringContains(resultBody , "VP009");
+        assertStringContains(resultBody , "address");
+        assertStringContains(resultBody , "Empty message when server responded with status code:");
+        resultEndpoint.assertIsSatisfied();
+    }
+
+    @Test //Test för när en Producent svarar med annat än SOAP tex ett exception, kontrolleras inte av VP
+    public void nonSOAPResponseTest() throws Exception {
+        List<RoutingInfo> list = new ArrayList<>();
+        String address = "http://localhost:12125/vp";
+        list.add(new RoutingInfo(address,RIV20));
+        mockRoutingAndAuthorized(list);
+
+        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
+        assertStringContains(resultBody , "java.lang.NullPointerException");
+        resultEndpoint.assertIsSatisfied();
+    }
+
+    private void mockRoutingAndAuthorized(List<RoutingInfo> list) {
         Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
         Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
-
-        resultEndpoint.expectedBodiesReceived(SoapFaultHelper.generateSoap11FaultWithCause(EXCEPTION_MESSAGE));
-
-        template.sendBody(expectedBody);
-        resultEndpoint.assertIsSatisfied();
     }
 
     @Override
@@ -90,9 +124,24 @@ public class ErrorInResponseTest extends CamelTestSupport {
 
                 from("netty4-http:http://localhost:12123/vp")
                         .process((Exchange exchange)-> {
-                            exchange.setProperty(Exchange.EXCEPTION_CAUGHT, new VpSemanticException(EXCEPTION_MESSAGE, VP007));
+                            exchange.setProperty(Exchange.EXCEPTION_CAUGHT, new VpSemanticException(
+                                REMOTE_EXCEPTION_MESSAGE, VP007));
                         })
                         .process(exceptionMessageProcessor);
+
+                from("netty4-http:http://localhost:12124/vp")
+                    .process((Exchange exchange)-> {
+                        exchange.getOut().setBody("");
+                    });
+
+                from("netty4-http:http://localhost:12125/vp")
+                    .process((Exchange exchange)-> {
+                        try {
+                            String.valueOf(null);
+                        } catch(NullPointerException e) {
+                            exchange.getOut().setBody(e.toString());
+                        }
+                    });
             }
         };
     }

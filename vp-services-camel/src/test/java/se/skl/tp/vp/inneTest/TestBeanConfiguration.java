@@ -42,6 +42,11 @@ public class TestBeanConfiguration {
         return new IPWhitelistHandlerImpl(environment.getProperty(ApplicationProperties.IP_WHITELIST));
     }
 
+    @Bean
+    public IPWhitelistHandler emptyIpWhitelistHandler() {
+        return new IPWhitelistHandlerImpl(null);
+    }
+
     /*@Bean
     public Pattern certificateSenderIDPattern() {
         return Pattern.compile(environment.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+CertificateExtractorProcessorImpl.CERT_SENDERID_PATTERN);
