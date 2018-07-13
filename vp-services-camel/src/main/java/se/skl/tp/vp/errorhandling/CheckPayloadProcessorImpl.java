@@ -75,7 +75,7 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
     }
 
     public String get(VpSemanticErrorCodeEnum errcode, String suffix) {
-        String errorMsg = (String) messageProperties.getValueOnErrorCode(errcode);
+        String errorMsg = messageProperties.getValueOnErrorCode(errcode);
 
         String msg = errorMsg.replace("{}", (suffix == null ? "" : suffix));
         return errcode + " " + msg;

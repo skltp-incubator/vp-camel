@@ -9,6 +9,7 @@ import se.skl.tp.vp.constants.ApplicationProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import se.skl.tp.vp.constants.SecurityProperies;
 
 @Configuration
 public class SSLContextParametersConfig  {
@@ -18,21 +19,26 @@ public class SSLContextParametersConfig  {
     @Autowired
     Environment env;
 
+    @Autowired
+    SecurityProperies securityProperies;
+
     @Bean
     public SSLContextParameters incomingSSLContextParameters() {
         KeyStoreParameters ksp = new KeyStoreParameters();
-        ksp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_PRODUCER_FILE));
-        ksp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_PRODUCER_PASSWORD));
+        ksp.setResource(securityProperies.getStore().getLocation() + securityProperies.getStore().getProducer().getFile());
+        ksp.setPassword(securityProperies.getStore().getProducer().getPassword());
         KeyManagersParameters kmp = new KeyManagersParameters();
-        kmp.setKeyPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_PRODUCER_KEY_PASSWORD));
+        kmp.setKeyPassword(securityProperies.getStore().getProducer().getKeyPassword());
         kmp.setKeyStore(ksp);
+
         KeyStoreParameters tsp = new KeyStoreParameters();
-        tsp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_FILE));
-        tsp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_PASSWORD));
+        tsp.setResource(securityProperies.getStore().getLocation() + securityProperies.getStore().getTruststore().getFile());
+        tsp.setPassword(securityProperies.getStore().getTruststore().getPassword());
         TrustManagersParameters tmp = new TrustManagersParameters();
         tmp.setKeyStore(tsp);
+
         SecureSocketProtocolsParameters sspp = new SecureSocketProtocolsParameters();
-        String allowedIncomingProtocols = env.getProperty(ApplicationProperties.ALLOWED_INCOMING_PROTOCOLS);
+        String allowedIncomingProtocols = securityProperies.getAllowedIncomingProtocols();
         List<String> allowedProtocols = new ArrayList<>();
         for (String protocol: allowedIncomingProtocols.split(DELIMITER)) {
             if(!protocol.trim().isEmpty()){
@@ -40,6 +46,7 @@ public class SSLContextParametersConfig  {
             }
         }
         sspp.setSecureSocketProtocol(allowedProtocols);
+
         SSLContextParameters sslContextParameters = new SSLContextParameters();
         sslContextParameters.setKeyManagers(kmp);
         sslContextParameters.setTrustManagers(tmp);
