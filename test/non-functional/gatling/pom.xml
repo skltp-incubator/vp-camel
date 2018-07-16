@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>se.skltp.vp</groupId>
+    <artifactId>vp-test-non-functional</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <gatling.version>2.1.7</gatling.version>
+        <gatling-maven-plugin.version>2.1.7</gatling-maven-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>${gatling.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>${gatling-maven-plugin.version}</version>
+                <configuration>
+                    <simulationClass>${simulationClass}</simulationClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>HappyPath</id>
+            <properties>
+                <simulationClass>se.skltp.services.riv.clinicalprocess.healthcond.description.getcaredocumentation.TPHappyPath</simulationClass>
+            </properties>
+        </profile>
+    </profiles>
+</project>
