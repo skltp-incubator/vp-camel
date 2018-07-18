@@ -50,7 +50,7 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
                         exchange.setProperty(VPExchangeProperties.RIV_VERSION, RIVTABP_21);
                     }
                     if(elementHierarchy.peek().equalsIgnoreCase("To")) {
-                        exchange.setProperty(VPExchangeProperties.RECEIVER_ID , event.asCharacters().getData());
+                        exchange.setProperty(VPExchangeProperties.RECEIVER_ID, event.asCharacters().getData());
                         exchange.setProperty(VPExchangeProperties.RIV_VERSION, RIVTABP_20);
                     }
                 } else if(event.isEndElement()) {
