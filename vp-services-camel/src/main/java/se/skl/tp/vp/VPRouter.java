@@ -12,10 +12,7 @@ import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
-import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
-import se.skl.tp.vp.vagval.BehorighetProcessor;
-import se.skl.tp.vp.vagval.ResetTakCacheProcessor;
-import se.skl.tp.vp.vagval.VagvalProcessor;
+import se.skl.tp.vp.vagval.*;
 import se.skl.tp.vp.wsdl.WsdlProcessor;
 
 import java.net.SocketException;
@@ -67,6 +64,9 @@ public class VPRouter extends RouteBuilder {
     CheckPayloadProcessor checkPayloadProcessor;
 
     @Autowired
+    RivTaProfilProcessor rivTaProfilProcessor;
+
+    @Autowired
     WsdlProcessor wsdlProcessor;
 
     @Autowired
@@ -101,6 +101,7 @@ public class VPRouter extends RouteBuilder {
                 .process(vagvalProcessor)
                 .process(behorighetProcessor)
                 .process(requestTimoutProcessor)
+                .process(rivTaProfilProcessor)
                 .doTry()
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
