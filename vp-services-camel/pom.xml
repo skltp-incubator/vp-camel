@@ -114,23 +114,5 @@
     </dependency>
   </dependencies>
 
-  <!--<profiles>-->
-    <!--<profile>-->
-      <!--<id>jdk8-build</id>-->
-      <!--<activation>-->
-        <!--<jdk>8</jdk>-->
-      <!--</activation>-->
-      <!--<build>-->
-        <!--<plugins>-->
-          <!--<plugin>-->
-            <!--<artifactId>maven-surefire-plugin</artifactId>-->
-            <!--<version>2.21.0</version>-->
-            <!--&lt;!&ndash;<configuration>&ndash;&gt;-->
-              <!--&lt;!&ndash;<argLine>&#45;&#45;add-modules java.xml.bind &#45;&#45;add-opens java.base/java.lang=ALL-UNNAMED</argLine>&ndash;&gt;-->
-            <!--&lt;!&ndash;</configuration>&ndash;&gt;-->
-          <!--</plugin>-->
-        <!--</plugins>-->
-      <!--</build>-->
-    <!--</profile>-->
-  <!--</profiles>-->
+
 </project>
