@@ -1,23 +1,24 @@
 package se.skl.tp.vp.vagval;
 
+import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.vagval.handlers.VagvalHandler;
 import se.skltp.takcache.RoutingInfo;
-
-import java.util.List;
-
-import static se.skl.tp.vp.vagval.util.ErrorUtil.raiseError;
 
 @Service
 public class VagvalProcessor implements Processor {
 
     @Autowired
     VagvalHandler vagvalHandler;
+
+    @Autowired
+    ExceptionUtil exceptionUtil;
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -37,17 +38,17 @@ public class VagvalProcessor implements Processor {
         List<RoutingInfo> routingInfos = vagvalHandler.getRoutingInfo(tjanstegranssnitt, receiverAddress);
 
         if(routingInfos.isEmpty()){
-            raiseError(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
         }
 
         if(routingInfos.size()>1){
-            raiseError(VpSemanticErrorCodeEnum.VP006, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP006, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
         }
 
         RoutingInfo routingInfo = routingInfos.get(0);
 
         if (routingInfo.getAddress() == null || routingInfo.getAddress().trim().length() == 0) {
-            raiseError(VpSemanticErrorCodeEnum.VP010, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP010, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
         }
 
         return routingInfo;
@@ -56,7 +57,7 @@ public class VagvalProcessor implements Processor {
         //TODO Kontrollera servicecontractNamespace ?
 
         // No receiver ID (to_address) found in message
-        raiseError(receiverId == null, VpSemanticErrorCodeEnum.VP003);
+        exceptionUtil.raiseError(receiverId == null, VpSemanticErrorCodeEnum.VP003);
     }
 
 

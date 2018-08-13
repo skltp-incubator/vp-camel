@@ -21,16 +21,7 @@ public class SoapFaultHelper {
                     "  </soapenv:Body>" +
                     "</soapenv:Envelope>";
 
-    // TODO: Kopierat från VPUtil men hör inte hemma här
-    public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
-        String soapFault = generateSoap11FaultWithCause(cause);
-        exchange.getOut().setBody(soapFault);
-        //message.setExceptionPayload(null);
-        exchange.getOut().setHeader("http.status", 500);
-        exchange.setProperty(VPExchangeProperties.SESSION_ERROR, Boolean.TRUE);
-        exchange.setProperty(VPExchangeProperties.SESSION_ERROR_CODE, errorCode);
-        exchange.setProperty(VPExchangeProperties.SESSION_HTML_STATUS, getStatusMessage(nvl(exchange.getIn().getHeader("http.status")), null));
-    }
+
 
     public static String generateSoap11FaultWithCause(String cause) {
         return String.format(SOAP_FAULT, escape(cause));

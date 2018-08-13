@@ -22,7 +22,7 @@ import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
 import javax.annotation.PostConstruct;
 
 @TestConfiguration
-@ComponentScan(basePackages = {"se.skltp.takcache", "se.skl.tp.hsa.cache"})
+@ComponentScan(basePackages = {"se.skl.tp.vp.errorhandling","se.skltp.takcache", "se.skl.tp.hsa.cache"})
 public class TestBeanConfiguration {
     @Autowired
     private Environment environment;

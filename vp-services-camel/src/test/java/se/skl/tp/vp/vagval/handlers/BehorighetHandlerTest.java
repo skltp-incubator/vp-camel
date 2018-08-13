@@ -1,6 +1,23 @@
 package se.skl.tp.vp.vagval.handlers;
 
-import org.apache.camel.test.spring.CamelSpringBootRunner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.AUTHORIZED_RECEIVER_IN_HSA_TREE;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.NAMNRYMD_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.PARENT_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_1_DEFAULT_RECEIVER_2;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_2;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_2_DEFAULT_RECEIVER_3;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_3_DEFAULT_RECEIVER_4;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.SENDER_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.SENDER_2;
+
+import java.net.URL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,24 +28,15 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.hsa.cache.HsaCache;
-import se.skl.tp.vp.Application;
 import se.skl.tp.vp.logging.ThreadContextLogTrace;
-import se.skl.tp.vp.vagval.VagvalTestConfiguration;
 import se.skltp.takcache.TakCache;
 
-import java.net.URL;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
-
-@RunWith( CamelSpringBootRunner.class )
-@SpringBootTest(classes = VagvalTestConfiguration.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class BehorighetHandlerTest {
 
     @Value("${vagvalrouter.default.routing.address.delimiter}")
@@ -149,4 +157,9 @@ public class BehorighetHandlerTest {
     }
 
 
+    @Configuration
+    @ComponentScan(basePackages = { "se.skl.tp.hsa.cache"})
+    static class InnerConfiguration {
+
+    }
 }

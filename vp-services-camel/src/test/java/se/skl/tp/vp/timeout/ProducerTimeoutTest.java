@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.inneTest.TestBeanConfiguration;
@@ -29,10 +31,10 @@ import java.util.List;
 
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
-@RunWith( CamelSpringBootRunner.class )
+@RunWith( SpringRunner.class )
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
-@DirtiesContext
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ProducerTimeoutTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")

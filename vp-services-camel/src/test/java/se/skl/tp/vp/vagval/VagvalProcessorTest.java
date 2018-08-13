@@ -1,5 +1,22 @@
 package se.skl.tp.vp.vagval;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP006;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.ADDRESS_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.NAMNRYMD_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV21;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -12,24 +29,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.hsa.cache.HsaCache;
-import se.skl.tp.vp.Application;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.*;
-import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 
 @RunWith( CamelSpringBootRunner.class )
 @SpringBootTest(classes = VagvalTestConfiguration.class)
@@ -78,7 +82,7 @@ public class VagvalProcessorTest {
             fail("Förväntade ett VP003 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP003, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains(   "No receiverId (logical address) found in message header"));
         }
     }
 
@@ -93,7 +97,9 @@ public class VagvalProcessorTest {
             fail("Förväntade ett VP004 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP004, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains(   "No receiverId (logical address) found for"));
+            assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
+            assertTrue(vpSemanticException.getMessage().contains( RECEIVER_1));
         }
     }
 
@@ -111,7 +117,9 @@ public class VagvalProcessorTest {
             fail("Förväntade ett VP006 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP006, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains(   "More than one receiverId (logical address) with matching Riv-version found for"));
+            assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
+            assertTrue(vpSemanticException.getMessage().contains( RECEIVER_1));
         }
     }
 
@@ -128,7 +136,9 @@ public class VagvalProcessorTest {
             fail("Förväntade ett VP010 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP010, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains(   "Physical Address field is empty in Service Producer for"));
+            assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
+            assertTrue(vpSemanticException.getMessage().contains( RECEIVER_1));
         }
     }
 

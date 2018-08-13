@@ -1,5 +1,7 @@
 package se.skl.tp.vp.errorhandling;
 
+import static se.skl.tp.vp.errorhandling.SoapFaultHelper.nvl;
+
 import io.netty.handler.timeout.ReadTimeoutException;
 import org.apache.camel.Exchange;
 import org.apache.logging.log4j.LogManager;
@@ -7,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.certificate.HeaderCertificateHelperImpl;
-import se.skl.tp.vp.constants.MessageProperties;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 
@@ -18,11 +19,11 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
 
     private static final String nullPayload = "{NullPayload}";
 
-    MessageProperties messageProperties;
+    VpCodeMessages vpCodeMessages;
 
     @Autowired
-    public CheckPayloadProcessorImpl(MessageProperties messageProperties){
-        this.messageProperties = messageProperties;
+    public CheckPayloadProcessorImpl(VpCodeMessages vpCodeMessages){
+        this.vpCodeMessages = vpCodeMessages;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
             }
 
             if(cause != null) {
-                SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
+                setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
                 //logException(message, new VpSemanticException(cause, VpSemanticErrorCodeEnum.VP009));
             }
 
@@ -75,10 +76,19 @@ public class CheckPayloadProcessorImpl implements CheckPayloadProcessor {
     }
 
     public String get(VpSemanticErrorCodeEnum errcode, String suffix) {
-        String errorMsg = messageProperties.getValueOnErrorCode(errcode);
-
-        String msg = errorMsg.replace("{}", (suffix == null ? "" : suffix));
-        return errcode + " " + msg;
+        String errorMsg = vpCodeMessages.getMessage(errcode);
+        return errcode+" "+ String.format(errorMsg, suffix);
     }
+
+    private static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
+        String soapFault = SoapFaultHelper.generateSoap11FaultWithCause(cause);
+        exchange.getOut().setBody(soapFault);
+        //message.setExceptionPayload(null);
+        exchange.getOut().setHeader("http.status", 500);
+        exchange.setProperty(VPExchangeProperties.SESSION_ERROR, Boolean.TRUE);
+        exchange.setProperty(VPExchangeProperties.SESSION_ERROR_CODE, errorCode);
+        exchange.setProperty(VPExchangeProperties.SESSION_HTML_STATUS, SoapFaultHelper.getStatusMessage(nvl(exchange.getIn().getHeader("http.status")), null));
+    }
+
 
 }

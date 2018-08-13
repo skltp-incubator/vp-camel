@@ -1,5 +1,7 @@
 package se.skl.tp.vp.vagval;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -13,13 +15,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.hsa.cache.HsaCache;
 import se.skl.tp.hsa.cache.HsaCacheInitializationException;
-import se.skl.tp.vp.Application;
-
-import static org.mockito.ArgumentMatchers.any;
 
 
 @RunWith( CamelSpringBootRunner.class )

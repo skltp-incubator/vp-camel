@@ -1,5 +1,9 @@
 package se.skl.tp.vp.vagval;
 
+import static org.mockito.Mockito.mock;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -13,17 +17,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import se.skl.tp.vp.Application;
-import se.skltp.tak.vagval.wsdl.v2.ResetVagvalCacheResponse;
 import se.skltp.takcache.TakCache;
 import se.skltp.takcache.TakCacheLog;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
 
 @RunWith( CamelSpringBootRunner.class )
 @SpringBootTest(classes = VagvalTestConfiguration.class)

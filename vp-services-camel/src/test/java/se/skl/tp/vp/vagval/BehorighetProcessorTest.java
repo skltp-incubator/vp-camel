@@ -1,5 +1,19 @@
 package se.skl.tp.vp.vagval;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.AUTHORIZED_RECEIVER_IN_HSA_TREE;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.NAMNRYMD_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_1;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_1_DEFAULT_RECEIVER_2;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_2;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.SENDER_1;
+
+import java.net.URL;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -14,20 +28,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.hsa.cache.HsaCache;
-import se.skl.tp.vp.Application;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skltp.takcache.TakCache;
-
-import java.net.URL;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.*;
-import static se.skl.tp.vp.util.takcache.TestTakDataDefines.*;
 
 @RunWith( CamelSpringBootRunner.class )
 @SpringBootTest(classes = VagvalTestConfiguration.class)
@@ -89,7 +93,9 @@ public class BehorighetProcessorTest  extends CamelTestSupport {
             fail("Förväntade ett VP002 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP002, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains(   "No sender ID (SERIALNUMBER) found in certificate"));
+            assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
+            assertTrue(vpSemanticException.getMessage().contains( RECEIVER_1));
         }
     }
 
@@ -104,7 +110,9 @@ public class BehorighetProcessorTest  extends CamelTestSupport {
             fail("Förväntade ett VP003 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP003, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains( "No receiverId (logical address) found in message header"));
+            assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
+            assertTrue(vpSemanticException.getMessage().contains( SENDER_1));
         }
     }
 
@@ -119,7 +127,10 @@ public class BehorighetProcessorTest  extends CamelTestSupport {
             fail("Förväntade ett VP007 SemanticException");
         }catch(VpSemanticException vpSemanticException){
             assertEquals(VP007, vpSemanticException.getErrorCode());
-            // TODO assert that message contain good information
+            assertTrue(vpSemanticException.getMessage().contains( "Authorization missing for"));
+            assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
+            assertTrue(vpSemanticException.getMessage().contains( SENDER_1));
+            assertTrue(vpSemanticException.getMessage().contains( RECEIVER_1));
         }
     }
 

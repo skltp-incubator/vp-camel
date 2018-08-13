@@ -4,7 +4,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 @TestConfiguration
-@ComponentScan(basePackages = {"se.skltp.takcache", "se.skl.tp.hsa.cache", "se.skl.tp.vp.vagval"})
+@ComponentScan(basePackages = {"se.skltp.takcache", "se.skl.tp.hsa.cache", "se.skl.tp.vp.vagval", "se.skl.tp.vp.errorhandling"})
 public class VagvalTestConfiguration {
 
 }
