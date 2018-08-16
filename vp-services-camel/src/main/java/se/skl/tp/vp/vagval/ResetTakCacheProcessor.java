@@ -6,11 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import se.skltp.tak.vagval.wsdl.v2.ResetVagvalCacheResponse;
 import se.skltp.takcache.TakCache;
 import se.skltp.takcache.TakCacheLog;
-
-import java.util.Arrays;
 
 @Component
 public class ResetTakCacheProcessor implements Processor {

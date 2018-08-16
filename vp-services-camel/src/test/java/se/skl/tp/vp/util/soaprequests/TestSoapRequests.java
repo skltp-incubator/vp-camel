@@ -2,11 +2,17 @@ package se.skl.tp.vp.util.soaprequests;
 
 public class TestSoapRequests {
 
-  public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST =
+  public static final String RECEIVER_UNIT_TEST = "UnitTest";
+  public static final String RECEVIER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
+  public static final String RECEIVER_WITH_NO_VAGVAL = "NoVagvalReceiver";
+  public static final String RECEIVER_NOT_AUHORIZED = "NotAuhorizedReceiver";
+  public static final String TJANSTEKONTRAKT_GET_CERTIFICATE_KEY = "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1";
+
+  public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER =
       "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n"
           +
           "   <soapenv:Header>\n" +
-          "      <add:To>UnitTest</add:To>\n" +
+          "      <add:To>%s</add:To>\n" +
           "   </soapenv:Header>\n" +
           "   <soapenv:Body>\n" +
           "      <urn:GetCertificateRequest>\n" +
@@ -16,5 +22,15 @@ public class TestSoapRequests {
           "      </urn:GetCertificateRequest>\n" +
           "   </soapenv:Body>\n" +
           "</soapenv:Envelope>";
+
+  public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+      RECEIVER_UNIT_TEST);
+  public static final String GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+      RECEIVER_NOT_AUHORIZED);
+  public static final String GET_CERTIFICATE_NO_VAGVAL_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+      RECEIVER_WITH_NO_VAGVAL);
+  public static final String GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+      RECEVIER_NO_PRODUCER_AVAILABLE);
+
 
 }

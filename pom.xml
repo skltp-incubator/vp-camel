@@ -201,6 +201,18 @@
               <goal>repackage</goal>
             </goals>
           </execution>
+          <!--<execution>-->
+              <!--<id>pre-integration-test</id>-->
+              <!--<goals>-->
+                <!--<goal>start</goal>-->
+              <!--</goals>-->
+          <!--</execution>-->
+          <!--<execution>-->
+              <!--<id>post-integration-test</id>-->
+              <!--<goals>-->
+                <!--<goal>stop</goal>-->
+              <!--</goals>-->
+          <!--</execution>-->
         </executions>
       </plugin>
 
@@ -220,10 +232,36 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.19.1</version>
         <configuration>
-          <!--<forkCount>3</forkCount>-->
-          <!--<reuseForks>true</reuseForks>-->
-          <!--<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>-->
+            <systemPropertyVariables>
+              <!-- Seems to be som kind of conflict with JAXB camel dependencies and JDK8 Jaxb impl.
+              https://stackoverflow.com/questions/42499436/classcastexception-cannot-be-cast-to-com-sun-xml-internal-bind-v2-runtime-refle -->
+              <com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>true</com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>
+            </systemPropertyVariables>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.22.0</version>
+        <configuration>
+          <!-- Seems to be som kind of conflict with JAXB camel dependencies and JDK8 Jaxb impl.
+          https://stackoverflow.com/questions/42499436/classcastexception-cannot-be-cast-to-com-sun-xml-internal-bind-v2-runtime-refle -->
+          <systemPropertyVariables>
+            <com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>true</com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>
+          </systemPropertyVariables>
+
+          <!--Make failsafe and spring-boot repackage play nice together
+          https://github.com/spring-projects/spring-boot/issues/6254-->
+          <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
