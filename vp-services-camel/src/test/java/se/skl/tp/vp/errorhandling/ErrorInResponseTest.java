@@ -1,6 +1,7 @@
 package se.skl.tp.vp.errorhandling;
 
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
+import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class ErrorInResponseTest extends CamelTestSupport {
     @Test //Test för när ett SOAP-fault kommer från Producenten
     public void errorInResponseTest() throws Exception {
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(new RoutingInfo("http://localhost:12123/vp",RIV20));
+        list.add(createRoutingInfo("http://localhost:12123/vp",RIV20));
         mockRoutingAndAuthorized(list);
 
         resultEndpoint.expectedBodiesReceived(SoapFaultHelper.generateSoap11FaultWithCause(
@@ -66,7 +67,7 @@ public class ErrorInResponseTest extends CamelTestSupport {
     public void noProducerOnURLResponseTest() throws Exception {
         List<RoutingInfo> list = new ArrayList<>();
         String address = "http://localhost:12100/vp";
-        list.add(new RoutingInfo(address,RIV20));
+        list.add(createRoutingInfo(address,RIV20));
         mockRoutingAndAuthorized(list);
 
         template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
@@ -81,7 +82,7 @@ public class ErrorInResponseTest extends CamelTestSupport {
     public void emptyResponseTest() throws Exception {
         List<RoutingInfo> list = new ArrayList<>();
         String address = "http://localhost:12124/vp";
-        list.add(new RoutingInfo(address,RIV20));
+        list.add(createRoutingInfo(address,RIV20));
         mockRoutingAndAuthorized(list);
 
         template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
@@ -96,7 +97,7 @@ public class ErrorInResponseTest extends CamelTestSupport {
     public void nonSOAPResponseTest() throws Exception {
         List<RoutingInfo> list = new ArrayList<>();
         String address = "http://localhost:12125/vp";
-        list.add(new RoutingInfo(address,RIV20));
+        list.add(createRoutingInfo(address,RIV20));
         mockRoutingAndAuthorized(list);
 
         template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);

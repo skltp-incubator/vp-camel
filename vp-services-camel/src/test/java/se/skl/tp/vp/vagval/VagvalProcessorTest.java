@@ -7,6 +7,7 @@ import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP006;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
+import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.ADDRESS_1;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.NAMNRYMD_1;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RECEIVER_1;
@@ -58,7 +59,7 @@ public class VagvalProcessorTest {
     public void testVagvalFound() throws Exception {
 
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(new RoutingInfo(ADDRESS_1,RIV20));
+        list.add(createRoutingInfo(ADDRESS_1,RIV20));
         Mockito.when(takCache.getRoutingInfo(NAMNRYMD_1, RECEIVER_1 )).thenReturn(list);
 
         Exchange ex = createExchangeWithProperties( NAMNRYMD_1, RECEIVER_1);
@@ -73,7 +74,7 @@ public class VagvalProcessorTest {
     public void testNoLogicaAddressInRequestShouldThrowVP003Exception() throws Exception {
 
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(new RoutingInfo(ADDRESS_1,RIV20));
+        list.add(createRoutingInfo(ADDRESS_1,RIV20));
         Mockito.when(takCache.getRoutingInfo(NAMNRYMD_1, RECEIVER_1 )).thenReturn(list);
 
         try {
@@ -107,8 +108,8 @@ public class VagvalProcessorTest {
     public void testTooManyVagvalFoundShouldThrowVP006Exception() throws Exception {
 
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(new RoutingInfo(ADDRESS_1,RIV20));
-        list.add(new RoutingInfo(ADDRESS_1,RIV21));
+        list.add(createRoutingInfo(ADDRESS_1,RIV20));
+        list.add(createRoutingInfo(ADDRESS_1,RIV21));
         Mockito.when(takCache.getRoutingInfo(NAMNRYMD_1, RECEIVER_1 )).thenReturn(list);
 
         try {
@@ -127,7 +128,7 @@ public class VagvalProcessorTest {
     public void testIfFoundVagvalAddressIsEmptyItShouldThrowVP010Exception() throws Exception {
 
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(new RoutingInfo("",RIV20));
+        list.add(createRoutingInfo("",RIV20));
         Mockito.when(takCache.getRoutingInfo(NAMNRYMD_1, RECEIVER_1 )).thenReturn(list);
 
         try {
@@ -149,4 +150,6 @@ public class VagvalProcessorTest {
         ex.setProperty(VPExchangeProperties.RECEIVER_ID, receiver );
         return ex;
     }
+
+
 }

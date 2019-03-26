@@ -55,5 +55,10 @@
       <DN>o=Landstinget i Jönköping,l=VpW,c=SE</DN>
       <name>Landstinget i Jönköping</name>
     </hsaUnit>
+    <hsaUnit>
+      <hsaIdentity>SE</hsaIdentity>
+      <DN>c=SE</DN>
+      <name>Sverige</name>
+    </hsaUnit>
   </hsaUnits>
 </HsaUnitsResponse>

@@ -5,5 +5,5 @@ import org.springframework.boot.test.context.TestConfiguration;
 
 @TestConfiguration
 @SpringBootConfiguration
-public class StopConfiguration {
+public class VagvalStopConfiguration {
 }

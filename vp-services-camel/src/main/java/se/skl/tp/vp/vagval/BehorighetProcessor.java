@@ -4,10 +4,15 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.skl.tp.behorighet.BehorighetHandler;
+import se.skl.tp.behorighet.BehorighetHandlerImpl;
+import se.skl.tp.hsa.cache.HsaCache;
+import se.skl.tp.vp.config.DefaultRoutingProperties;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
-import se.skl.tp.vp.vagval.handlers.BehorighetHandler;
+import se.skltp.takcache.TakCache;
+
 
 @Service
 public class BehorighetProcessor implements Processor {

@@ -7,7 +7,6 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
-import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -16,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
@@ -29,6 +27,7 @@ import se.skltp.takcache.TakCache;
 import java.util.ArrayList;
 import java.util.List;
 
+import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 @RunWith( SpringRunner.class )
@@ -55,7 +54,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     @Test
     public void timeoutInResponseTest() throws Exception {
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(new RoutingInfo("http://localhost:12123/vp",RIV20));
+        list.add(createRoutingInfo("http://localhost:12123/vp",RIV20));
         Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
         Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
         TimeoutConfig timeoutConfig = new TimeoutConfig();
