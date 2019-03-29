@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
@@ -33,7 +33,7 @@ public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProc
         this.headerCertificateHelper = headerCertificateHelper;
         this.ipWhitelistHandler = ipWhitelistHandler;
         this.senderIpExtractor = senderIpExtractor;
-        vpInstanceId = env.getProperty(ApplicationProperties.VP_INSTANCE_ID);
+        vpInstanceId = env.getProperty(PropertyConstants.VP_INSTANCE_ID);
     }
 
     @Override

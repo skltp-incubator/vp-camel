@@ -1,6 +1,6 @@
 package se.skl.tp.vp.constants;
 
-public class ApplicationProperties {
+public class PropertyConstants {
 
     public static final String CERTIFICATE_SENDERID_SUBJECT = "certificate.senderid.subject";
     public static final String IP_WHITELIST = "ip.whitelist";

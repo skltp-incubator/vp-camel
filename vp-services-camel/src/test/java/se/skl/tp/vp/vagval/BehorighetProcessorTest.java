@@ -1,5 +1,8 @@
 package se.skl.tp.vp.vagval;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
@@ -18,7 +21,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +37,7 @@ import se.skltp.takcache.TakCache;
 
 @RunWith( CamelSpringBootRunner.class )
 @SpringBootTest(classes = VagvalTestConfiguration.class)
-public class BehorighetProcessorTest  extends CamelTestSupport {
+public class BehorighetProcessorTest  {
 
     @Autowired
     BehorighetProcessor behorighetProcessor;

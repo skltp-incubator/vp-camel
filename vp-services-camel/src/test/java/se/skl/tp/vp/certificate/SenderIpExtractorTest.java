@@ -1,4 +1,4 @@
-package se.skl.tp.vp.inneTest.certificate;
+package se.skl.tp.vp.certificate;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
@@ -14,8 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.inneTest.TestBeanConfiguration;
@@ -23,7 +22,7 @@ import se.skl.tp.vp.inneTest.TestBeanConfiguration;
 @RunWith( CamelSpringBootRunner.class )
 @ContextConfiguration(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
-public class SenderIpExtractorTest extends CamelTestSupport {
+public class  SenderIpExtractorTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
@@ -34,7 +33,7 @@ public class SenderIpExtractorTest extends CamelTestSupport {
     @Autowired
     SenderIpExtractor senderIpExtractor;
 
-    @Value("${" + ApplicationProperties.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}")
+    @Value("${" + PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}")
     String forwardedHeader;
 
     @Test

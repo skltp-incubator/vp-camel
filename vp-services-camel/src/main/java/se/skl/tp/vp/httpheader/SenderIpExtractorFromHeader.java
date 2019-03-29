@@ -5,7 +5,7 @@ import org.apache.camel.component.netty4.NettyConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 
 import java.net.InetSocketAddress;
 
@@ -15,7 +15,7 @@ public class SenderIpExtractorFromHeader implements SenderIpExtractor {
     private final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER;
 
     @Autowired
-    public SenderIpExtractorFromHeader(@Value("${" + ApplicationProperties.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}") String vagvalrouter_sender_ip_adress_http_header) {
+    public SenderIpExtractorFromHeader(@Value("${" + PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}") String vagvalrouter_sender_ip_adress_http_header) {
         VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = vagvalrouter_sender_ip_adress_http_header;
     }
 

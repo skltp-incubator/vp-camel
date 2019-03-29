@@ -6,9 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,8 +24,8 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
     private List<TimeoutConfig> wsdlConfigs;
     private HashMap<String, TimeoutConfig> mapOnTjanstekontrakt;
 
-    public TimeoutConfigurationJson(@Value("${" + ApplicationProperties.TIMEOUT_JSON_FILE + "}") String timeout_json_file,
-                                    @Value("${" + ApplicationProperties.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String timeout_json_file_default_tjanstekontrakt_name) throws IOException {
+    public TimeoutConfigurationJson(@Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeout_json_file,
+                                    @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String timeout_json_file_default_tjanstekontrakt_name) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         try{
             wsdlConfigs = objectMapper.readValue(new File(timeout_json_file), new TypeReference<List<TimeoutConfig>>(){});

@@ -1,5 +1,7 @@
 package se.skl.tp.vp.integrationtests;
 
+import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
@@ -16,12 +18,13 @@ import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
-import se.skl.tp.vp.Application;
 import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
+import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
@@ -29,8 +32,10 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class ErrorHandlingIT extends IntegrationTestBase {
+public class ErrorHandlingIT  {
 
+  @Autowired
+  TestConsumer testConsumer;
 
   @SuppressWarnings("unchecked")
   @BeforeClass
@@ -50,7 +55,7 @@ public class ErrorHandlingIT extends IntegrationTestBase {
   public void shouldGetVP002WhenNoCertificateInHTTPCall() throws Exception {
     Map<String, Object> headers = new HashMap<>();
 
-    String result = sendHttpRequestToVP(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST, headers);
+    String result = testConsumer.sendHttpRequestToVP(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST, headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -65,7 +70,7 @@ public class ErrorHandlingIT extends IntegrationTestBase {
   @Test
   public void shouldGetVP004WhenRecieverNotInVagval() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_VAGVAL_IN_TAK, headers);
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_VAGVAL_IN_TAK, headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -86,7 +91,7 @@ public class ErrorHandlingIT extends IntegrationTestBase {
   @Test
   public void shouldGetVP007WhenRecieverNotAuhtorized() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK, headers);
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK, headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -107,7 +112,7 @@ public class ErrorHandlingIT extends IntegrationTestBase {
   @Test
   public void shouldGetVP009WhenProducerNotAvailable() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_, headers);
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_, headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);

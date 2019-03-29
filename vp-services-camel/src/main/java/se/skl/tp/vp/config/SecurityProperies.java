@@ -1,4 +1,4 @@
-package se.skl.tp.vp.constants;
+package se.skl.tp.vp.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

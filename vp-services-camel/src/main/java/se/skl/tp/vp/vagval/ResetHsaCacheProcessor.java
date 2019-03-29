@@ -12,7 +12,7 @@ import se.skl.tp.hsa.cache.HsaCacheInitializationException;
 
 import java.util.Arrays;
 
-import static se.skl.tp.vp.constants.ApplicationProperties.HSA_FILES;
+import static se.skl.tp.vp.constants.PropertyConstants.HSA_FILES;
 
 @Component
 public class ResetHsaCacheProcessor implements Processor {

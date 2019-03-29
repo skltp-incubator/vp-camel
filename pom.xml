@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-parent</artifactId>
-    <version>2.21.1</version>
+    <version>2.23.1</version>
   </parent>
 
   <groupId>se.skltp.vp</groupId>
@@ -22,7 +22,7 @@
     <spring.boot-version>${spring-boot-version}</spring.boot-version>
     <lmax_disruptor-version>3.3.6</lmax_disruptor-version>
     <commons.lang-version>${commons-lang-version}</commons.lang-version>
-    <camel.version>2.21.1</camel.version>
+    <camel.version>2.23.1</camel.version>
   </properties>
 
   <distributionManagement>

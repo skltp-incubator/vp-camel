@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPConstants;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
@@ -25,7 +25,7 @@ public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
 
     @Autowired
     public HeaderCertificateHelperImpl(Environment env) {
-        certificateSenderIDPattern = Pattern.compile(env.getProperty(ApplicationProperties.CERTIFICATE_SENDERID_SUBJECT)+VPConstants.CERT_SENDERID_PATTERN);
+        certificateSenderIDPattern = Pattern.compile(env.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT)+VPConstants.CERT_SENDERID_PATTERN);
     }
 
     public String getSenderIDFromHeaderCertificate(Object certificate) {

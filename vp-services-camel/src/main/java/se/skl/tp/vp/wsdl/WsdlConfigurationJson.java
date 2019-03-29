@@ -10,7 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,8 +34,8 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     private HashMap<String, WsdlConfig> mapOnTjanstekontrakt;
     private HashMap<String, WsdlConfig> mapOnWsdlUrl;
 
-    public WsdlConfigurationJson(@Value("${" + ApplicationProperties.WSDL_JSON_FILE + "}") String wsdl_json_file,
-                                 @Value("${" + ApplicationProperties.WSDLFILES_DIRECTORY + "}") String wsdlfiles_directory) throws IOException {
+    public WsdlConfigurationJson(@Value("${" + PropertyConstants.WSDL_JSON_FILE + "}") String wsdl_json_file,
+                                 @Value("${" + PropertyConstants.WSDLFILES_DIRECTORY + "}") String wsdlfiles_directory) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             wsdlConfigs = objectMapper.readValue(new File(wsdl_json_file), new TypeReference<List<WsdlConfig>>() {

@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 
 import java.util.ArrayList;
 import java.util.List;
-import se.skl.tp.vp.constants.SecurityProperies;
+import se.skl.tp.vp.config.SecurityProperies;
 
 @Configuration
 public class SSLContextParametersConfig  {
@@ -57,18 +57,18 @@ public class SSLContextParametersConfig  {
     @Bean
     public SSLContextParameters outgoingSSLContextParameters() {
         KeyStoreParameters ksp = new KeyStoreParameters();
-        ksp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_CONSUMER_FILE));
-        ksp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_CONSUMER_PASSWORD));
+        ksp.setResource(env.getProperty(PropertyConstants.TP_TLS_STORE_LOCATION) + env.getProperty(PropertyConstants.TP_TLS_STORE_CONSUMER_FILE));
+        ksp.setPassword(env.getProperty(PropertyConstants.TP_TLS_STORE_CONSUMER_PASSWORD));
         KeyManagersParameters kmp = new KeyManagersParameters();
-        kmp.setKeyPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_CONSUMER_KEY_PASSWORD));
+        kmp.setKeyPassword(env.getProperty(PropertyConstants.TP_TLS_STORE_CONSUMER_KEY_PASSWORD));
         kmp.setKeyStore(ksp);
         KeyStoreParameters tsp = new KeyStoreParameters();
-        tsp.setResource(env.getProperty(ApplicationProperties.TP_TLS_STORE_LOCATION) + env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_FILE));
-        tsp.setPassword(env.getProperty(ApplicationProperties.TP_TLS_STORE_TRUSTSTORE_PASSWORD));
+        tsp.setResource(env.getProperty(PropertyConstants.TP_TLS_STORE_LOCATION) + env.getProperty(PropertyConstants.TP_TLS_STORE_TRUSTSTORE_FILE));
+        tsp.setPassword(env.getProperty(PropertyConstants.TP_TLS_STORE_TRUSTSTORE_PASSWORD));
         TrustManagersParameters tmp = new TrustManagersParameters();
         tmp.setKeyStore(tsp);
         SecureSocketProtocolsParameters sspp = new SecureSocketProtocolsParameters();
-        String allowedOutgoingProtocols = env.getProperty(ApplicationProperties.ALLOWED_OUTGOING_PROTOCOLS);
+        String allowedOutgoingProtocols = env.getProperty(PropertyConstants.ALLOWED_OUTGOING_PROTOCOLS);
         List<String> allowedProtocols = new ArrayList<>();
         for (String protocol: allowedOutgoingProtocols.split(",")) {
             if(!protocol.trim().isEmpty()){

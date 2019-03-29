@@ -1,12 +1,12 @@
 package se.skl.tp.vp.vagval;
 
+import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.mockito.ArgumentMatchers.any;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
-import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import se.skl.tp.hsa.cache.HsaCacheInitializationException;
 
 @RunWith( CamelSpringBootRunner.class )
 @SpringBootTest(classes = VagvalTestConfiguration.class)
-public class ResetHsaCacheProcessorTest extends CamelTestSupport {
+public class ResetHsaCacheProcessorTest {
     @Autowired
     ResetHsaCacheProcessor processor;
 

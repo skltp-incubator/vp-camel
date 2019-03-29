@@ -4,7 +4,7 @@ import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
 import static org.apache.camel.component.netty4.NettyConstants.NETTY_REQUEST_TIMEOUT;
@@ -17,7 +17,7 @@ public class RequestTimoutProcessorImpl implements RequestTimoutProcessor {
 
     @Autowired
     public RequestTimoutProcessorImpl(TimeoutConfiguration timeoutConfiguration,
-                                      @Value("${" + ApplicationProperties.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String default_tjanstekontrakt) {
+                                      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String default_tjanstekontrakt) {
         this.timeoutConfiguration = timeoutConfiguration;
         this.DEFAULT_TJANSTEKONTRAKT = default_tjanstekontrakt;
     }

@@ -5,9 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.constants.ApplicationProperties;
+import se.skl.tp.vp.constants.PropertyConstants;
 
 @Service
 public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
@@ -17,7 +16,7 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
     private String [] whiteListArray;
 
     @Autowired
-    public IPWhitelistHandlerImpl(@Value("${" + ApplicationProperties.IP_WHITELIST + "}") String whitelistString) {
+    public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + "}") String whitelistString) {
         if(whitelistString != null && !whitelistString.isEmpty()) {
             whiteListArray = whitelistString.split(",");
         }

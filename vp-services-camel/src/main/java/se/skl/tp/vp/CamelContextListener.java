@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import se.skl.tp.hsa.cache.HsaCache;
 
-import static se.skl.tp.vp.constants.ApplicationProperties.HSA_FILES;
+import static se.skl.tp.vp.constants.PropertyConstants.HSA_FILES;
 
 public class CamelContextListener implements StartupListener {
     private final Environment env;
