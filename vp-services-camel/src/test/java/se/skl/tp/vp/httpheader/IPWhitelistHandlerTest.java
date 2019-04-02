@@ -1,4 +1,4 @@
-package se.skl.tp.vp.inneTest.httpheader;
+package se.skl.tp.vp.httpheader;
 
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Assert;
@@ -7,9 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import se.skl.tp.vp.httpheader.IPWhitelistHandler;
-import se.skl.tp.vp.inneTest.TestBeanConfiguration;
+import se.skl.tp.vp.TestBeanConfiguration;
 
 @RunWith( CamelSpringBootRunner.class )
 @ContextConfiguration(classes = TestBeanConfiguration.class)

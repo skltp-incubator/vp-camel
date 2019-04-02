@@ -24,7 +24,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.inneTest.TestBeanConfiguration;
+import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;

@@ -1,4 +1,4 @@
-package se.skl.tp.vp.inneTest.requestreader;
+package se.skl.tp.vp.requestreader;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
@@ -12,11 +12,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.inneTest.TestBeanConfiguration;
-import se.skl.tp.vp.requestreader.RequestReaderProcessor;
-import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
+import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 @RunWith( CamelSpringBootRunner.class )

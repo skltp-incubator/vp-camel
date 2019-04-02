@@ -1,4 +1,4 @@
-package se.skl.tp.vp.inneTest;
+package se.skl.tp.vp;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
