@@ -39,9 +39,6 @@ public class BehorighetProcessor implements Processor {
     private void validateRequest(String senderId, String receiverId, String servicecontractNamespace) {
         //TODO Kontrollera servicecontractNamespace ?
 
-//        // No RIV version configured
-//        raiseError(request.rivVersion == null, VpSemanticErrorCodeEnum.VP001);
-
         // No sender ID (from_address) found in certificate
         exceptionUtil.raiseError(senderId == null, VpSemanticErrorCodeEnum.VP002, getRequestSummaryString(senderId, servicecontractNamespace, receiverId));
 

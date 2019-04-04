@@ -38,4 +38,9 @@ public class ExceptionUtil {
     throw new VpSemanticException(codeEnum +" "+ errmsg, codeEnum);
   }
 
+  public void raiseErrorMsg(VpSemanticErrorCodeEnum codeEnum, String errMsg) {
+
+    LOGGER.error(codeEnum +" "+errMsg);
+    throw new VpSemanticException(codeEnum +" "+ errMsg, codeEnum);
+  }
 }

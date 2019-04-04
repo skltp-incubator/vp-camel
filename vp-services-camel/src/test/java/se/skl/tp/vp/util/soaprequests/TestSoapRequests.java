@@ -6,6 +6,7 @@ public class TestSoapRequests {
   public static final String RECEVIER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
   public static final String RECEIVER_WITH_NO_VAGVAL = "NoVagvalReceiver";
   public static final String RECEIVER_NOT_AUHORIZED = "NotAuhorizedReceiver";
+  public static final String RECEIVER_UNKNOWN_RIVVERSION = "RecevierUnknownRivVersion";
   public static final String TJANSTEKONTRAKT_GET_CERTIFICATE_KEY = "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1";
 
   public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER =
@@ -31,6 +32,7 @@ public class TestSoapRequests {
       RECEIVER_WITH_NO_VAGVAL);
   public static final String GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
       RECEVIER_NO_PRODUCER_AVAILABLE);
-
+  public static final String GET_CERTIFICATE_UNKNOWN_RIVVERSION_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+      RECEIVER_UNKNOWN_RIVVERSION);
 
 }
