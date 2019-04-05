@@ -1,0 +1,16 @@
+version: '3'
+services:
+  jenkins:
+    build: .
+    environment:
+      - TZ=${TZ}
+      - _JAVA_OPTIONS=${_JAVA_OPTIONS}
+    image: jenkins-image
+    container_name: jenkins-container
+    volumes:
+      - home:/var/jenkins_home
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+volumes:
+    home:
