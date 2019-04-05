@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+      
+    stages {
+        
+        stage('Preparation') {
+            environment { 
+                REPO_BRANCH = 'develop'
+                REPO_URL = 'https://github.com/skltp-incubator/vp-camel.git'
+            }
+            steps {
+                echo 'Cleaning workspace..'
+                cleanWs()
+                
+                echo 'Cloning repository...'
+                git branch: REPO_BRANCH, url: REPO_URL
+            }
+        }
+        
+        stage('Build') {
+            steps{
+                echo 'Compiling, testing and building...'
+                sh label: '', script: 'mvn clean package'   
+            }
+        }
+        
+        stage('Results'){
+            steps{
+                junit '**/target/surefire-reports/TEST-*.xml'
+                archiveArtifacts '**/target/*.jar'    
+            }
+        }
+        
+    }
+}
