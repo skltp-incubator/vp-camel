@@ -9,7 +9,7 @@ import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
-import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
+import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
 import se.skl.tp.vp.vagval.*;
@@ -42,7 +42,7 @@ public class VPRouter extends RouteBuilder {
     CertificateExtractorProcessor certificateExtractorProcessor;
 
     @Autowired
-    HttpHeaderExtractorProcessor httpHeaderExtractorProcessor;
+    HttpSenderIdExtractorProcessor httpSenderIdExtractorProcessor;
 
     @Autowired
     RequestReaderProcessor requestReaderProcessor;
@@ -81,7 +81,7 @@ public class VPRouter extends RouteBuilder {
                 .choice().when(header("wsdl").isNotNull())
                     .process(wsdlProcessor)
                 .otherwise()
-                    .process(httpHeaderExtractorProcessor)
+                    .process(httpSenderIdExtractorProcessor)
                     .to(DIRECT_VP)
                 .end();
 

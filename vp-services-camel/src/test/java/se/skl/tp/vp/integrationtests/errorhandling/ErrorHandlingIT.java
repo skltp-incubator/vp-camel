@@ -7,6 +7,7 @@ import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP005;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP009;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.TJANSTEKONTRAKT_GET_CERTIFICATE_KEY;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
@@ -150,6 +152,22 @@ public class ErrorHandlingIT {
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP009.getCode());
+  }
+
+  @Test
+  public void shouldGetVP011ifIpAddressIsNotWhitelisted() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "Urken");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
+    headers.put("X-Forwarded-For", "10.20.30.40");
+    String result = testConsumer.sendHttpRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_, headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    assertStringContains(soapBody.getFault().getFaultString(), VP011.getCode());
+    assertStringContains(soapBody.getFault().getFaultString(), "10.20.30.40");
   }
 
 }
