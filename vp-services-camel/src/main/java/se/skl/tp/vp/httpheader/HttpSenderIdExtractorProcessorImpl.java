@@ -16,9 +16,9 @@ import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
-public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProcessor {
+public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractorProcessor {
 
-    private static Logger LOGGER = LogManager.getLogger(HttpHeaderExtractorProcessorImpl.class);
+    private static Logger LOGGER = LogManager.getLogger(HttpSenderIdExtractorProcessorImpl.class);
 
     private IPWhitelistHandler ipWhitelistHandler;
     private HeaderCertificateHelper headerCertificateHelper;
@@ -26,7 +26,7 @@ public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProc
     private String vpInstanceId;
 
     @Autowired
-    public HttpHeaderExtractorProcessorImpl(Environment env,
+    public HttpSenderIdExtractorProcessorImpl(Environment env,
                                             SenderIpExtractor senderIpExtractor,
                                             HeaderCertificateHelper headerCertificateHelper,
                                             IPWhitelistHandler ipWhitelistHandler) {

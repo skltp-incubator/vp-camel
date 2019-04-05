@@ -9,10 +9,6 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import se.skl.tp.vp.constants.PropertyConstants;
-import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.httpheader.SenderIpExtractorFromHeader;
 
