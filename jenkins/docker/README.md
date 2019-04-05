@@ -1,5 +1,5 @@
 # Dockerized Jenkins with Maven
-This folder contains everything needed to run Jenkins in a Docker container, with Maven pre-configured. The Dockerfile installs Jenkins and Maven. The environment variable `_JAVA_OPTIONS_` is specified to avoid the bug with Maven's surefire plugin, as discussed here: https://stackoverflow.com/a/53085816. The easiest way to get up and running is by using the docker-compose file.
+This folder contains everything needed to run Jenkins in a Docker container, with Maven pre-configured. The Dockerfile installs Jenkins and Maven. The environment variable `_JAVA_OPTIONS` is specified to avoid the bug with Maven's surefire plugin, as discussed here: https://stackoverflow.com/a/53085816. The easiest way to get up and running is by using the docker-compose file.
 
 ## 1. Directory structure
 
@@ -19,7 +19,7 @@ This folder contains everything needed to run Jenkins in a Docker container, wit
 Choose one of the following methods to create and run a Jenkins docker container.
 
 ### 3.1. Commands to start from docker-compose
-esetExecute these commands in the folder where this README and `docker-compose.ýml` file are located.
+Execute these commands in the folder where this README and `docker-compose.ýml` file are located.
 1. `docker-compose up`. This command build the docker image and starts the Jenkins docker container.
 
 ### 3.2 Commands to start from Dockerfile
