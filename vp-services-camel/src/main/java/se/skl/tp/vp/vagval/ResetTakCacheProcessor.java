@@ -6,24 +6,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import se.skltp.takcache.TakCache;
+import se.skl.tp.vp.service.TakCacheService;
 import se.skltp.takcache.TakCacheLog;
 
 @Component
 public class ResetTakCacheProcessor implements Processor {
     private Logger log = LoggerFactory.getLogger(ResetTakCacheProcessor.class);
 
-    private final TakCache takCache;
+    private final TakCacheService takService;
 
     @Autowired
-    public ResetTakCacheProcessor(TakCache takCache) {
-        this.takCache = takCache;
+    public ResetTakCacheProcessor(TakCacheService takService) {
+        this.takService = takService;
     }
 
     @Override
     public void process(Exchange exchange) throws Exception {
         log.info("Start a reset of TAKcache.");
-        TakCacheLog result = takCache.refresh();
+        TakCacheLog result = takService.refresh();
         exchange.getOut().setBody(getResultAsString(result));
         exchange.getOut().setHeader("Content-Type", "text/html;");
         exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);

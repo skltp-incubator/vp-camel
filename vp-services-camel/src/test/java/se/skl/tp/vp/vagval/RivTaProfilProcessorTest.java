@@ -1,25 +1,28 @@
 /**
- * Copyright (c) 2013 Center for eHalsa i samverkan (CeHis).
- * <http://cehis.se/>
+ * Copyright (c) 2013 Center for eHalsa i samverkan (CeHis). <http://cehis.se/>
  * <p>
  * This file is part of SKLTP.
  * <p>
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later
+ * version.
  * <p>
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  * <p>
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package se.skl.tp.vp.vagval;
 
+import java.io.IOException;
+import javax.xml.stream.XMLStreamException;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.component.netty4.NettyConstants;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.DefaultExchange;
+import org.junit.Rule;
 import org.junit.Test;
 
 import javax.xml.stream.XMLEventReader;
@@ -33,171 +36,275 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.Iterator;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.exceptions.VpSemanticException;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static se.skl.tp.vp.vagval.RivTaProfilProcessor.RIV20;
+import static se.skl.tp.vp.vagval.RivTaProfilProcessor.RIV21;
+import static se.skl.tp.vp.vagval.RivTaProfilProcessor.UTF_8;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = VagvalTestConfiguration.class)
 public class RivTaProfilProcessorTest {
-    @Test
-    public void testRiv21To20TransformerSpecial() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/GetSubjectOfCareRequest21.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/GetSubjectOfCareRequest20.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+  @Autowired
+  RivTaProfilProcessor rivTaProfilProcessor;
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM, RivTaProfilProcessor.RIV20_ELEM);
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
-        this.executeComparison(data, expected);
-    }
+  @Test
+  public void testVP001ThrownWhenNoRivProfile() throws Exception {
+    thrown.expect(VpSemanticException.class);
+    thrown.expectMessage(containsString("VP001"));
 
-    @Test
-    public void testRiv21To20Transformer() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/PingForConfiguration-request-rivtabp21-input.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+    Exchange exchange = createExchange(null, RIV20);
+    addInBodyFromFile(exchange, "testfiles/GetSubjectOfCareRequest20.xml");
+    rivTaProfilProcessor.process(exchange);
+  }
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/PingForConfiguration-expected-rivtabp20-result.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+  @Test
+  public void testVP005ThrownWhenNoOutProfileConversionIsPossible() throws Exception {
+    thrown.expect(VpSemanticException.class);
+    thrown.expectMessage(containsString("VP005"));
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM, RivTaProfilProcessor.RIV20_ELEM);
+    Exchange exchange = createExchange(RIV20, "RIVTABP22");
+    addInBodyFromFile(exchange, "testfiles/GetSubjectOfCareRequest20.xml");
+    rivTaProfilProcessor.process(exchange);
+  }
 
-        this.executeComparison(data, expected);
-    }
+  @Test
+  public void testVP005ThrownWhenNoInProfileConversionIsPossible() throws Exception {
+    thrown.expect(VpSemanticException.class);
+    thrown.expectMessage(containsString("VP005"));
 
-    @Test
-    public void testRiv20To21Transformer() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/PingForConfiguration-request-input.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+    Exchange exchange = createExchange("RIVTABP22", RIV20);
+    addInBodyFromFile(exchange, "testfiles/GetSubjectOfCareRequest20.xml");
+    rivTaProfilProcessor.process(exchange);
+  }
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/PingForConfiguration-expected-result.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+  @Test
+  public void testRivVersionChangedWhenTransformationIsMade21To20() throws Exception {
+    Exchange exchange = createExchange(RIV21, RIV20);
+    addInBodyFromFile(exchange, "testfiles/GetSubjectOfCareRequest21.xml");
+    rivTaProfilProcessor.process(exchange);
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_ELEM, RivTaProfilProcessor.RIV21_ELEM);
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/GetSubjectOfCareRequest20.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+    XMLStreamReader resultBody = (XMLStreamReader)exchange.getIn().getBody();
+    this.executeComparison(toXMLEventReader(resultBody), expected);
+    assertEquals(exchange.getProperty(VPExchangeProperties.RIV_VERSION), RIV20);
+  }
 
-        this.executeComparison(data, expected);
+  @Test
+  public void testNothingChangedWhenNoTransformation() throws Exception {
+    Exchange exchange = createExchange(RIV21, RIV21);
+    addInBodyFromFile(exchange, "testfiles/GetSubjectOfCareRequest21.xml");
+    rivTaProfilProcessor.process(exchange);
 
-    }
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/GetSubjectOfCareRequest21.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+    XMLStreamReader resultBody = (XMLStreamReader)exchange.getIn().getBody();
+    this.executeComparison(toXMLEventReader(resultBody), expected);
+    assertEquals(exchange.getProperty(VPExchangeProperties.RIV_VERSION), RIV21);
+  }
 
-    @Test
-    public void riv21To20WhenNamsespaceIsInAddressingElement() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader().getResource("testfiles/Rivta21Request.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+  @Test
+  public void testRiv21To20TransformerSpecial() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/GetSubjectOfCareRequest21.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/Rivta20Request.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/GetSubjectOfCareRequest20.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM, RivTaProfilProcessor.RIV20_ELEM);
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM,
+        RivTaProfilProcessor.RIV20_ELEM);
 
-        this.executeComparison(data, expected);
-    }
+    this.executeComparison(toXMLEventReader(data), expected);
+  }
 
-    @Test
-    public void riv20To21WhenNamsespaceIsInAddressingElement() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader().getResource("testfiles/Rivta20Request.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+  @Test
+  public void testRiv21To20Transformer() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/PingForConfiguration-request-rivtabp21-input.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/Rivta21Request.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/PingForConfiguration-expected-rivtabp20-result.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_ELEM, RivTaProfilProcessor.RIV21_ELEM);
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM,
+        RivTaProfilProcessor.RIV20_ELEM);
 
-        this.executeComparison(data, expected);
-    }
+    this.executeComparison(toXMLEventReader(data), expected);
+  }
 
-    @Test
-    public void riv21To20WhenNamsespaceIsInHeaderElement() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader().getResource("testfiles/Rivta21RequestNamespaceInHeader.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+  @Test
+  public void testRiv20To21Transformer() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/PingForConfiguration-request-input.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/Rivta20RequestNamespaceInHeader.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/PingForConfiguration-expected-result.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM, RivTaProfilProcessor.RIV20_ELEM);
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_ELEM,
+        RivTaProfilProcessor.RIV21_ELEM);
 
-        System.out.println(new String(data.toByteArray(), "UTF-8"));
+    this.executeComparison(toXMLEventReader(data), expected);
 
-        this.executeComparison(data, expected);
-    }
+  }
 
-    @Test
-    public void riv20To21WhenNamsespaceIsInHeaderElement() throws Exception {
-        final URL resource = Thread.currentThread().getContextClassLoader().getResource("testfiles/Rivta20RequestNamespaceInHeader.xml");
-        final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+  @Test
+  public void riv21To20WhenNamsespaceIsInAddressingElement() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader().getResource("testfiles/Rivta21Request.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-        final URL resultFile = Thread.currentThread().getContextClassLoader()
-                .getResource("testfiles/Rivta21RequestNamespaceInHeader.xml");
-        final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/Rivta20Request.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-        final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
-                RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_ELEM, RivTaProfilProcessor.RIV21_ELEM);
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM,
+        RivTaProfilProcessor.RIV20_ELEM);
 
-        this.executeComparison(data, expected);
-    }
+    this.executeComparison(toXMLEventReader(data), expected);
+  }
 
-    private void executeComparison(final ByteArrayOutputStream transformed, final XMLEventReader expected)
-            throws Exception {
+  @Test
+  public void riv20To21WhenNamsespaceIsInAddressingElement() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader().getResource("testfiles/Rivta20Request.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-        final XMLEventReader result = XMLInputFactory.newInstance().createXMLEventReader(
-                new ByteArrayInputStream(transformed.toByteArray()), "UTF-8");
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/Rivta21Request.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-        System.out.println("Comparing xml results");
-        while (expected.hasNext()) {
-            final XMLEvent e1 = expected.nextEvent();
-            final XMLEvent e2 = result.nextEvent();
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_ELEM,
+        RivTaProfilProcessor.RIV21_ELEM);
 
-            if (e1.isStartElement()) {
+    this.executeComparison(toXMLEventReader(data), expected);
+  }
 
-                final StartElement se1 = e1.asStartElement();
-                final StartElement se2 = e2.asStartElement();
+  @Test
+  public void riv21To20WhenNamsespaceIsInHeaderElement() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/Rivta21RequestNamespaceInHeader.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-                System.out.println(se1.getName().getLocalPart() + " == " + se2.getName().getLocalPart());
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/Rivta20RequestNamespaceInHeader.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-                assertEquals(se1.getName().getLocalPart(), se2.getName().getLocalPart());
-                assertEquals(se1.getName().getPrefix(), se2.getName().getPrefix());
-                assertEquals(se1.getName().getNamespaceURI(), se2.getName().getNamespaceURI());
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_ELEM,
+        RivTaProfilProcessor.RIV20_ELEM);
 
-                @SuppressWarnings("rawtypes")
-                final Iterator ns1 = se1.getNamespaces();
-                @SuppressWarnings("rawtypes")
-                final Iterator ns2 = se2.getNamespaces();
+    System.out.println(new String(data.toByteArray(), "UTF-8"));
 
-                while (ns1.hasNext()) {
-                    final Namespace n1 = (Namespace) ns1.next();
-                    final Namespace n2 = (Namespace) ns2.next();
+    this.executeComparison(toXMLEventReader(data), expected);
+  }
 
-                    System.out.println(n1.getName() + " == " + n2.getName());
+  @Test
+  public void riv20To21WhenNamsespaceIsInHeaderElement() throws Exception {
+    final URL resource = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/Rivta20RequestNamespaceInHeader.xml");
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
 
-                    assertEquals(n1.getPrefix(), n2.getPrefix());
-                    assertEquals(n1.getValue(), n2.getValue());
+    final URL resultFile = Thread.currentThread().getContextClassLoader()
+        .getResource("testfiles/Rivta21RequestNamespaceInHeader.xml");
+    final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
 
-                }
-            }
+    final ByteArrayOutputStream data = RivTaProfilProcessor.transformXml(xstream,
+        RivTaProfilProcessor.RIV20_NS, RivTaProfilProcessor.RIV21_NS, RivTaProfilProcessor.RIV20_ELEM,
+        RivTaProfilProcessor.RIV21_ELEM);
 
-            if (e1.isEndElement()) {
+    this.executeComparison(toXMLEventReader(data), expected);
+  }
 
-                final EndElement ee1 = e1.asEndElement();
-                final EndElement ee2 = e2.asEndElement();
+  private XMLEventReader toXMLEventReader(final XMLStreamReader xmlStreamReader) throws XMLStreamException {
+    return XMLInputFactory.newInstance().createXMLEventReader(xmlStreamReader);
+  }
 
-                System.out.println(ee1.getName().getLocalPart() + " == " + ee2.getName().getLocalPart());
+  private XMLEventReader toXMLEventReader(final ByteArrayOutputStream baos) throws XMLStreamException {
+    return XMLInputFactory.newInstance().createXMLEventReader(new ByteArrayInputStream(baos.toByteArray()), UTF_8);
+  }
 
-                assertEquals(ee1.getName().getLocalPart(), ee2.getName().getLocalPart());
-                assertEquals(ee1.getName().getPrefix(), ee2.getName().getPrefix());
-                assertEquals(ee1.getName().getNamespaceURI(), ee2.getName().getNamespaceURI());
-            }
+  private void executeComparison(final XMLEventReader result, final XMLEventReader expected)
+      throws Exception {
+
+    System.out.println("Comparing xml results");
+    while (expected.hasNext()) {
+      final XMLEvent e1 = expected.nextEvent();
+      final XMLEvent e2 = result.nextEvent();
+
+      if (e1.isStartElement()) {
+
+        final StartElement se1 = e1.asStartElement();
+        final StartElement se2 = e2.asStartElement();
+
+        System.out.println(se1.getName().getLocalPart() + " == " + se2.getName().getLocalPart());
+
+        assertEquals(se1.getName().getLocalPart(), se2.getName().getLocalPart());
+        assertEquals(se1.getName().getPrefix(), se2.getName().getPrefix());
+        assertEquals(se1.getName().getNamespaceURI(), se2.getName().getNamespaceURI());
+
+        @SuppressWarnings("rawtypes") final Iterator ns1 = se1.getNamespaces();
+        @SuppressWarnings("rawtypes") final Iterator ns2 = se2.getNamespaces();
+
+        while (ns1.hasNext()) {
+          final Namespace n1 = (Namespace) ns1.next();
+          final Namespace n2 = (Namespace) ns2.next();
+
+          System.out.println(n1.getName() + " == " + n2.getName());
+
+          assertEquals(n1.getPrefix(), n2.getPrefix());
+          assertEquals(n1.getValue(), n2.getValue());
+
         }
+      }
+
+      if (e1.isEndElement()) {
+
+        final EndElement ee1 = e1.asEndElement();
+        final EndElement ee2 = e2.asEndElement();
+
+        System.out.println(ee1.getName().getLocalPart() + " == " + ee2.getName().getLocalPart());
+
+        assertEquals(ee1.getName().getLocalPart(), ee2.getName().getLocalPart());
+        assertEquals(ee1.getName().getPrefix(), ee2.getName().getPrefix());
+        assertEquals(ee1.getName().getNamespaceURI(), ee2.getName().getNamespaceURI());
+      }
     }
+  }
+
+  private Exchange createExchange(String rivVersionIn, String rivVersionOut) throws IOException, XMLStreamException {
+    CamelContext ctx = new DefaultCamelContext();
+    Exchange ex = new DefaultExchange(ctx);
+    ex.setProperty(VPExchangeProperties.RIV_VERSION, rivVersionIn);
+    ex.setProperty(VPExchangeProperties.RIV_VERSION_OUT, rivVersionOut);
+    return ex;
+  }
+
+  private void addInBodyFromFile(Exchange exchange, String fileName) throws IOException, XMLStreamException {
+    final URL resource = Thread.currentThread().getContextClassLoader().getResource(fileName);
+    final XMLStreamReader xstream = XMLInputFactory.newInstance().createXMLStreamReader(resource.openStream());
+    exchange.getIn().setBody(xstream);
+  }
 }

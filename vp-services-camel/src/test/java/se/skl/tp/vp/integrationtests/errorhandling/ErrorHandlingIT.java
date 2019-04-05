@@ -1,9 +1,10 @@
-package se.skl.tp.vp.integrationtests;
+package se.skl.tp.vp.integrationtests.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP005;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP009;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.soap.SOAPBody;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,10 +34,12 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class ErrorHandlingIT  {
+public class ErrorHandlingIT {
 
   @Autowired
   TestConsumer testConsumer;
+
+  static TakMockWebService takMockWebService;
 
   @SuppressWarnings("unchecked")
   @BeforeClass
@@ -46,10 +50,20 @@ public class ErrorHandlingIT  {
 //    System.setProperty( "com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize", "true");
 
     //TODO Use dynamic ports and also set TAK address used by takcache (Override "takcache.endpoint.address" property)
-    TakMockWebService takMockWebService = new TakMockWebService("http://localhost:8086/tak-services/SokVagvalsInfo/v2");
+    takMockWebService = new TakMockWebService("http://localhost:8086/tak-services/SokVagvalsInfo/v2");
     takMockWebService.start();
+
 //    System.setProperty("takcache.endpoint.address", String.format("http://localhost:%d/tak-services/SokVagvalsInfo/v2", DYNAMIC_PORT));
   }
+
+  @AfterClass
+  public static void afterClass(){
+    if(takMockWebService!=null){
+      takMockWebService.stop();
+    }
+  }
+
+
 
   @Test
   public void shouldGetVP002WhenNoCertificateInHTTPCall() throws Exception {
@@ -86,6 +100,21 @@ public class ErrorHandlingIT  {
     assertStringContains(soapBody.getFault().getFaultString(),
         TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
 
+  }
+
+  @Test
+  public void shouldGetVP005WhenUnkownRivVersionInTAK() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_UNKNOWN_RIVVERSION_, headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
+        soapBody.getFault().getFaultString());
+    assertStringContains(soapBody.getFault().getFaultString(), VP005.getCode());
+    assertStringContains(soapBody.getFault().getFaultString(), "rivtabp20");
   }
 
   @Test
