@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.TestBeanConfiguration;
+import se.skl.tp.vp.service.TakCacheService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
+import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 @RunWith( SpringRunner.class )
@@ -56,11 +58,16 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     @MockBean
     TimeoutConfiguration timeoutConfiguration;
 
+    @Autowired
+    TakCacheService takCacheService;
+
     @Before
     public void setUp() throws Exception {
         createRoute(camelContext);
         camelContext.start();
         resultEndpoint.reset();
+        Mockito.when(takCache.refresh()).thenReturn(createTakCacheLogOk());
+        takCacheService.refresh();
     }
 
     @Test

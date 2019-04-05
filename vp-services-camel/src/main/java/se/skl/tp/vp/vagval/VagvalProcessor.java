@@ -5,17 +5,18 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vagval.VagvalHandler;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
+import se.skl.tp.vp.exceptions.VpSemanticException;
+import se.skl.tp.vp.service.TakCacheService;
 import se.skltp.takcache.RoutingInfo;
 
 @Service
 public class VagvalProcessor implements Processor {
 
     @Autowired
-    VagvalHandler vagvalHandler;
+    TakCacheService takService;
 
     @Autowired
     ExceptionUtil exceptionUtil;
@@ -34,8 +35,11 @@ public class VagvalProcessor implements Processor {
     }
 
     public RoutingInfo getRoutingAddress(String tjanstegranssnitt, String receiverAddress){
+        if (!takService.isInitalized()) {
+            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP008);
+        }
 
-        List<RoutingInfo> routingInfos = vagvalHandler.getRoutingInfo(tjanstegranssnitt, receiverAddress);
+        List<RoutingInfo> routingInfos = takService.getRoutingInfo(tjanstegranssnitt, receiverAddress);
 
         if(routingInfos.isEmpty()){
             exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
@@ -53,13 +57,13 @@ public class VagvalProcessor implements Processor {
 
         return routingInfo;
     }
+
     private void validateRequest(String servicecontractNamespace, String receiverId) {
         //TODO Kontrollera servicecontractNamespace ?
 
         // No receiver ID (to_address) found in message
         exceptionUtil.raiseError(receiverId == null, VpSemanticErrorCodeEnum.VP003);
     }
-
 
     private String getRequestSummaryString(String tjanstegranssnitt, String receiverAddress) {
         return String.format( "serviceNamespace: %s, receiverId: %s",tjanstegranssnitt, receiverAddress);

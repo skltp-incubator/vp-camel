@@ -8,6 +8,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP008;
+import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogFailed;
+import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.AUTHORIZED_RECEIVER_IN_HSA_TREE;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.NAMNRYMD_1;
@@ -33,6 +36,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import se.skl.tp.hsa.cache.HsaCache;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticException;
+import se.skl.tp.vp.service.TakCacheService;
 import se.skltp.takcache.TakCache;
 
 @RunWith( CamelSpringBootRunner.class )
@@ -48,11 +52,18 @@ public class BehorighetProcessorTest  {
     @MockBean
     TakCache takCache;
 
+    @Autowired
+    TakCacheService takCacheService;
+
     @Before
     public void beforeTest()  {
         URL url = getClass().getClassLoader().getResource("hsacache.xml");
         URL urlHsaRoot = getClass().getClassLoader().getResource("hsacachecomplementary.xml");
+
+        Mockito.when(takCache.refresh()).thenReturn(createTakCacheLogOk());
+
         hsaCache.init(url.getFile(), urlHsaRoot.getFile());
+        takCacheService.refresh();
     }
 
     @Test
@@ -133,6 +144,22 @@ public class BehorighetProcessorTest  {
             assertTrue(vpSemanticException.getMessage().contains( NAMNRYMD_1));
             assertTrue(vpSemanticException.getMessage().contains( SENDER_1));
             assertTrue(vpSemanticException.getMessage().contains( RECEIVER_1));
+        }
+    }
+
+    @Test
+    public void testNotAuthorizedShouldThrowVP008Exception() throws Exception {
+        Mockito.when(takCache.refresh()).thenReturn(createTakCacheLogFailed());
+        takCacheService.refresh();
+
+        Mockito.when(takCache.isAuthorized(anyString(),anyString(),anyString())).thenReturn(true);
+
+        try {
+            Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, RECEIVER_1);
+            behorighetProcessor.process(ex);
+            fail("Förväntade ett VP008 SemanticException");
+        }catch(VpSemanticException vpSemanticException){
+            assertEquals(VP008, vpSemanticException.getErrorCode());
         }
     }
 
