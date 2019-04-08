@@ -31,6 +31,8 @@ public class VPRouter extends RouteBuilder {
     public static final String DIRECT_VP = "direct:vp";
     public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${exchange.getProperty('vagval')}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
+    public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
+    public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
 
     @Autowired
     VagvalProcessor vagvalProcessor;
@@ -88,8 +90,8 @@ public class VPRouter extends RouteBuilder {
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .streamCaching()
                 .process(requestReaderProcessor)
-                .process(vagvalProcessor)
-                .process(behorighetProcessor)
+                .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
+                .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
                 .process(requestTimoutProcessor)
                 .process(rivTaProfilProcessor)
                 .doTry()
