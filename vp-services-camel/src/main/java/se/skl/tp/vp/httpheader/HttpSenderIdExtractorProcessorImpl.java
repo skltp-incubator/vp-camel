@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.constants.VPConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
@@ -42,23 +41,12 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
         Message message = exchange.getIn();
         String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
         String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
-        //The original sender of the request, that might have been transferred by an RTjP. Can be null.
-        String originalServiceconsumerHsaid = message.getHeader(VPExchangeProperties.ORIGINAL_SERVICE_CONSUMER_HSA_ID, String.class);
 
         /*
          * Extract sender ip address to session scope to be able to log in EventLogger.
          */
         String senderIpAdress = senderIpExtractor.extractSenderIpAdress(message);
         exchange.setProperty(VPExchangeProperties.SENDER_IP_ADRESS, senderIpAdress);
-        boolean isOnWhitelist = ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress);
-
-        if (originalServiceconsumerHsaid != null && !originalServiceconsumerHsaid.trim().isEmpty()) {
-            exchange.setProperty(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
-            exchange.getOut().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
-        } else {
-            exchange.setProperty(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
-            exchange.getOut().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
-        }
 
         if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
             LOGGER.debug("Yes, sender id extracted from inbound property {}: {}, check whitelist!", HttpHeaders.X_VP_SENDER_ID, senderId);
