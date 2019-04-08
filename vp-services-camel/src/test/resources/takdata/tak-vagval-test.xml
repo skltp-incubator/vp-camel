@@ -54,4 +54,32 @@
     <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
     <ns2:adress>https://localhost:1974/Im/not/available</ns2:adress>
   </virtualiseringsInfo>
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>RecevierMultipleVagval</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP20</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>https://localhost:1974/Im/not/available</ns2:adress>
+  </virtualiseringsInfo>
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>RecevierMultipleVagval</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>https://localhost:1974/Im/not/available/either</ns2:adress>
+  </virtualiseringsInfo>
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>RecevierNoPhysicalAddress</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress></ns2:adress>
+  </virtualiseringsInfo>
 </persistentCache>
+
