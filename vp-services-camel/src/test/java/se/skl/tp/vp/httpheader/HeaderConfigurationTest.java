@@ -24,9 +24,7 @@ import static se.skl.tp.vp.errorhandling.ErrorInResponseTest.VP_ADDRESS;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
-//@TestPropertySource("classpath:application.properties")
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class OriginalConsumerTest   extends CamelTestSupport {
+public class HeaderConfigurationTest extends CamelTestSupport {
 
 
     private static MockProducer mockProducer;
@@ -43,7 +41,7 @@ public class OriginalConsumerTest   extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Autowired
-    HttpHeaderExtractorProcessor httpHeaderExtractorProcessor;
+    HeaderConfigurationProcessorImpl headerConfigurationProcessor;
 
     @Before
     public void setUp() throws Exception {
@@ -58,11 +56,26 @@ public class OriginalConsumerTest   extends CamelTestSupport {
     }
 
     @Test
-    public void testSendHeadersMessage() throws Exception {
+    public void positiveHeaderConfigTest() throws Exception {
         String body = "aTestBody";
-        //resultEndpoint.expectedHeaderReceived(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
-        template.sendBodyAndHeaders(body, createHeaders());
-        assert("aTestConsumerId" == resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+        Map headers = createHeaders();
+        headers.put(VPExchangeProperties.SKLTP_CORRELATION_ID, "aTestCorrelationId");
+        headers.put(VPExchangeProperties.ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
+        template.sendBodyAndHeaders(body, headers);
+        assert("aTestConsumerId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+        assert("aTestCorrelationId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
+    }
+
+    @Test
+    public void negativeHeaderConfigurationTest() throws Exception {
+        String body = "aTestBody";
+        Map headers = createHeaders();
+        template.sendBodyAndHeaders(body, headers);
+        assert("UnitTest".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+        String correlationId = (String) resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
+        assertNotNull(correlationId);
+        assert(correlationId.length() > 35);
+        assertNotEquals("aTestCorrelationId", correlationId);
     }
 
     private void addConsumerRoute(CamelContext camelContext) throws Exception {
@@ -71,7 +84,7 @@ public class OriginalConsumerTest   extends CamelTestSupport {
                 @Override
                 public void configure() throws Exception {
                     from("direct:start").routeDescription("Consumer").id("Consumer")
-                            .process(httpHeaderExtractorProcessor)
+                            .process(headerConfigurationProcessor)
                             .to("netty4-http:"+VP_ADDRESS)
                             .to("mock:result"); ;
                 }
@@ -85,7 +98,6 @@ public class OriginalConsumerTest   extends CamelTestSupport {
         Map<String, Object> headers = new HashMap<>();
         headers.put(HttpHeaders.X_VP_SENDER_ID, "UnitTest");
         headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
-        headers.put(VPExchangeProperties.ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
         headers.put("X-Forwarded-For", "1.2.3.4");
         return headers;
     }
