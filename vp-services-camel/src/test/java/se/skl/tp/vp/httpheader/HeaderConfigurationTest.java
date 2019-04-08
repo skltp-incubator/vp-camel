@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
@@ -24,6 +26,8 @@ import static se.skl.tp.vp.errorhandling.ErrorInResponseTest.VP_ADDRESS;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
+@TestPropertySource("classpath:application.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HeaderConfigurationTest extends CamelTestSupport {
 
 
