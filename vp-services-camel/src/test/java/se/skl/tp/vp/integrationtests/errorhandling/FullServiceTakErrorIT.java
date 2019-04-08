@@ -28,7 +28,7 @@ import se.skltp.takcache.TakCacheLog.RefreshStatus;
 @SpringBootTest
 //@TestPropertySource(locations = "classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class TakErrorIT {
+public class FullServiceTakErrorIT {
 
   @Autowired
   TestConsumer testConsumer;
