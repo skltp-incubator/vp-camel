@@ -26,6 +26,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.TestBeanConfiguration;
+import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
 import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import se.skl.tp.vp.service.TakCacheService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
@@ -53,6 +54,9 @@ public class ErrorInResponseTest {
 
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
+
+  @MockBean
+  HeaderConfigurationProcessor headerConfigurationProcessor;
 
   @MockBean
   TakCache takCache;

@@ -1,10 +1,6 @@
 package se.skl.tp.vp.timeout;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -20,6 +16,8 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
+import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.service.TakCacheService;
@@ -48,6 +46,9 @@ public class ProducerTimeoutTest extends CamelTestSupport {
 
     @Autowired
     SenderIpExtractor senderIpExtractor;
+
+    @MockBean
+    HeaderConfigurationProcessor headerConfigurationProcessor;
 
     @Autowired
     CamelContext camelContext;
