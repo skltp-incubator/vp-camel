@@ -20,10 +20,6 @@ import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static se.skl.tp.vp.errorhandling.ErrorInResponseTest.MOCK_PRODUCER_ADDRESS;
-import static se.skl.tp.vp.errorhandling.ErrorInResponseTest.VP_ADDRESS;
-
-
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
@@ -50,13 +46,11 @@ public class HeaderConfigurationTest extends CamelTestSupport {
     @Before
     public void setUp() throws Exception {
         if(!isContextStarted){
-            mockProducer = new MockProducer(camelContext, MOCK_PRODUCER_ADDRESS);
-            addConsumerRoute(camelContext);
+            createRoute(camelContext);
             camelContext.start();
             isContextStarted=true;
         }
         resultEndpoint.reset();
-
     }
 
     @Test
@@ -72,24 +66,23 @@ public class HeaderConfigurationTest extends CamelTestSupport {
 
     @Test
     public void negativeHeaderConfigurationTest() throws Exception {
-        String body = "aTestBody";
+        String body = "";
         Map headers = createHeaders();
         template.sendBodyAndHeaders(body, headers);
-        assert("UnitTest".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+        assert("testSenderId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
         String correlationId = (String) resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
         assertNotNull(correlationId);
-        assert(correlationId.length() > 35);
         assertNotEquals("aTestCorrelationId", correlationId);
+        assert(correlationId.length() > 35);
     }
 
-    private void addConsumerRoute(CamelContext camelContext) throws Exception {
+    private void createRoute(CamelContext camelContext) throws Exception {
         try {
             camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
                     from("direct:start").routeDescription("Consumer").id("Consumer")
                             .process(headerConfigurationProcessor)
-                            .to("netty4-http:"+VP_ADDRESS)
                             .to("mock:result"); ;
                 }
             });
@@ -100,9 +93,10 @@ public class HeaderConfigurationTest extends CamelTestSupport {
 
     public Map createHeaders() {
         Map<String, Object> headers = new HashMap<>();
-        headers.put(HttpHeaders.X_VP_SENDER_ID, "UnitTest");
+        headers.put(HttpHeaders.X_VP_SENDER_ID, "testSenderId");
         headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
-        headers.put("X-Forwarded-For", "1.2.3.4");
+        headers.put("X-Forwarded-For", "2.3.4.5");
+        headers.put(VPExchangeProperties.RECEIVER_ID, "test1956receiver");
         return headers;
     }
 }
