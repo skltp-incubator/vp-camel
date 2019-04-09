@@ -35,10 +35,10 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
         }
         String isHttps = ((String)exchange.getProperty("IS_HTTPS"));
         if (isHttps == null) {
-            exchange.setProperty(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
+            exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
         } else {
             if (propagateCorrelationIdForHttps) {
-                exchange.setProperty(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
+                exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
             }
         }
     }
@@ -50,9 +50,9 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
         String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
 
         if (originalServiceconsumerHsaid != null && !originalServiceconsumerHsaid.trim().isEmpty()) {
-            exchange.setProperty(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
+            exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
         } else {
-            exchange.setProperty(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
+            exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
         }
     }
 }
