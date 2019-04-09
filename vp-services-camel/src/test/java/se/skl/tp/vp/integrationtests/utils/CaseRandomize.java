@@ -2,7 +2,7 @@ package se.skl.tp.vp.integrationtests.utils;
 
 public class CaseRandomize {
 
-  public static boolean getRandomBoolean() {
+  private static boolean getRandomBoolean() {
     return Math.random() < 0.5;
   }
 
@@ -16,7 +16,7 @@ public class CaseRandomize {
    *     is the same.
    */
   public static String randomCase(String pSource) {
-    if (pSource == null || pSource == "") {
+    if (pSource == null || pSource.equals("")) {
       return pSource;
     }
 
