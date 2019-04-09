@@ -28,9 +28,11 @@ Execute the commands in order from this directory. These steps are equal to runn
 1. Create a docker image named `jenkins-image` from the Dockerfile: 
 	* `docker build -t jenkins-image .`
 2. Create and run a docker container named `jenkins-container` based on the `jenkins-image` from step 1. The `-v` flag is used to create a volume on the host to persist data. The `-e` flag is used to specify an environment variable. Here, the `TZ` variable specifies the timezone for the server.  
-	* `docker run -p 8080:8080 -p 50000:50000 -e _JAVA_OPTIONS_=-Djdk.net.URLClassPath.disableClassPathURLCheck=true -e TZ=Europe/Stockholm -v jenkins_home:/var/jenkins_home
+	* `docker run --name jenkins-container -p 8080:8080 -p 50000:50000 -e _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true -e TZ=Europe/Stockholm -v jenkins_home:/var/jenkins_home
 jenkins-image`
 
 ## 4. Tips
 
 1. To copy data from a docker container to your local computer, use the `docker cp CONTAINER:SRC_PATH DEST_PATH` command. For example, to copy a Jenkins job's config file, run the following command: `docker cp jenkins-container:/var/jenkins_home/jobs/my-job/config.xml C:\Jenkins\jobs\my-job`
+
+docker run -p 8080:8080 -p 50000:50000 -e _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true -e TZ=Europe/Stockholm -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock \ -v $(which docker):/usr/bin/docker jenkins-image
