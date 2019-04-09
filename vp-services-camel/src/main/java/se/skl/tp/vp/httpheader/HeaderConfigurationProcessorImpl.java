@@ -51,10 +51,8 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
 
         if (originalServiceconsumerHsaid != null && !originalServiceconsumerHsaid.trim().isEmpty()) {
             exchange.setProperty(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
-            exchange.getOut().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
         } else {
             exchange.setProperty(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
-            exchange.getOut().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
         }
     }
 }
