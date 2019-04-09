@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class HeadersTestData {
+class HeadersTestData {
   private Set<String> expectedHeadersIgnoreCase;
   private Set<String> removers;
   private Set<String> keepers;
@@ -19,9 +19,9 @@ public class HeadersTestData {
    * Place holder for test data "headers" for testing removal/filtering of headers
    *
    */
-  public HeadersTestData() {
+  HeadersTestData() {
 
-    expectedHeadersIgnoreCase = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    expectedHeadersIgnoreCase = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     removers = new HashSet<>();
     keepers = new HashSet<>();
     allTestHeaders = new HashMap<>();
@@ -35,7 +35,7 @@ public class HeadersTestData {
    * @see #initExpectedAndTestHeaders()
    * @return headers including both keepers and removers
    */
-  public Map<String,Object> getAllTestHeaders(){
+  Map<String,Object> getAllTestHeaders(){
     return allTestHeaders;
   }
 
@@ -57,7 +57,7 @@ public class HeadersTestData {
    * @see #getKeepers()
    * @return a set equivalent to keepers but where contains ignores case
    */
-  public Set<String> getExpectedHeadersIgnoreCase() {
+  Set<String> getExpectedHeadersIgnoreCase() {
     return expectedHeadersIgnoreCase;
   }
   /**
@@ -67,7 +67,7 @@ public class HeadersTestData {
    * @see #initRemovers()
    * @return Returns a set of "headers" that the remove RegExp* should match
    */
-  public Set<String> getRemovers() {
+  Set<String> getRemovers() {
     return removers;
   }
 
@@ -75,7 +75,7 @@ public class HeadersTestData {
    * @see #initKeepers()
    * @return Returns a set of "headers" that the keep RegExp* should match
    */
-  public Set<String> getKeepers() {
+  Set<String> getKeepers() {
     return keepers;
   }
 
