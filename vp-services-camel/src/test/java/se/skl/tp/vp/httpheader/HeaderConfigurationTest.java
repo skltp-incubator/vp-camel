@@ -26,9 +26,6 @@ import java.util.Map;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HeaderConfigurationTest extends CamelTestSupport {
 
-
-    private static MockProducer mockProducer;
-
     private static boolean isContextStarted = false;
 
     @Autowired
@@ -54,26 +51,40 @@ public class HeaderConfigurationTest extends CamelTestSupport {
     }
 
     @Test
-    public void positiveHeaderConfigTest() throws Exception {
+    public void positiveCorrelationIdTest() {
         String body = "aTestBody";
         Map headers = createHeaders();
         headers.put(VPExchangeProperties.SKLTP_CORRELATION_ID, "aTestCorrelationId");
-        headers.put(VPExchangeProperties.ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
         template.sendBodyAndHeaders(body, headers);
-        assert("aTestConsumerId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
         assert("aTestCorrelationId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
     }
 
     @Test
-    public void negativeHeaderConfigurationTest() throws Exception {
+    public void positiveOriginalConsumerTest() {
+        String body = "aTestBody";
+        Map headers = createHeaders();
+        headers.put(VPExchangeProperties.ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
+        template.sendBodyAndHeaders(body, headers);
+        assert("aTestConsumerId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+    }
+
+    @Test
+    public void negativeCorrelationIdTest() {
         String body = "";
         Map headers = createHeaders();
         template.sendBodyAndHeaders(body, headers);
-        assert("testSenderId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
         String correlationId = (String) resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
         assertNotNull(correlationId);
         assertNotEquals("aTestCorrelationId", correlationId);
         assert(correlationId.length() > 35);
+    }
+
+    @Test
+    public void negativeOriginalConsumerTest() {
+        String body = "";
+        Map headers = createHeaders();
+        template.sendBodyAndHeaders(body, headers);
+        assert("testSenderId".equals(resultEndpoint.getReceivedExchanges().get(0).getProperties().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
     }
 
     private void createRoute(CamelContext camelContext) throws Exception {
