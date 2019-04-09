@@ -9,7 +9,7 @@ import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
-import se.skl.tp.vp.httpheader.HttpHeaderExtractorProcessor;
+import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
 import se.skl.tp.vp.vagval.*;
@@ -25,16 +25,14 @@ public class VPRouter extends RouteBuilder {
     public static final String VP_HTTP_ROUTE = "vp-http-route";
     public static final String VP_HTTPS_ROUTE = "vp-https-route";
     public static final String VP_ROUTE = "vp-route";
-    public static final String RESET_HSA_CACHE_ROUTE = "reset-hsa-cache-route";
-    public static final String RESET_TAK_CACHE_ROUTE = "reset-tak-cache-route";
 
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?matchOnUriPrefix=true";
-    public static final String NETTY4_HTTP_FROM_RESET_HSA_CACHE = "netty4-http:{{vp.hsa.reset.cache.url}}";
-    public static final String NETTY4_HTTP_FROM_RESET_TAK_CACHE = "netty4-http:{{vp.reset.cache.url}}";
     public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
     public static final String DIRECT_VP = "direct:vp";
     public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${exchange.getProperty('vagval')}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
+    public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
+    public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
 
     @Autowired
     VagvalProcessor vagvalProcessor;
@@ -46,13 +44,7 @@ public class VPRouter extends RouteBuilder {
     CertificateExtractorProcessor certificateExtractorProcessor;
 
     @Autowired
-    HttpHeaderExtractorProcessor httpHeaderExtractorProcessor;
-
-    @Autowired
-    ResetHsaCacheProcessor resetHsaCacheProcessor;
-
-    @Autowired
-    ResetTakCacheProcessor resetTakCacheProcessor;
+    HttpSenderIdExtractorProcessor httpSenderIdExtractorProcessor;
 
     @Autowired
     RequestReaderProcessor requestReaderProcessor;
@@ -91,15 +83,15 @@ public class VPRouter extends RouteBuilder {
                 .choice().when(header("wsdl").isNotNull())
                     .process(wsdlProcessor)
                 .otherwise()
-                    .process(httpHeaderExtractorProcessor)
+                    .process(httpSenderIdExtractorProcessor)
                     .to(DIRECT_VP)
                 .end();
 
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .streamCaching()
                 .process(requestReaderProcessor)
-                .process(vagvalProcessor)
-                .process(behorighetProcessor)
+                .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
+                .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
                 .process(requestTimoutProcessor)
                 .process(rivTaProfilProcessor)
                 .doTry()
@@ -125,11 +117,6 @@ public class VPRouter extends RouteBuilder {
                     .endChoice()
                 .end();
 
-        from(NETTY4_HTTP_FROM_RESET_TAK_CACHE).routeId(RESET_TAK_CACHE_ROUTE)
-                .process(resetHsaCacheProcessor);
-
-        from(NETTY4_HTTP_FROM_RESET_HSA_CACHE).routeId(RESET_HSA_CACHE_ROUTE)
-                .process(resetTakCacheProcessor);
 
     }
 }

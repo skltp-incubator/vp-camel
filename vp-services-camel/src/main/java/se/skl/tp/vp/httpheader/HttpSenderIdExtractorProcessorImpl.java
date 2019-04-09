@@ -16,9 +16,9 @@ import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
-public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProcessor {
+public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractorProcessor {
 
-    private static Logger LOGGER = LogManager.getLogger(HttpHeaderExtractorProcessorImpl.class);
+    private static Logger LOGGER = LogManager.getLogger(HttpSenderIdExtractorProcessorImpl.class);
 
     private IPWhitelistHandler ipWhitelistHandler;
     private HeaderCertificateHelper headerCertificateHelper;
@@ -26,7 +26,7 @@ public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProc
     private String vpInstanceId;
 
     @Autowired
-    public HttpHeaderExtractorProcessorImpl(Environment env,
+    public HttpSenderIdExtractorProcessorImpl(Environment env,
                                             SenderIpExtractor senderIpExtractor,
                                             HeaderCertificateHelper headerCertificateHelper,
                                             IPWhitelistHandler ipWhitelistHandler) {
@@ -43,14 +43,13 @@ public class HttpHeaderExtractorProcessorImpl implements HttpHeaderExtractorProc
         String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
 
         /*
-         * Extract sender ip adress to session scope to be able to log in EventLogger.
+         * Extract sender ip address to session scope to be able to log in EventLogger.
          */
         String senderIpAdress = senderIpExtractor.extractSenderIpAdress(message);
         exchange.setProperty(VPExchangeProperties.SENDER_IP_ADRESS, senderIpAdress);
 
         if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
             LOGGER.debug("Yes, sender id extracted from inbound property {}: {}, check whitelist!", HttpHeaders.X_VP_SENDER_ID, senderId);
-
             /*
              * x-vp-sender-id exist as inbound property and x-vp-instance-id macthes this VP instance, a mandatory check against the whitelist of
              * ip addresses is needed. VPUtil.checkCallerOnWhiteList throws VpSemanticException in case ip address is not in whitelist.

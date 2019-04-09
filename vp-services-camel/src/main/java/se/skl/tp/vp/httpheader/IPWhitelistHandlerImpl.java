@@ -24,7 +24,7 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     @Override
     public boolean isCallerOnWhiteList(String senderIpAdress) {
-        LOGGER.debug("Check if caller {} is in white list berfore using HTTP header {}...", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
+        LOGGER.debug("Check if caller {} is in white list before using HTTP header {}...", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
 
         //When no ip address exist we can not validate against whitelist
         if (senderIpAdress == null || senderIpAdress.trim().isEmpty()) {

@@ -2,6 +2,7 @@ package se.skl.tp.vp.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
+import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 import java.util.ArrayList;
@@ -24,8 +25,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.inneTest.TestBeanConfiguration;
+import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.integrationtests.utils.MockProducer;
+import se.skl.tp.vp.service.TakCacheService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
@@ -52,9 +54,11 @@ public class ErrorInResponseTest {
   @Produce(uri = "direct:start")
   protected ProducerTemplate template;
 
-
   @MockBean
   TakCache takCache;
+
+  @Autowired
+  TakCacheService takCacheService;
 
   private static MockProducer mockProducer;
 
@@ -69,7 +73,8 @@ public class ErrorInResponseTest {
       isContextStarted=true;
     }
     resultEndpoint.reset();
-
+    Mockito.when(takCache.refresh()).thenReturn(createTakCacheLogOk());
+    takCacheService.refresh();
   }
 
   @Test //Test för när ett SOAP-fault kommer från Producenten

@@ -1,12 +1,17 @@
 package se.skl.tp.vp.vagval;
 
+import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
+import java.io.ByteArrayInputStream;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.errorhandling.ExceptionUtil;
+import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpTechnicalException;
 
 import javax.xml.stream.*;
@@ -14,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 
 @Component
 public class RivTaProfilProcessor implements Processor {
+
+    public static final String UTF_8 = "UTF-8";
     private static Logger log = LoggerFactory.getLogger(RivTaProfilProcessor.class);
 
     static final String RIV20 = "RIVTABP20";
@@ -27,6 +34,8 @@ public class RivTaProfilProcessor implements Processor {
 
     private static XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 
+    @Autowired
+    ExceptionUtil exceptionUtil;
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -34,17 +43,26 @@ public class RivTaProfilProcessor implements Processor {
 
         String rivVersionIn = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION);
         String rivVersionOut = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION_OUT);
+        if(rivVersionIn == null){
+            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP001);
+        }
 
-        if (!rivVersionIn.equals(rivVersionOut)) {
+        if (!rivVersionIn.equalsIgnoreCase(rivVersionOut)) {
             if (rivVersionIn.equalsIgnoreCase(RIV20) && rivVersionOut.equalsIgnoreCase(RIV21)) {
                 ByteArrayOutputStream strPayload = doTransform(exchange, RIV20_NS, RIV21_NS, RIV20_ELEM, RIV21_ELEM);
-                exchange.getOut().setBody(strPayload);
+                exchange.getIn().setBody(toXMLStreamReader(strPayload));
             } else if (rivVersionIn.equalsIgnoreCase(RIV21) && rivVersionOut.equalsIgnoreCase(RIV20)) {
                 ByteArrayOutputStream strPayload = doTransform(exchange, RIV21_NS, RIV20_NS, RIV21_ELEM, RIV20_ELEM);
-                exchange.getOut().setBody(strPayload);
+                exchange.getIn().setBody(toXMLStreamReader(strPayload));
+            }else {
+                exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP005, rivVersionIn);
             }
             exchange.setProperty(VPExchangeProperties.RIV_VERSION, rivVersionOut);
         }
+    }
+
+    static XMLStreamReader toXMLStreamReader(ByteArrayOutputStream byteArrayOutputStream) throws XMLStreamException {
+        return XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()), UTF_8);
     }
 
     static ByteArrayOutputStream doTransform(final Exchange msg, final String fromNs, final String toNs, final String fromElem,
@@ -64,7 +82,7 @@ public class RivTaProfilProcessor implements Processor {
                                               final String toAddressingElement) throws XMLStreamException {
 
         ByteArrayOutputStream os = new ByteArrayOutputStream(2048);
-        XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(os, "UTF-8");
+        XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(os, UTF_8);
 
         writer.writeStartDocument();
 
