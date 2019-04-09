@@ -16,8 +16,6 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.service.TakCacheService;
@@ -46,9 +44,6 @@ public class ProducerTimeoutTest extends CamelTestSupport {
 
     @Autowired
     SenderIpExtractor senderIpExtractor;
-
-    @MockBean
-    HeaderConfigurationProcessor headerConfigurationProcessor;
 
     @Autowired
     CamelContext camelContext;
