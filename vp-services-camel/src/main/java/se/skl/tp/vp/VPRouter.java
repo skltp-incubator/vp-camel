@@ -64,6 +64,9 @@ public class VPRouter extends RouteBuilder {
     @Autowired
     RequestTimoutProcessor requestTimoutProcessor;
 
+    @Autowired
+    MeasureWorkTimeProcessor workTimeProcessor;
+
     @Override
     public void configure() throws Exception {
 
@@ -97,12 +100,14 @@ public class VPRouter extends RouteBuilder {
                 .doTry()
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
-                            .toD(NETTY4_HTTPS_OUTGOING_TOD)
+                            .toD(NETTY4_HTTPS_OUTGOING_TOD).id(MeasureWorkTimeProcessor.HTTPS_NODE_ID)
                         .otherwise()
-                            .toD(NETTY4_HTTP_TOD)
+                            .toD(NETTY4_HTTP_TOD).id(MeasureWorkTimeProcessor.HTTP_NODE_ID)
                     .endChoice()
                 .endDoTry()
                 .doCatch(SocketException.class, ReadTimeoutException.class)
+                .doFinally()
+                    .process(workTimeProcessor)
                 .end()
                 .choice()
                     .when(exchangeProperty(VPExchangeProperties.SESSION_ERROR))
@@ -116,7 +121,5 @@ public class VPRouter extends RouteBuilder {
                         .end()
                     .endChoice()
                 .end();
-
-
     }
 }
