@@ -33,8 +33,10 @@ We will use the ngrok docker image found here: https://github.com/gtriggiano/ngr
 `docker run -it --name jenkins-ngrok -e "TARGET_HOST=jenkins-container" -e "TARGET_PORT=8080" -p
 4040:4040 --net my-network gtriggiano/ngrok-tunnel`
 5. The ngrok docker container logs will specify the public url that has been created. Try to navigate to the URL in your browser. You should reach the Jenkins login prompt.
+6. In Github, when setting up the url to Jenkins, take the public URL created in step 5 and paste it into the textbox, followed by `/github-webhook/`. Note that it is important to include the trailing `/`, otherwise the webhooks will fail.
 
 ### 3.2.2 Ngrok-docker to Jenkins on local machine
-If your Jenkins instance is running on your machine, and not in a docker container, you can follow steps 3 to 5 from the previous paragraph. However, make the following changes:
+If your Jenkins instance is running on your machine, and not in a docker container, you can follow steps 3 to 6 from the previous paragraph. However, make the following changes:
 1. Omit the `--net my-network` part in the `docker run` command. It is not needed since we are only running one docker container. 
 2. Set `TARGET_HOST` to `localhost`. Change `TARGET_PORT` to the port your Jenkins instance is listening to.
+
