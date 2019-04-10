@@ -10,9 +10,10 @@ Jenkins jobs configured with pipelines and webhooks for vp-camel
 | /jobs | Contains all the Jenkins jobs for vp-camel, and their config and Jenkinsfiles |
 
 ## 2. Overview
-All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. 
+All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regulartly to check for differences in the repository.
 
 ## 3. Github webhooks
+**NOTE** Currently the Inera Jenkins url does not allow for webhook pushes and responds with an `SSL Connect error`. Should this change in the future, the setup specified below should work.
 
 ### 3.1 Setup
 Instead of letting Jenkins poll the github repository for changes, the responsibility to inform Jenkins of code changes can be moved to the repository itself. This is done by the use of Github webhooks. In short, the URL to the Jenkins instance is configured with the `/github-webhook/` endpoint in Github. This URL will be used by Github to push a notification to Jenkins that something has been updated. A good source regarding setting up webhooks can be found here: https://www.blazemeter.com/blog/how-to-integrate-your-github-repository-to-your-jenkins-project. A webhook can not be specified on a per branch basis, so what branches to check for updates has to be configured in each Jenkins job. A webhook will send a payload containing information regarding what branch has been updated, who made the commit and other useful information. In most cases, we do not need to worry about the payload explicitly in Jenkins. Checking what branch has been updated will be performed automatically. Note that the initial build needs to be performed manually in Jenkins, since the webhooks do not seem to trigger builds until one build has been performed.
