@@ -33,13 +33,14 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
             LOGGER.debug("Correlation id not found in http header. Will create a new one!");
             correlationId = UUID.randomUUID().toString();
         }
-        String isHttps = ((String)exchange.getProperty("IS_HTTPS"));
+        String isHttps = ((String)exchange.getProperty(VPExchangeProperties.IS_HTTPS));
         if (isHttps == null) {
             exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
         } else {
             if (propagateCorrelationIdForHttps) {
                 exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
             }
+            exchange.removeProperty(VPExchangeProperties.IS_HTTPS);
         }
     }
 

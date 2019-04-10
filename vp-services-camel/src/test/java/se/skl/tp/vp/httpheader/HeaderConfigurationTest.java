@@ -88,14 +88,14 @@ public class HeaderConfigurationTest extends CamelTestSupport {
         assert("testSenderId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
     }
 
-    private void createRoute(CamelContext camelContext) throws Exception {
+    private void createRoute(CamelContext camelContext) {
         try {
             camelContext.addRoutes(new RouteBuilder() {
                 @Override
-                public void configure() throws Exception {
+                public void configure() {
                     from("direct:start").routeDescription("Consumer").id("Consumer")
                             .process(headerConfigurationProcessor)
-                            .to("mock:result"); ;
+                            .to("mock:result");
                 }
             });
         } catch (Exception e) {
