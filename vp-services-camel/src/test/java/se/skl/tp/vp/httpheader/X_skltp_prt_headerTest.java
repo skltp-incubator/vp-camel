@@ -28,7 +28,7 @@ import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
-@RunWith( SpringRunner.class )
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -61,7 +61,7 @@ public class X_skltp_prt_headerTest extends CamelTestSupport {
     @Test
     public void headerTest() {
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(createRoutingInfo("http://localhost:12123/vp",RIV20));
+        list.add(createRoutingInfo("http://localhost:11111/vp",RIV20));
         Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
         Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
 
@@ -76,14 +76,14 @@ public class X_skltp_prt_headerTest extends CamelTestSupport {
         camelContext.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("direct:start")
+                from("direct:start").routeId("start")
                         .setHeader(HttpHeaders.X_VP_SENDER_ID, constant("UnitTest"))
                         .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
                         .setHeader("X-Forwarded-For", constant("1.2.3.4"))
                         .to("netty4-http:http://localhost:12312/vp")
                         .to("mock:result");
 
-                from("netty4-http:http://localhost:12123/vp")
+                from("netty4-http:http://localhost:11111/vp").routeId("producent")
                         .process((Exchange exchange)-> {
                             Thread.sleep(0);
                         });

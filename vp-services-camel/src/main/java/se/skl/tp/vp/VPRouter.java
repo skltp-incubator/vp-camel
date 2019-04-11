@@ -6,6 +6,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
@@ -64,9 +65,6 @@ public class VPRouter extends RouteBuilder {
     @Autowired
     RequestTimoutProcessor requestTimoutProcessor;
 
-    @Autowired
-    MeasureWorkTimeProcessor workTimeProcessor;
-
     @Override
     public void configure() throws Exception {
 
@@ -100,14 +98,14 @@ public class VPRouter extends RouteBuilder {
                 .doTry()
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
-                            .toD(NETTY4_HTTPS_OUTGOING_TOD).id(MeasureWorkTimeProcessor.HTTPS_NODE_ID)
+                            .toD(NETTY4_HTTPS_OUTGOING_TOD)
                         .otherwise()
-                            .toD(NETTY4_HTTP_TOD).id(MeasureWorkTimeProcessor.HTTP_NODE_ID)
+                             .toD(NETTY4_HTTP_TOD)
                     .endChoice()
                 .endDoTry()
                 .doCatch(SocketException.class, ReadTimeoutException.class)
                 .doFinally()
-                    .process(workTimeProcessor)
+                    .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.PRODUCER_RESPONSE_TIME))
                 .end()
                 .choice()
                     .when(exchangeProperty(VPExchangeProperties.SESSION_ERROR))
