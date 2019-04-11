@@ -7,6 +7,7 @@ public class PropertyConstants {
     public static final String VP_INSTANCE_ID = "vp.instance.id";
     public static final String ALLOWED_INCOMING_PROTOCOLS = "allowed.incoming.protocols";
     public static final String ALLOWED_OUTGOING_PROTOCOLS = "allowed.outgoing.protocols";
+    public static final String PROPAGATE_CORRELATION_ID_FOR_HTTPS = "propagateCorrelationIdForHttps";
 
     public static final String TP_TLS_STORE_LOCATION = "tp.tls.store.location";
     public static final String TP_TLS_STORE_PRODUCER_FILE = "tp.tls.store.producer.file";

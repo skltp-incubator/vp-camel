@@ -3,10 +3,13 @@ package se.skl.tp.vp.integrationtests.errorhandling;
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP005;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP006;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP009;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
@@ -36,7 +39,7 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class ErrorHandlingIT {
+public class FullServiceErrorHandlingIT {
 
   @Autowired
   TestConsumer testConsumer;
@@ -84,6 +87,21 @@ public class ErrorHandlingIT {
   }
 
   @Test
+  public void shouldGetVP003WhenNoReveieverExist() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_RECEIVER, headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
+        soapBody.getFault().getFaultString());
+    assertStringContains(soapBody.getFault().getFaultString(), VP003.getCode());
+
+  }
+
+  @Test
   public void shouldGetVP004WhenRecieverNotInVagval() throws Exception {
     Map<String, Object> headers = new HashMap<>();
     String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_VAGVAL_IN_TAK, headers);
@@ -120,6 +138,21 @@ public class ErrorHandlingIT {
   }
 
   @Test
+  public void shouldGetVP006WhenMultipleVagvalExist() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_MULTIPLE_VAGVAL, headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
+        soapBody.getFault().getFaultString());
+    assertStringContains(soapBody.getFault().getFaultString(), VP006.getCode());
+    assertStringContains(soapBody.getFault().getFaultString(), "RecevierMultipleVagval");
+  }
+
+  @Test
   public void shouldGetVP007WhenRecieverNotAuhtorized() throws Exception {
     Map<String, Object> headers = new HashMap<>();
     String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK, headers);
@@ -152,6 +185,21 @@ public class ErrorHandlingIT {
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP009.getCode());
+  }
+
+  @Test
+  public void shouldGetVP010WhenPhysicalAdressEmptyInVagval() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PHYSICAL_ADDRESS, headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
+        soapBody.getFault().getFaultString());
+    assertStringContains(soapBody.getFault().getFaultString(), VP010.getCode());
+    assertStringContains(soapBody.getFault().getFaultString(), "RecevierNoPhysicalAddress");
   }
 
   @Test
