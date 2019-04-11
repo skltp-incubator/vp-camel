@@ -34,7 +34,7 @@ import se.skltp.takcache.TakCache;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
-@TestPropertySource("classpath:application.properties")
+//@TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ErrorInResponseTest {
 
@@ -156,7 +156,7 @@ public class ErrorInResponseTest {
             .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
             .setHeader("X-Forwarded-For", constant("1.2.3.4"))
             .to("netty4-http:"+VP_ADDRESS)
-            .to("mock:result"); ;
+            .to("mock:result");
       }
     });
   }

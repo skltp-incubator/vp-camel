@@ -10,6 +10,7 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
+import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
@@ -34,6 +35,9 @@ public class VPRouter extends RouteBuilder {
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${exchange.getProperty('vagval')}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
+
+    @Autowired
+    HeaderConfigurationProcessor headerConfigurationProcessor;
 
     @Autowired
     VagvalProcessor vagvalProcessor;
@@ -91,6 +95,7 @@ public class VPRouter extends RouteBuilder {
         from(DIRECT_VP).routeId(VP_ROUTE)
                 .streamCaching()
                 .process(requestReaderProcessor)
+                .process(headerConfigurationProcessor)
                 .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
                 .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
                 .process(requestTimoutProcessor)

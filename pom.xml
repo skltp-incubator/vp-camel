@@ -23,6 +23,7 @@
     <lmax_disruptor-version>3.3.6</lmax_disruptor-version>
     <commons.lang-version>${commons-lang-version}</commons.lang-version>
     <camel.version>2.23.1</camel.version>
+    <javax.servlet-api-version>4.0.1</javax.servlet-api-version>
   </properties>
 
   <distributionManagement>
