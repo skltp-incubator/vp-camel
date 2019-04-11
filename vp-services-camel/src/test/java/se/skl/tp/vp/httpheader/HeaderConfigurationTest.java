@@ -53,7 +53,7 @@ public class HeaderConfigurationTest extends CamelTestSupport {
     public void positiveCorrelationIdTest() {
         String body = "aTestBody";
         Map headers = createHeaders();
-        headers.put(VPExchangeProperties.SKLTP_CORRELATION_ID, "aTestCorrelationId");
+        headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, "aTestCorrelationId");
         template.sendBodyAndHeaders(body, headers);
         assert("aTestCorrelationId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
     }

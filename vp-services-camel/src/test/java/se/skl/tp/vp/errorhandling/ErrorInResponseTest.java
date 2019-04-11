@@ -156,7 +156,7 @@ public class ErrorInResponseTest {
             .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
             .setHeader("X-Forwarded-For", constant("1.2.3.4"))
             .to("netty4-http:"+VP_ADDRESS)
-            .to("mock:result"); ;
+            .to("mock:result");
       }
     });
   }

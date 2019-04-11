@@ -11,10 +11,7 @@ import se.skl.tp.vp.certificate.CertificateExtractorProcessorImpl;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessorImpl;
-import se.skl.tp.vp.httpheader.IPWhitelistHandler;
-import se.skl.tp.vp.httpheader.IPWhitelistHandlerImpl;
-import se.skl.tp.vp.httpheader.SenderIpExtractor;
-import se.skl.tp.vp.httpheader.SenderIpExtractorFromHeader;
+import se.skl.tp.vp.httpheader.*;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
 
@@ -32,6 +29,11 @@ public class TestBeanConfiguration {
     @Bean(name = "certificateExtractorProcessor")
     public CertificateExtractorProcessor certificateExtractorProcessor() {
         return new CertificateExtractorProcessorImpl(environment.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT));
+    }
+
+    @Bean
+    public HeaderConfigurationProcessor headerConfigurationProcessor() {
+        return new HeaderConfigurationProcessorImpl();
     }
 
     @Bean
