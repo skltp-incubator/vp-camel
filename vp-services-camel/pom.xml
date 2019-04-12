@@ -56,12 +56,12 @@
     <dependency>
       <groupId>se.skltp.takdatahandler</groupId>
       <artifactId>behorighethandler</artifactId>
-      <version>1.0.0-RC2</version>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>se.skltp.takdatahandler</groupId>
       <artifactId>vagvalhandler</artifactId>
-      <version>1.0.0-RC2</version>
+      <version>1.0.0</version>
     </dependency>
 
     <!-- Camel -->
