@@ -26,6 +26,7 @@ import se.skltp.takcache.TakCacheLog.RefreshStatus;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class FullServiceTakErrorIT {
 
   @Autowired
