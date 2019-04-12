@@ -34,7 +34,7 @@ import se.skltp.takcache.TakCache;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
-@TestPropertySource("classpath:application.properties")
+//@TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ErrorInResponseTest {
 

@@ -15,6 +15,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <description>SKLTP VP Services byggt med Camel och Spring Boot</description>
 
+
   <dependencies>
 
     <!-- Spring Boot -->
@@ -26,10 +27,10 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-tomcat</artifactId>
         </exclusion>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-          </exclusion>
+          <!--<exclusion>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-logging</artifactId>-->
+          <!--</exclusion>-->
       </exclusions>
     </dependency>
     <dependency>
@@ -55,12 +56,12 @@
     <dependency>
       <groupId>se.skltp.takdatahandler</groupId>
       <artifactId>behorighethandler</artifactId>
-      <version>1.0.0-RC2</version>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>se.skltp.takdatahandler</groupId>
       <artifactId>vagvalhandler</artifactId>
-      <version>1.0.0-RC2</version>
+      <version>1.0.0</version>
     </dependency>
 
     <!-- Camel -->
@@ -116,6 +117,13 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${javax.servlet-api-version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
