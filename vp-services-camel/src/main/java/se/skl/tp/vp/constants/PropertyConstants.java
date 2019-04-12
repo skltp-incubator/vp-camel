@@ -17,4 +17,7 @@ public class PropertyConstants {
 
     public static final String PROPAGATE_CORRELATION_ID_FOR_HTTPS = "propagateCorrelationIdForHttps";
 
+    public static final String VP_HTTP_ROUTE_URL = "vp.http.route.url";
+    public static final String VP_HTTPS_ROUTE_URL = "vp.https.route.url";
+
 }
