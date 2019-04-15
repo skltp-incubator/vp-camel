@@ -44,7 +44,6 @@ pipeline {
             script {
                 if ("${currentBuild.currentResult}" == 'SUCCESS') {
                     echo "Current build successful, previous build was unsuccessful"
-                    echo "${JOB_NAME} back to stable, body: See ${BUILD_URL} for details."
                     emailext attachLog: true, recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: "${JOB_NAME} back to stable", body: "See ${BUILD_URL} for details."
                 }
             }
