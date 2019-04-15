@@ -11,8 +11,8 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image '${MAVEN_IMAGE}'
-                    args '-v ${JDK_PATH}:${JDK_PATH}'
+                    image "${MAVEN_IMAGE}"
+                    args "-v ${JDK_PATH}:${JDK_PATH}"
                     reuseNode true
                 }
             }
@@ -36,7 +36,7 @@ pipeline {
         }
 
         unsuccessful {
-            echo "Build unsuccessful"
+            echo 'Build unsuccessful'
             emailext attachLog: true, recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: "Build failed in Jenkins: ${JOB_NAME}#${BUILD_NUMBER}", body: "See ${BUILD_URL} for details."
         }
 
