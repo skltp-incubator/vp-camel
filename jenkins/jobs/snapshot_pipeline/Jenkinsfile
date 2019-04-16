@@ -1,0 +1,75 @@
+pipeline {
+  agent any
+
+  environment{
+      JDK_PATH = tool name: 'Java 8_131'
+      JAVA_HOME = "${JDK_PATH}"
+      MAVEN_IMAGE = 'maven:3.6-jdk-8'
+      DEPLOY_SERVER = "${params.DEPLOY_TO_TEST ? 'ine-tit-app04' : 'ine-dit-app04'}"
+  }
+  
+
+  stages{
+    stage('Preparation') {
+      steps{
+        echo "Print provided parameters"
+        echo "DEPLOY_TO_TEST ${params.DEPLOY_TO_TEST}"
+        echo "CONFIG_FILE_ID ${params.CONFIG_FILE_ID}"
+        echo "SSH_AGENT ${params.SSH_AGENT_ID}"
+      }
+    }
+     
+    stage('Build') {
+      agent {
+        docker {
+          image "${MAVEN_IMAGE}"
+          args "-v ${JDK_PATH}:${JDK_PATH}"
+          reuseNode true
+        }
+      }
+      steps {
+        echo 'Starting Build stage...'
+        configFileProvider([configFile(fileId: "${params.CONFIG_FILE_ID}", variable: 'MAVEN_SETTINGS')]) {
+          echo 'Compiling, testing and building...'
+          sh 'mvn --global-settings ${MAVEN_SETTINGS} clean install'
+        }
+      }   
+    }
+
+    stage('Results'){
+      steps{
+        junit '**/target/surefire-reports/TEST-*.xml'
+        archiveArtifacts '**/target/*.jar'
+      }
+    }
+
+    stage('Nexus') {
+      agent {
+        docker {
+          image "${MAVEN_IMAGE}"
+          args "-v ${JDK_PATH}:${JDK_PATH}"
+          reuseNode true
+        }
+      }
+      steps {
+        echo 'Starting Nexus stage...'
+        configFileProvider([configFile(fileId: "${params.CONFIG_FILE_ID}", variable: 'MAVEN_SETTINGS')]) {
+          echo 'Deploying to Nexus...'
+          sh 'mvn --global-settings ${MAVEN_SETTINGS} -Pskltp -DskipTests=true deploy'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps{
+        sshagent(["${SSH_AGENT_ID}"]) {
+          def pom = readMavenPom file: 'pom.xml'
+          def pomversion = pom.version
+          echo pomversion
+          sh "scp vp-services-camel/target/*.jar ine-ntjp-build@${DEPLOY_SERVER}:/www/inera/home/ine-ntjp-build"
+          sh "ssh -l ine-ntjp-build ${DEPLOY_SERVER} 'hostname; ls; sudo mv vp-services-camel*.jar /www/inera/releases/vp-camel; sudo sh /www/inera/releases/vp-camel/deploy-vp.sh ${pomversion}'"
+        }
+      }
+    }
+  }
+}
