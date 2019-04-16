@@ -9,7 +9,7 @@ import java.util.EventObject;
 
 @Component
 public class VPEventNotifierSupport extends EventNotifierSupport {
-    public static final String LAST_RESPONSE_TIME = "lastResponseTime";
+    public static final String LAST_ENDPOINT_RESPONSE_TIME = "lastResponseTime";
 
     @Override
     public boolean isEnabled(EventObject event) {
@@ -34,7 +34,7 @@ public class VPEventNotifierSupport extends EventNotifierSupport {
         if (event instanceof ExchangeSentEvent) {
             ExchangeSentEvent sent = (ExchangeSentEvent) event;
             Exchange exchange = sent.getExchange();
-            exchange.setProperty(LAST_RESPONSE_TIME, sent.getTimeTaken());
+            exchange.setProperty(LAST_ENDPOINT_RESPONSE_TIME, sent.getTimeTaken());
             log.info(exchange + " SEND >>> Took " + sent.getTimeTaken() + " millis to send to external system : " + sent.getEndpoint().getEndpointKey());
         }
     }
