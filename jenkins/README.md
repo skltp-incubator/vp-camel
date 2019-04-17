@@ -7,7 +7,7 @@ Jenkins jobs configured with pipelines and webhooks for vp-camel
 |---|---|
 | README.md | This file |
 | /docker | Contains files needed to get an instance of Jenkins up and running in a docker container|
-| /jobs | Contains all the Jenkins jobs for vp-camel, and their config and Jenkinsfiles |
+| /pipelines | Contains all the Jenkins pipelines for vp-camel |
 
 ## 2. Overview
 All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regulartly to check for differences in the repository.
@@ -40,4 +40,8 @@ We will use the ngrok docker image found here: https://github.com/gtriggiano/ngr
 If your Jenkins instance is running on your machine, and not in a docker container, you can follow steps 3 to 6 from the previous paragraph. However, make the following changes:
 1. Omit the `--net my-network` part in the `docker run` command. It is not needed since we are only running one docker container. 
 2. Set `TARGET_HOST` to `localhost`. Change `TARGET_PORT` to the port your Jenkins instance is listening to.
+
+## 4. Known issues
+
+1. When running a docker container inside Jenkins, an error sometimes shows up stating `ERROR: The container started but didn't run the expected command.` This error seems to have started after a certain Jenkins update, but does not seem to affect the run or the functionality. Reference: https://issues.jenkins-ci.org/browse/JENKINS-49278?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel.
 
