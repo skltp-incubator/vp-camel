@@ -41,3 +41,7 @@ If your Jenkins instance is running on your machine, and not in a docker contain
 1. Omit the `--net my-network` part in the `docker run` command. It is not needed since we are only running one docker container. 
 2. Set `TARGET_HOST` to `localhost`. Change `TARGET_PORT` to the port your Jenkins instance is listening to.
 
+## 4. Known issues
+
+1. When running a docker container inside Jenkins, an error sometimes shows up stating `ERROR: The container started but didn't run the expected command.` This error seems to have started after a certain Jenkins update, but does not seem to affect the run or the functionality. Reference: https://issues.jenkins-ci.org/browse/JENKINS-49278?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel.
+
