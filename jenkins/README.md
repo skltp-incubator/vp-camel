@@ -7,7 +7,7 @@ Jenkins jobs configured with pipelines and webhooks for vp-camel
 |---|---|
 | README.md | This file |
 | /docker | Contains files needed to get an instance of Jenkins up and running in a docker container|
-| /jobs | Contains all the Jenkins jobs for vp-camel, and their config and Jenkinsfiles |
+| /pipelines | Contains all the Jenkins pipelines for vp-camel |
 
 ## 2. Overview
 All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regulartly to check for differences in the repository.
