@@ -44,4 +44,4 @@ If your Jenkins instance is running on your machine, and not in a docker contain
 ## 4. Known issues
 
 1. When running a docker container inside Jenkins, an error sometimes shows up stating `ERROR: The container started but didn't run the expected command.` This error seems to have started after a certain Jenkins update, but does not seem to affect the run or the functionality. Reference: https://issues.jenkins-ci.org/browse/JENKINS-49278?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel.
-
+2. For jobs that need to push to a git repository, make sure to under the `Pipeline` tab go to `Additional Behaviours->Add->Checkout to specific local branch` and specify the branch you want to push to. Failing to do so will result in an error, as discussed here: https://stackoverflow.com/questions/20351051/git-fatal-ref-head-is-not-a-symbolic-ref-while-using-maven-release-plugin.
