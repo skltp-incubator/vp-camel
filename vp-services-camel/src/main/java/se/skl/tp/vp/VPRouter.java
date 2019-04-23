@@ -6,6 +6,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
@@ -103,8 +104,10 @@ public class VPRouter extends RouteBuilder {
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
                             .toD(NETTY4_HTTPS_OUTGOING_TOD)
+                            .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
                         .otherwise()
-                            .toD(NETTY4_HTTP_TOD)
+                             .toD(NETTY4_HTTP_TOD)
+                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
                     .endChoice()
                 .endDoTry()
                 .doCatch(SocketException.class, ReadTimeoutException.class)
@@ -121,7 +124,5 @@ public class VPRouter extends RouteBuilder {
                         .end()
                     .endChoice()
                 .end();
-
-
     }
 }
