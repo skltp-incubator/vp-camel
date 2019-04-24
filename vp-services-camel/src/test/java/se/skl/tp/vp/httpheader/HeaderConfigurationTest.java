@@ -15,8 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-
-import java.util.HashMap;
+import se.skl.tp.vp.integrationtests.httpheader.HeadersUtil;
 import java.util.Map;
 
 @RunWith(CamelSpringBootRunner.class)
@@ -85,7 +84,7 @@ public class HeaderConfigurationTest extends CamelTestSupport {
         Map headers = createHeaders();
         template.sendBodyAndHeaders(body, headers);
         //The X_VP_SENDER_ID should be used as X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, if ORIGINAL_SERVICE_CONSUMER_HSA_ID isn't present in request.
-        assert("testSenderId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+        assert("tp".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
     }
 
     private void createRoute(CamelContext camelContext) {
@@ -104,11 +103,6 @@ public class HeaderConfigurationTest extends CamelTestSupport {
     }
 
     public Map createHeaders() {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put(HttpHeaders.X_VP_SENDER_ID, "testSenderId");
-        headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
-        headers.put("X-Forwarded-For", "2.3.4.5");
-        headers.put(VPExchangeProperties.RECEIVER_ID, "test1956receiver");
-        return headers;
+        return HeadersUtil.getHttpHeadersWithoutMembers();
     }
 }

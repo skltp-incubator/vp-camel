@@ -3,6 +3,8 @@ package se.skl.tp.vp.util.soaprequests;
 public class TestSoapRequests {
 
   public static final String RECEIVER_UNIT_TEST = "UnitTest";
+  public static final String RECEIVER_HTTP = "HttpProducer";
+  public static final String RECEIVER_HTTPS = "HttpsProducer";
   public static final String RECEVIER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
   public static final String RECEIVER_WITH_NO_VAGVAL = "NoVagvalReceiver";
   public static final String RECEIVER_NOT_AUHORIZED = "NotAuhorizedReceiver";
@@ -29,6 +31,10 @@ public class TestSoapRequests {
 
   public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
       RECEIVER_UNIT_TEST);
+  public static final String GET_NO_CERT_HTTP_SOAP_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+          RECEIVER_HTTP);
+  public static final String GET_CERT_HTTPS_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
+          RECEIVER_HTTPS);
   public static final String GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
       RECEIVER_NOT_AUHORIZED);
   public static final String GET_CERTIFICATE_NO_VAGVAL_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
