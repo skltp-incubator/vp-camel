@@ -4,7 +4,6 @@ pipeline {
         JDK_PATH = tool name: 'Java 8_152'
         JAVA_HOME = "${JDK_PATH}"
         MAVEN_IMAGE = 'maven:3.6-jdk-8'
-        HEJ = "1234"
     }
 
     stages {
