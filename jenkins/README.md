@@ -1,5 +1,5 @@
 # Jenkins
-Jenkins jobs configured with pipelines and webhooks for vp-camel
+Jenkins jobs configured with pipelines ~~and webhooks~~ for vp-camel
 
 ## 1. Directory structure
 
@@ -10,7 +10,7 @@ Jenkins jobs configured with pipelines and webhooks for vp-camel
 | /pipelines | Contains all the Jenkins pipelines for vp-camel |
 
 ## 2. Overview
-All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regulartly to check for differences in the repository.
+All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regularly to check for differences in the repository.
 
 ## 3. Github webhooks
 **NOTE** Currently the Inera Jenkins url does not allow for webhook pushes and responds with an `SSL Connect error`. Should this change in the future, the setup specified below should work.
