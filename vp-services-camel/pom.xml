@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-    <groupId>se.skltp.vp</groupId>
+
     <artifactId>vp-services-camel</artifactId>
     <name>vp-services-camel</name>
     <version>1.0.0-SNAPSHOT</version>
@@ -112,11 +112,6 @@
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
       <version>${lmax_disruptor-version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
     </dependency>
 
     <dependency>
