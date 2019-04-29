@@ -1,5 +1,5 @@
 # Jenkins
-Jenkins jobs configured with pipelines and webhooks for vp-camel
+Jenkins jobs configured with pipelines ~~and webhooks~~ for vp-camel
 
 ## 1. Directory structure
 
@@ -10,7 +10,7 @@ Jenkins jobs configured with pipelines and webhooks for vp-camel
 | /pipelines | Contains all the Jenkins pipelines for vp-camel |
 
 ## 2. Overview
-All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regulartly to check for differences in the repository.
+All Jenkins jobs use the pipeline plugin to read a Jenkinsfile (one for each pipeline). Some jobs are configured to build periodically, but they can also be triggered by a Github webhook (a HTTP post request sent from the github repository) when a certain criteria is fulfilled, such as a push to the repository. Polling is also done regularly to check for differences in the repository.
 
 ## 3. Github webhooks
 **NOTE** Currently the Inera Jenkins url does not allow for webhook pushes and responds with an `SSL Connect error`. Should this change in the future, the setup specified below should work.
@@ -45,3 +45,4 @@ If your Jenkins instance is running on your machine, and not in a docker contain
 
 1. When running a docker container inside Jenkins, an error sometimes shows up stating `ERROR: The container started but didn't run the expected command.` This error seems to have started after a certain Jenkins update, but does not seem to affect the run or the functionality. Reference: https://issues.jenkins-ci.org/browse/JENKINS-49278?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel.
 2. For jobs that need to push to a git repository, make sure to under the `Pipeline` tab go to `Additional Behaviours->Add->Checkout to specific local branch` and specify the branch you want to push to. Failing to do so will result in an error, as discussed here: https://stackoverflow.com/questions/20351051/git-fatal-ref-head-is-not-a-symbolic-ref-while-using-maven-release-plugin.
+3. It is advised to run a manual build if you change the settings (change branch etc.) for the scm polling of a git repository. Failing to do so may result in the change not being applied. The last polling of a git repository can be found by clicking on `Git Polling Log` in the menu when in the job view. 
