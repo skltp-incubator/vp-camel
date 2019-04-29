@@ -19,6 +19,7 @@
   <description>SKLTP VP Services byggt med Camel och Spring Boot</description>
 
   <properties>
+    <start-class>se.skl.tp.vp.Application</start-class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring.boot-version>${spring-boot-version}</spring.boot-version>
@@ -27,9 +28,11 @@
     <camel.version>2.23.1</camel.version>
     <javax.servlet-api-version>4.0.1</javax.servlet-api-version>
 
-    <!-- ************************-->
+    <takdatahandler.version>1.0.1</takdatahandler.version>
+
+    <!-- ************************ -->
     <!-- Sonar/Reporting settings -->
-    <!-- ************************-->
+    <!-- ************************ -->
     <jacoco.plugin.version>0.8.2</jacoco.plugin.version>
     <sonar.plugin.version>3.5.0.1254</sonar.plugin.version>
 
@@ -212,30 +215,7 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${spring-boot-version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-          <!--<execution>-->
-          <!--<id>pre-integration-test</id>-->
-          <!--<goals>-->
-          <!--<goal>start</goal>-->
-          <!--</goals>-->
-          <!--</execution>-->
-          <!--<execution>-->
-          <!--<id>post-integration-test</id>-->
-          <!--<goals>-->
-          <!--<goal>stop</goal>-->
-          <!--</goals>-->
-          <!--</execution>-->
-        </executions>
-      </plugin>
+
 
       <plugin>
         <groupId>org.apache.camel</groupId>

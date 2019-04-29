@@ -12,6 +12,7 @@ import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
+import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
 import se.skl.tp.vp.vagval.*;
@@ -26,7 +27,7 @@ public class VPRouter extends RouteBuilder {
 
     public static final String VP_HTTP_ROUTE = "vp-http-route";
     public static final String VP_HTTPS_ROUTE = "vp-https-route";
-    public static final String VP_ROUTE = "vp-route";
+    public static final String VAGVAL_ROUTE = "vagval-route";
 
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?matchOnUriPrefix=true";
     public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
@@ -82,6 +83,7 @@ public class VPRouter extends RouteBuilder {
                 .otherwise()
                     .process(certificateExtractorProcessor)
                     .to(DIRECT_VP)
+                    .bean(MessageInfoLogger.class, "log(*,'resp-out')")
                 .end();
 
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
@@ -90,12 +92,14 @@ public class VPRouter extends RouteBuilder {
                 .otherwise()
                     .process(httpSenderIdExtractorProcessor)
                     .to(DIRECT_VP)
+                    .bean(MessageInfoLogger.class, "log(*,'resp-out')")
                 .end();
 
-        from(DIRECT_VP).routeId(VP_ROUTE)
+        from(DIRECT_VP).routeId(VAGVAL_ROUTE)
                 .streamCaching()
                 .process(requestReaderProcessor)
                 .process(headerConfigurationProcessor)
+                .bean(MessageInfoLogger.class, "log(*,'req-in')")
                 .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
                 .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
                 .process(requestTimoutProcessor)
@@ -103,11 +107,15 @@ public class VPRouter extends RouteBuilder {
                 .doTry()
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
+                            .bean(MessageInfoLogger.class, "log(*,'req-out')")
                             .toD(NETTY4_HTTPS_OUTGOING_TOD)
+                            .bean(MessageInfoLogger.class, "log(*,'resp-in')")
                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
                         .otherwise()
-                             .toD(NETTY4_HTTP_TOD)
-                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
+                            .bean(MessageInfoLogger.class, "log(*,'req-out')")
+                            .toD(NETTY4_HTTP_TOD)
+                            .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
+                            .bean(MessageInfoLogger.class, "log(*,'resp-in')")
                     .endChoice()
                 .endDoTry()
                 .doCatch(SocketException.class, ReadTimeoutException.class)
