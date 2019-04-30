@@ -1,6 +1,5 @@
 package se.skl.tp.vp.logging.logentry;
 
-import java.util.List;
 import java.util.Map;
 import lombok.Data;
 

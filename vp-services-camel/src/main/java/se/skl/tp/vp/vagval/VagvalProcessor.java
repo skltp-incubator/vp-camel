@@ -5,10 +5,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vagval.logging.ThreadContextLogTrace;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
-import se.skl.tp.vp.exceptions.VpSemanticException;
 import se.skl.tp.vp.service.TakCacheService;
 import se.skltp.takcache.RoutingInfo;
 
@@ -25,21 +25,21 @@ public class VagvalProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         String receiverId = (String) exchange.getProperty(VPExchangeProperties.RECEIVER_ID);
         String servicecontractNamespace = (String) exchange.getProperty(VPExchangeProperties.SERVICECONTRACT_NAMESPACE);
+
         validateRequest(servicecontractNamespace, receiverId);
 
-        RoutingInfo routingInfo = getRoutingAddress(servicecontractNamespace, receiverId);
+        List<RoutingInfo> routingInfos = takService.getRoutingInfo(servicecontractNamespace, receiverId);
+        exchange.setProperty(VPExchangeProperties.VAGVAL_TRACE, ThreadContextLogTrace.get(ThreadContextLogTrace.ROUTER_RESOLVE_VAGVAL_TRACE) );
+
+        RoutingInfo routingInfo = validateResponse(routingInfos, servicecontractNamespace, receiverId);
 
         exchange.setProperty(VPExchangeProperties.VAGVAL, routingInfo.getAddress() );
         exchange.setProperty(VPExchangeProperties.RIV_VERSION_OUT, routingInfo.getRivProfile() );
 
+
     }
 
-    public RoutingInfo getRoutingAddress(String tjanstegranssnitt, String receiverAddress){
-        if (!takService.isInitalized()) {
-            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP008);
-        }
-
-        List<RoutingInfo> routingInfos = takService.getRoutingInfo(tjanstegranssnitt, receiverAddress);
+    public RoutingInfo validateResponse(List<RoutingInfo> routingInfos, String tjanstegranssnitt, String receiverAddress){
 
         if(routingInfos.isEmpty()){
             exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
@@ -59,6 +59,10 @@ public class VagvalProcessor implements Processor {
     }
 
     private void validateRequest(String servicecontractNamespace, String receiverId) {
+        if (!takService.isInitalized()) {
+            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP008);
+        }
+
         //TODO Kontrollera servicecontractNamespace ?
 
         // No receiver ID (to_address) found in message

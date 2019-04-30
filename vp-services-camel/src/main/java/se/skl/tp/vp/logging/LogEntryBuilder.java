@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.logging.logentry.LogEntry;
 import se.skl.tp.vp.logging.logentry.LogLevelType;
@@ -34,15 +35,13 @@ public class LogEntryBuilder {
   }
 
   protected static LogEntry createLogEntry(
-      String loggerName,
       LogLevelType logLevel,
-      Exchange exchange,
-      String logMessage,
-      Throwable exception) {
+      String logMessageType,
+      Exchange exchange) {
 
     LogRuntimeInfoType lri = createRunTimeInfo(exchange);
-    LogMetadataInfoType lmi = createMetadataInfo(exchange, loggerName);
-    LogMessageType lm = createLogMessage(logLevel, logMessage, exception);
+    LogMetadataInfoType lmi = createMetadataInfo(exchange);
+    LogMessageType lm = createLogMessage(logLevel, logMessageType, null);
 
     // Create the log entry object
     LogEntry logEntry = new LogEntry();
@@ -50,16 +49,16 @@ public class LogEntryBuilder {
     logEntry.setRuntimeInfo(lri);
     logEntry.setMessageInfo(lm);
 
-    Map<String, String> extraInfo = ExtraInfoBuilder.createExtraInfo(exchange);
+    Map<String, String> extraInfo = LogExtraInfoBuilder.createExtraInfo(exchange);
     logEntry.setExtraInfo(extraInfo);
 
     return logEntry;
   }
 
-  private static LogMessageType createLogMessage(LogLevelType logLevel, String logMessage, Throwable exception) {
+  private static LogMessageType createLogMessage(LogLevelType logLevel, String logMessageType, Throwable exception) {
     LogMessageType lm = new LogMessageType();
     lm.setLevel(logLevel);
-    lm.setMessage(logMessage);
+    lm.setMessage(logMessageType);
 
     // Setup exception information if present
     if (exception != null) {
@@ -78,20 +77,19 @@ public class LogEntryBuilder {
     return lm;
   }
 
-  private static LogMetadataInfoType createMetadataInfo(Exchange exchange, String loggerName) {
+  private static LogMetadataInfoType createMetadataInfo(Exchange exchange) {
 
     String serviceImplementation = "";
     String endpoint = "";
-    String propertyBusinessContextId = null;
 
     if (exchange != null) {
       serviceImplementation = exchange.getFromRouteId();
-      Endpoint endpointURI = exchange.getFromEndpoint();
-      endpoint = (endpointURI == null) ? "" : endpointURI.getEndpointUri();
+      String endpointURI = exchange.getProperty(VPExchangeProperties.HTTP_URL_IN, String.class);
+      endpoint = (endpointURI == null) ? "" : endpointURI;
+
     }
 
     LogMetadataInfoType lmi = new LogMetadataInfoType();
-    lmi.setLoggerName(loggerName);
     lmi.setServiceImplementation(serviceImplementation);
     lmi.setEndpoint(endpoint);
 
@@ -104,7 +102,7 @@ public class LogEntryBuilder {
     String componentId = "";
 
     if (exchange != null) {
-      businessCorrelationId = (String) exchange.getProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, "");
+      businessCorrelationId = exchange.getProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, "", String.class);
       messageId = exchange.getMessage().getMessageId();
 
       // TODO In current vp this is set by muleContext.getConfiguration().getId() which results in "vp-services"

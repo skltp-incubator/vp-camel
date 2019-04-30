@@ -13,7 +13,7 @@ import se.skl.tp.vp.logging.logentry.LogRuntimeInfoType;
 
 public class LogMessageFormatter {
 
-  private static final String MSG_ID = "soi-toolkit.log"; // TODO Change this??
+  private static final String MSG_ID = "vp-service.log"; // TODO Change this??
   private static final String LOG_STRING = MSG_ID +
       "\n** {}.start ***********************************************************" +
       "\nIntegrationScenarioId={}\nContractId={}\nLogMessage={}\nServiceImpl={}\nHost={} ({})\nComponentId={}\nEndpoint={}\nMessageId={}\nBusinessCorrelationId={}\nBusinessContextId={}\nExtraInfo={}\nPayload={}" +

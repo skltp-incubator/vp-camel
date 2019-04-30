@@ -5,8 +5,6 @@ import lombok.Data;
 @Data
 public class LogMetadataInfoType {
   protected String endpoint;
-  protected String messageType;
   protected String serviceImplementation;
-  protected String loggerName;
 
 }

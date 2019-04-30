@@ -24,85 +24,91 @@ import java.util.Map;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HeaderConfigurationTest extends CamelTestSupport {
 
-    private static boolean isContextStarted = false;
+  private static boolean isContextStarted = false;
 
-    @Autowired
-    private CamelContext camelContext;
+  @Autowired
+  private CamelContext camelContext;
 
-    @EndpointInject(uri = "mock:result")
-    protected MockEndpoint resultEndpoint;
+  @EndpointInject(uri = "mock:result")
+  protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
-    protected ProducerTemplate template;
+  @Produce(uri = "direct:start")
+  protected ProducerTemplate template;
 
-    @Autowired
-    HeaderConfigurationProcessorImpl headerConfigurationProcessor;
+  @Autowired
+  HeaderConfigurationProcessorImpl headerConfigurationProcessor;
 
-    @Before
-    public void setUp() throws Exception {
-        if(!isContextStarted){
-            createRoute(camelContext);
-            camelContext.start();
-            isContextStarted=true;
+  @Before
+  public void setUp() throws Exception {
+    if (!isContextStarted) {
+      createRoute(camelContext);
+      camelContext.start();
+      isContextStarted = true;
+    }
+    resultEndpoint.reset();
+  }
+
+  @Test
+  public void positiveCorrelationIdTest() {
+    String body = "aTestBody";
+    Map headers = createHeaders();
+    headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, "aTestCorrelationId");
+    template.sendBodyAndHeaders(body, headers);
+    assert ("aTestCorrelationId"
+        .equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
+  }
+
+  @Test
+  public void positiveOriginalConsumerTest() {
+    String body = "aTestBody";
+    Map headers = createHeaders();
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
+    template.sendBodyAndHeaders(body, headers);
+    assert ("aTestConsumerId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+        .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+  }
+
+  @Test
+  public void negativeCorrelationIdTest() {
+    String body = "aTestBody";
+    Map headers = createHeaders();
+    template.sendBodyAndHeaders(body, headers);
+    String correlationId = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+        .get(HttpHeaders.X_SKLTP_CORRELATION_ID);
+    //If no SKLTP_CORRELATION_ID is present in the request, it should be generated.
+    assertNotNull(correlationId);
+    assertNotEquals("aTestCorrelationId", correlationId);
+    assert (correlationId.length() > 35);
+  }
+
+  @Test
+  public void negativeOriginalConsumerTest() {
+    String body = "aTestBody";
+    Map headers = createHeaders();
+    template.sendBodyAndHeaders(body, headers);
+    //The X_VP_SENDER_ID should be used as X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, if ORIGINAL_SERVICE_CONSUMER_HSA_ID isn't present in request.
+    assert ("tp".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+        .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
+  }
+
+  private void createRoute(CamelContext camelContext) {
+    try {
+      camelContext.addRoutes(new RouteBuilder() {
+        @Override
+        public void configure() {
+          from("direct:start").routeDescription("Consumer").id("Consumer")
+              .setProperty(VPExchangeProperties.IS_HTTPS, constant(false))
+              .setProperty(VPExchangeProperties.SENDER_ID, constant("tp"))
+              .process(headerConfigurationProcessor)
+              .to("mock:result");
         }
-        resultEndpoint.reset();
+      });
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
+  }
 
-    @Test
-    public void positiveCorrelationIdTest() {
-        String body = "aTestBody";
-        Map headers = createHeaders();
-        headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, "aTestCorrelationId");
-        template.sendBodyAndHeaders(body, headers);
-        assert("aTestCorrelationId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
-    }
-
-    @Test
-    public void positiveOriginalConsumerTest() {
-        String body = "aTestBody";
-        Map headers = createHeaders();
-        headers.put(VPExchangeProperties.ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
-        template.sendBodyAndHeaders(body, headers);
-        assert("aTestConsumerId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
-    }
-
-    @Test
-    public void negativeCorrelationIdTest() {
-        String body = "aTestBody";
-        Map headers = createHeaders();
-        template.sendBodyAndHeaders(body, headers);
-        String correlationId = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
-        //If no SKLTP_CORRELATION_ID is present in the request, it should be generated.
-        assertNotNull(correlationId);
-        assertNotEquals("aTestCorrelationId", correlationId);
-        assert(correlationId.length() > 35);
-    }
-
-    @Test
-    public void negativeOriginalConsumerTest() {
-        String body = "aTestBody";
-        Map headers = createHeaders();
-        template.sendBodyAndHeaders(body, headers);
-        //The X_VP_SENDER_ID should be used as X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, if ORIGINAL_SERVICE_CONSUMER_HSA_ID isn't present in request.
-        assert("tp".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
-    }
-
-    private void createRoute(CamelContext camelContext) {
-        try {
-            camelContext.addRoutes(new RouteBuilder() {
-                @Override
-                public void configure() {
-                    from("direct:start").routeDescription("Consumer").id("Consumer")
-                            .process(headerConfigurationProcessor)
-                            .to("mock:result");
-                }
-            });
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public Map createHeaders() {
-        return HeadersUtil.getHttpHeadersWithoutMembers();
-    }
+  public Map createHeaders() {
+    return HeadersUtil.getHttpHeadersWithoutMembers();
+  }
 }

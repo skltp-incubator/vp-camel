@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,6 +40,11 @@ public class HttpHeadersIT extends CamelTestSupport {
         takMockWebService.start();
     }
 
+    @AfterClass
+    public static void afterClass() {
+        takMockWebService.stop();
+    }
+
     @Autowired
     private CamelContext camelContext;
 
@@ -62,7 +68,6 @@ public class HttpHeadersIT extends CamelTestSupport {
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get("x-vp-instance-id").equals("dev_env"));
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get("x-vp-sender-id").equals("tp"));
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get("X-Forwarded-For").equals("1.2.3.4"));
-        takMockWebService.stop();
     }
 
     @Test
@@ -76,7 +81,6 @@ public class HttpHeadersIT extends CamelTestSupport {
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get("x-vp-instance-id").equals("dev_env"));
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get("x-vp-sender-id").equals("tp"));
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get("X-Forwarded-For").equals("1.2.3.4"));
-        takMockWebService.stop();
     }
 
     private void addConsumerRoute(CamelContext camelContext) throws Exception {
@@ -84,9 +88,10 @@ public class HttpHeadersIT extends CamelTestSupport {
                 new RouteBuilder() {
                     @Override
                     public void configure() {
-                        from("direct:start").routeId("start")
+                        from("direct:start").routeId("start").routeDescription("consumer")
                                 .to("netty4-http:http://localhost:12312/vp");
-                        from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2")
+
+                        from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2").routeDescription("producer")
                                 .to("mock:result");
                     }
                 });

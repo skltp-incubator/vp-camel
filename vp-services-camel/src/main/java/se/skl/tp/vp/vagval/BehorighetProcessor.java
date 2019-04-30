@@ -4,6 +4,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vagval.logging.ThreadContextLogTrace;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
@@ -31,7 +32,9 @@ public class BehorighetProcessor implements Processor {
 
         validateRequest(senderId, receiverId, servicecontractNamespace);
 
-        if( !takService.isAuthorized(senderId, servicecontractNamespace, receiverId)){
+        boolean isAuthorized = takService.isAuthorized(senderId, servicecontractNamespace, receiverId);
+        exchange.setProperty(VPExchangeProperties.ANROPSBEHORIGHET_TRACE, ThreadContextLogTrace.get(ThreadContextLogTrace.ROUTER_RESOLVE_ANROPSBEHORIGHET_TRACE) );
+        if( !isAuthorized ){
             exceptionUtil.raiseError( VpSemanticErrorCodeEnum.VP007, "Not authorized call, " + getRequestSummaryString(senderId, servicecontractNamespace, receiverId));
         }
     }
