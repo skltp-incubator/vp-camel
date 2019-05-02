@@ -11,6 +11,7 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
+import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
@@ -70,6 +71,9 @@ public class VPRouter extends RouteBuilder {
     @Autowired
     RequestTimoutProcessor requestTimoutProcessor;
 
+    @Autowired
+    private HttpHeaderFilterRegexp reg;
+
     @Override
     public void configure() throws Exception {
 
@@ -113,11 +117,13 @@ public class VPRouter extends RouteBuilder {
                 .doTry()
                     .choice()
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
+                            .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
                             .bean(MessageInfoLogger.class, "logReqOut(*)")
                             .toD(NETTY4_HTTPS_OUTGOING_TOD)
                             .bean(MessageInfoLogger.class, "logRespIn(*)")
                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
                         .otherwise()
+                            .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
                             .bean(MessageInfoLogger.class, "logReqOut(*)")
                             .toD(NETTY4_HTTP_TOD)
                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
