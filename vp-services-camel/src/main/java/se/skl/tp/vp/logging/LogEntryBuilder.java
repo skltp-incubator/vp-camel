@@ -2,6 +2,7 @@ package se.skl.tp.vp.logging;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Endpoint;
@@ -34,14 +35,14 @@ public class LogEntryBuilder {
     }
   }
 
-  protected static LogEntry createLogEntry(
+  public static LogEntry createLogEntry(
       LogLevelType logLevel,
       String logMessageType,
       Exchange exchange) {
 
     LogRuntimeInfoType lri = createRunTimeInfo(exchange);
     LogMetadataInfoType lmi = createMetadataInfo(exchange);
-    LogMessageType lm = createLogMessage(logLevel, logMessageType, null);
+    LogMessageType lm = createLogMessage(logLevel, logMessageType);
 
     // Create the log entry object
     LogEntry logEntry = new LogEntry();
@@ -55,25 +56,28 @@ public class LogEntryBuilder {
     return logEntry;
   }
 
-  private static LogMessageType createLogMessage(LogLevelType logLevel, String logMessageType, Throwable exception) {
+  public static LogMessageExceptionType createMessageException(Exchange exchange){
+    Throwable throwable = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
+    if (throwable == null) {
+      return null;
+    }
+
+    LogMessageExceptionType lme = new LogMessageExceptionType();
+    lme.setExceptionClass(throwable.getClass().getName());
+    lme.setExceptionMessage(throwable.getMessage());
+    lme.setStackTrace(new ArrayList<>());
+    StackTraceElement[] stArr = throwable.getStackTrace();
+    // we are just interested in the first lines.
+    for (int i = 0; i < stArr.length && i < 10; i++) {
+      lme.getStackTrace().add(stArr[i].toString());
+    }
+    return lme;
+  }
+
+  private static LogMessageType createLogMessage(LogLevelType logLevel, String logMessageType) {
     LogMessageType lm = new LogMessageType();
     lm.setLevel(logLevel);
     lm.setMessage(logMessageType);
-
-    // Setup exception information if present
-    if (exception != null) {
-      LogMessageExceptionType lme = new LogMessageExceptionType();
-
-      lme.setExceptionClass(exception.getClass().getName());
-      lme.setExceptionMessage(exception.getMessage());
-      StackTraceElement[] stArr = exception.getStackTrace();
-      // we are just interested in the first lines.
-      for (int i = 0; i < stArr.length && i < 10; i++) {
-        lme.getStackTrace().add(stArr[i].toString());
-      }
-      lm.setException(lme);
-    }
-
     return lm;
   }
 

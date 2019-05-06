@@ -16,7 +16,7 @@ public class MockFaultyHeadersProducer {
 
   void setHeaders(Map<String, Object> headers) {
     this.headers = headers;
-    headers.put("http.status",200);
+    headers.put(Exchange.HTTP_RESPONSE_CODE,200);
   }
 
   private Map<String, Object> headers;

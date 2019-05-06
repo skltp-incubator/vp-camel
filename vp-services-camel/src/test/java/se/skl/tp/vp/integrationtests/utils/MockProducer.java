@@ -11,6 +11,7 @@ public class MockProducer {
 
   private Integer responseHttpStatus=200;
   private String responseBody="response text";
+  private Integer timeout=0;
 
   public MockProducer(CamelContext camelContext, String producerAddress) throws Exception {
     camelContext.addRoutes(new RouteBuilder() {
@@ -19,7 +20,8 @@ public class MockProducer {
         from(NETTY4_HTTP + producerAddress).routeDescription("Producer returning Soapfault VP007")
             .process((Exchange exchange) -> {
               exchange.getOut().setBody(responseBody);
-              exchange.getOut().setHeader("http.status", responseHttpStatus);
+              exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, responseHttpStatus);
+              Thread.sleep(timeout);
             });
       }
     });

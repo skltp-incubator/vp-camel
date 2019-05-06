@@ -42,17 +42,17 @@ public class VagvalProcessor implements Processor {
     public RoutingInfo validateResponse(List<RoutingInfo> routingInfos, String tjanstegranssnitt, String receiverAddress){
 
         if(routingInfos.isEmpty()){
-            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
         }
 
         if(routingInfos.size()>1){
-            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP006, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP006, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
         }
 
         RoutingInfo routingInfo = routingInfos.get(0);
 
         if (routingInfo.getAddress() == null || routingInfo.getAddress().trim().length() == 0) {
-            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP010, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP010, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
         }
 
         return routingInfo;
@@ -60,13 +60,15 @@ public class VagvalProcessor implements Processor {
 
     private void validateRequest(String servicecontractNamespace, String receiverId) {
         if (!takService.isInitalized()) {
-            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP008);
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP008);
         }
 
         //TODO Kontrollera servicecontractNamespace ?
 
         // No receiver ID (to_address) found in message
-        exceptionUtil.raiseError(receiverId == null, VpSemanticErrorCodeEnum.VP003);
+        if(receiverId == null){
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP003);
+        }
     }
 
     private String getRequestSummaryString(String tjanstegranssnitt, String receiverAddress) {

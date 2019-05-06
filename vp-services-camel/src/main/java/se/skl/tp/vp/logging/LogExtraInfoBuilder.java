@@ -61,11 +61,10 @@ public class LogExtraInfoBuilder {
 
     addHttpForwardHeaders(exchange, extraInfo);
 
-    //TODO fix error logging
-//    final Boolean isError = (Boolean) exchange.getProperty(VPExchangeProperties.SESSION_ERROR);
-//    if (isError) {
-//      addErrorInfo(exchange, extraInfo, isError);
-//    }
+    final Boolean isError = exchange.getProperty(VPExchangeProperties.SESSION_ERROR, Boolean.class);
+    if (isError!=null && isError==true) {
+      addErrorInfo(exchange, extraInfo);
+    }
     return extraInfo;
   }
 
@@ -96,7 +95,9 @@ public class LogExtraInfoBuilder {
     //    urn:riv:${tjänsteDomän}:${tjänsteInteraktion}:m:${profilKortnamn}
     // See https://riv-ta.atlassian.net/wiki/spaces/RTA/pages/99593635/RIV+Tekniska+Anvisningar+Tj+nsteschema
     //   and https://riv-ta.atlassian.net/wiki/spaces/RTA/pages/77856888/RIV+Tekniska+Anvisningar+Basic+Profile+2.1
-
+    if(serviceContractNS==null || profile==null){
+      return null;
+    }
     return serviceContractNS.replace("Responder", "").concat(":").concat(profile);
   }
 
@@ -105,8 +106,8 @@ public class LogExtraInfoBuilder {
     return new Date().getTime() - created.getTime();
   }
 
-  private static void addErrorInfo(Exchange exchange, ExtraInfoMap<String, String> extraInfo, Boolean isError) {
-    extraInfo.put(VPExchangeProperties.SESSION_ERROR, isError.toString());
+  private static void addErrorInfo(Exchange exchange, ExtraInfoMap<String, String> extraInfo) {
+    extraInfo.put(VPExchangeProperties.SESSION_ERROR, "true");
     extraInfo.put(VPExchangeProperties.SESSION_ERROR_DESCRIPTION,
         nullValue2Blank(exchange.getProperty(VPExchangeProperties.SESSION_ERROR_DESCRIPTION, String.class)));
     extraInfo.put(VPExchangeProperties.SESSION_ERROR_TECHNICAL_DESCRIPTION,

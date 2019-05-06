@@ -78,7 +78,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
 
         template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
 
-        resultEndpoint.expectedHeaderReceived("http.status", 500);
+        resultEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 500);
         String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
         assertStringContains(resultBody , "Timeout");
         resultEndpoint.assertIsSatisfied();
@@ -92,7 +92,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
                     .setHeader(HttpHeaders.X_VP_SENDER_ID, constant("UnitTest"))
                     .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
                     .setHeader("X-Forwarded-For", constant("1.2.3.4"))
-                    .to("netty4-http:http://localhost:12312/vp")
+                    .to("netty4-http:http://localhost:12312/vp?throwExceptionOnFailure=false")
                     .to("mock:result");;
 
                 from("netty4-http:http://localhost:12123/vp")

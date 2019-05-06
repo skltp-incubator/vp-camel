@@ -44,7 +44,7 @@ public class RivTaProfilProcessor implements Processor {
         String rivVersionIn = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION);
         String rivVersionOut = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION_OUT);
         if(rivVersionIn == null){
-            exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP001);
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP001);
         }
 
         if (!rivVersionIn.equalsIgnoreCase(rivVersionOut)) {
@@ -55,7 +55,7 @@ public class RivTaProfilProcessor implements Processor {
                 ByteArrayOutputStream strPayload = doTransform(exchange, RIV21_NS, RIV20_NS, RIV21_ELEM, RIV20_ELEM);
                 exchange.getIn().setBody(toXMLStreamReader(strPayload));
             }else {
-                exceptionUtil.raiseError(VpSemanticErrorCodeEnum.VP005, rivVersionIn);
+                throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP005, rivVersionIn);
             }
             exchange.setProperty(VPExchangeProperties.RIV_VERSION, rivVersionOut);
         }

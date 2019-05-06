@@ -12,6 +12,7 @@ import se.skl.tp.vp.certificate.HeaderCertificateHelper;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 
@@ -24,16 +25,19 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
     private HeaderCertificateHelper headerCertificateHelper;
     private SenderIpExtractor senderIpExtractor;
     private String vpInstanceId;
+    private ExceptionUtil exceptionUtil;
 
     @Autowired
     public HttpSenderIdExtractorProcessorImpl(Environment env,
                                             SenderIpExtractor senderIpExtractor,
                                             HeaderCertificateHelper headerCertificateHelper,
-                                            IPWhitelistHandler ipWhitelistHandler) {
+                                            IPWhitelistHandler ipWhitelistHandler,
+                                            ExceptionUtil exceptionUtil) {
         this.headerCertificateHelper = headerCertificateHelper;
         this.ipWhitelistHandler = ipWhitelistHandler;
         this.senderIpExtractor = senderIpExtractor;
         vpInstanceId = env.getProperty(PropertyConstants.VP_INSTANCE_ID);
+        this.exceptionUtil = exceptionUtil;
     }
 
     @Override
@@ -55,10 +59,9 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
              * ip addresses is needed. VPUtil.checkCallerOnWhiteList throws VpSemanticException in case ip address is not in whitelist.
              */
             if(!ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress)){
-                throw new VpSemanticException(VpSemanticErrorCodeEnum.VP011.getCode()
-                        + " IP-address: " + senderIpAdress
-                        + ". HTTP header that caused checking: " + NettyConstants.NETTY_REMOTE_ADDRESS,
-                        VpSemanticErrorCodeEnum.VP011);
+                throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP011,
+                          " IP-address: " + senderIpAdress
+                        + ". HTTP header that caused checking: " + NettyConstants.NETTY_REMOTE_ADDRESS);
             }
 
             // Make sure the sender id is set in session scoped property for authorization and logging

@@ -1,15 +1,17 @@
 package se.skl.tp.vp;
 
 import io.netty.handler.timeout.ReadTimeoutException;
-import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.errorhandling.CheckPayloadProcessor;
+import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
+import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
 import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
 import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
@@ -60,7 +62,7 @@ public class VPRouter extends RouteBuilder {
     ExceptionMessageProcessor exceptionMessageProcessor;
 
     @Autowired
-    CheckPayloadProcessor checkPayloadProcessor;
+    HandleEmptyResponseProcessor handleEmptyResponseProcessor;
 
     @Autowired
     RivTaProfilProcessor rivTaProfilProcessor;
@@ -72,13 +74,20 @@ public class VPRouter extends RouteBuilder {
     RequestTimoutProcessor requestTimoutProcessor;
 
     @Autowired
+    HandleProducerExceptionProcessor handleProducerExceptionProcessor;
+
+    @Autowired
     private HttpHeaderFilterRegexp reg;
 
     @Override
     public void configure() throws Exception {
 
         onException(Exception.class)
+                .log(LoggingLevel.ERROR, "Catched exception: ${exception}")
                 .process(exceptionMessageProcessor)
+                .bean(MessageInfoLogger.class, "logError(*)")
+            // TODO should we lo resp-out at this kind of errors
+                .bean(MessageInfoLogger.class, "logRespOut(*)")
                 .handled(true);
 
         from(NETTY4_HTTPS_INCOMING_FROM).routeId(VP_HTTPS_ROUTE)
@@ -130,19 +139,16 @@ public class VPRouter extends RouteBuilder {
                             .bean(MessageInfoLogger.class, "logRespIn(*)")
                     .endChoice()
                 .endDoTry()
-                .doCatch(SocketException.class, ReadTimeoutException.class)
+                .doCatch(SocketException.class, ReadTimeoutException.class, NettyHttpOperationFailedException.class)
+                    .log(LoggingLevel.ERROR, "Catched exception when calling producer: ${exception}")
+                    .process(handleProducerExceptionProcessor)
+                    .bean(MessageInfoLogger.class, "logError(*)")
                 .end()
-                .choice()
-                    .when(exchangeProperty(VPExchangeProperties.SESSION_ERROR))
-                        .log("Do Nothing")
-                    .otherwise()
-                        .choice()
-                            .when(or(header("http.status").isNotEqualTo(200), body().isNull(), exchangeProperty(Exchange.EXCEPTION_CAUGHT).isNotNull()))
-                                .convertBodyTo(String.class)
-                                .process(checkPayloadProcessor)
-                            .endChoice()
-                        .end()
-                    .endChoice()
+                .choice().when(or(body().isNull(), body().isEqualTo("")))
+                    .log(LoggingLevel.ERROR, "Response from producer is empty")
+                    .process(handleEmptyResponseProcessor)
+                    .bean(MessageInfoLogger.class, "logError(*)")
+                .endChoice()
                 .end();
     }
 }
