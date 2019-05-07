@@ -12,9 +12,8 @@ import static org.apache.camel.language.constant.ConstantLanguage.constant;
 public class HeadersUtil {
 
     public static Map getHttpsHeadersWithoutMembers() {
-        Map<String, Object> headers = new HashMap<>();
+        Map<String, Object> headers = getHttpHeadersWithoutMembers();
         headers.put(VPExchangeProperties.RECEIVER_ID, TestSoapRequests.RECEIVER_HTTPS);
-        headers.put(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
         return headers;
     }
 
