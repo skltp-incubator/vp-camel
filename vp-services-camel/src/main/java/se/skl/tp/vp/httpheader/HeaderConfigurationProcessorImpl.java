@@ -24,6 +24,14 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
     private String propagate;
 
+    public String getPropagate() {
+        return propagate;
+    }
+
+    public void setPropagate(String propagate) {
+        this.propagate = propagate;
+    }
+
     @Override
     public void process(Exchange exchange) {
         setOriginalConsumerId(exchange);
@@ -31,7 +39,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     }
 
   private void propagateCorrelationIdToProducer(Exchange exchange) {
-        propagateCorrelationIdForHttps = propagate.trim().equals("true") || propagate.equals("1");
+        propagateCorrelationIdForHttps = propagate.trim().equals("true");
         Message message = exchange.getIn();
         String correlationId = message.getHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, String.class);
         if (correlationId == null || correlationId.trim().isEmpty()) {
