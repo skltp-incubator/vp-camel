@@ -49,8 +49,8 @@ public class TestConsumer {
   private void createConsumerRouteUrls(){
     String vpHttpBaseUrl = env.getProperty(PropertyConstants.VP_HTTP_ROUTE_URL);
     String vpHttpsBaseUrl = env.getProperty(PropertyConstants.VP_HTTPS_ROUTE_URL);
-    httpConsumerRouteUrl = NETTY_PREFIX + vpHttpBaseUrl;
-    httpsConsumerRouteUrl = NETTY_PREFIX + vpHttpsBaseUrl + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
+    httpConsumerRouteUrl = NETTY_PREFIX + vpHttpBaseUrl + "?throwExceptionOnFailure=false";
+    httpsConsumerRouteUrl = NETTY_PREFIX + vpHttpsBaseUrl + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true&throwExceptionOnFailure=false";
   }
 
   private void createConsumerRoutes(CamelContext camelContext) throws Exception {

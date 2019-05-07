@@ -62,7 +62,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
         try (Stream<Path> paths = Files.walk(Paths.get(wsdlDirectory))) {
             paths.filter(f -> f.toString().endsWith(".wsdl")).forEach(file -> createConfigFromWsdlFile(file));
         } catch (IOException e) {
-            LOGGER.warn("Problem when trying to read wsdl files in " + wsdlDirectory + ". No wsdl paths are automatically genereted.", e);
+            LOGGER.warn("Problem when trying to read wsdl files in " + wsdlDirectory + ". No wsdl paths are automatically genereted. Message: "+e.toString());
         }
     }
 

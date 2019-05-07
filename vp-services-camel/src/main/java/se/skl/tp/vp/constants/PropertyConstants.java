@@ -6,7 +6,7 @@ public class PropertyConstants {
     public static final String IP_WHITELIST = "ip.whitelist";
     public static final String VP_INSTANCE_ID = "vp.instance.id";
 
-    public static final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = "vagvalrouter.sender.ip.adress.http.header";
+    public static final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = "http.forwarded.header.for";
 
     public static final String HSA_FILES = "hsa.files";
 
@@ -15,7 +15,7 @@ public class PropertyConstants {
     public static final String WSDL_JSON_FILE = "wsdl.json.file";
     public static final String WSDLFILES_DIRECTORY = "wsdlfiles.directory";
 
-    public static final String PROPAGATE_CORRELATION_ID_FOR_HTTPS = "propagateCorrelationIdForHttps";
+    public static final String PROPAGATE_CORRELATION_ID_FOR_HTTPS = "propagate.correlation.id.for.https";
 
     public static final String VP_HTTP_ROUTE_URL = "vp.http.route.url";
     public static final String VP_HTTPS_ROUTE_URL = "vp.https.route.url";

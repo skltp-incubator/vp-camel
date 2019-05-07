@@ -36,7 +36,6 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
 
         if (matcher.find()) {
             final String senderId = matcher.group(1);
-            exchange.setProperty(VPExchangeProperties.IS_HTTPS, "true");
             LOGGER.debug("Found sender id: {}", senderId);
             String id = senderId.startsWith("#") ? this.convertFromHexToString(senderId.substring(5)) : senderId;
             exchange.setProperty(VPExchangeProperties.SENDER_ID, id);

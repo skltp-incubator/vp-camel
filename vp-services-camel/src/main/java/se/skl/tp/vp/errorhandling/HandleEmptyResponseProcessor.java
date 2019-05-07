@@ -2,5 +2,5 @@ package se.skl.tp.vp.errorhandling;
 
 import org.apache.camel.Processor;
 
-public interface CheckPayloadProcessor extends Processor {
+public interface HandleEmptyResponseProcessor extends Processor {
 }

@@ -3,7 +3,7 @@ package se.skl.tp.vp.integrationtests.errorhandling;
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.VPRouter.VAGVAL_PROCESSOR_ID;
-import static se.skl.tp.vp.VPRouter.VP_ROUTE;
+import static se.skl.tp.vp.VPRouter.VAGVAL_ROUTE;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class SoapFaultIT {
             .replace().to("mock:vagvalprocessor");
       }
     };
-    camelContext.getRouteDefinition(VP_ROUTE).adviceWith(camelContext, mockNetty);
+    camelContext.getRouteDefinition(VAGVAL_ROUTE).adviceWith(camelContext, mockNetty);
   }
 
   private void makeMockVagvalProcessorThrowException() {

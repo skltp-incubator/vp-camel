@@ -1,52 +1,44 @@
 <Configuration status="WARN" monitorInterval="30">
-    <Properties>
-        <Property name="LOG_PATTERN">
-            %d %-5p [%t] %-30c - %m%n
-        </Property>
-    </Properties>
-    <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
-        </Console>
 
-        <RollingRandomAccessFile name="RollingRandomAccessFile"
-                                 fileName="${sys:log.dir}/camel-app-vp.log"
-                                 filePattern="${sys:log.dir}/camel-app-vp.log.%i">
-            <PatternLayout>
-                <Pattern>${LOG_PATTERN}</Pattern>
-            </PatternLayout>
-            <Policies>
-                <!-- KB, MB -->
-                <SizeBasedTriggeringPolicy size="50 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy fileIndex="min" max="10"/>
-        </RollingRandomAccessFile>
+  <Properties>
+    <Property name="LOG_PATTERN">
+      %d %-5p [%t] %-30c - %m%n
+    </Property>
+  </Properties>
 
-        <!--<RollingRandomAccessFile name="RollingRandomAccessFile_Monitoring"-->
-                                 <!--fileName="${sys:log.dir}/camel-app-vp-monitoring.log"-->
-                                 <!--filePattern="${sys:log.dir}/camel-app-vp-monitoring.log.%i">-->
-            <!--<PatternLayout>-->
-                <!--<Pattern>${LOG_PATTERN}</Pattern>-->
-            <!--</PatternLayout>-->
-            <!--<Policies>-->
-                <!--&lt;!&ndash; KB, MB &ndash;&gt;-->
-                <!--<SizeBasedTriggeringPolicy size="10 MB"/>-->
-            <!--</Policies>-->
-            <!--<DefaultRolloverStrategy fileIndex="min" max="5"/>-->
-        <!--</RollingRandomAccessFile>-->
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${LOG_PATTERN}"/>
+    </Console>
+  </Appenders>
 
-        <!--
-        loghandler
-        <SocketLoggerAppender name="SocketLoggerAppender" configFile="${sys:mule.home}/conf/vp-socketappender.properties"/> -->
+  <Loggers>
+    <AsyncLogger name="se.skl.tp.vp" level="WARN"/>
 
-    </Appenders>
-    <Loggers>
-        <AsyncLogger name="se.skl.tp.vp" level="INFO"/>
+    <!--Level INFO will log the init/reset och TAK cache-->
+    <AsyncLogger name="se.skltp.takcache" level="INFO"/>
+    <AsyncLogger name="se.skl.tp.vp.vagval.ResetTakCacheProcessor" level="INFO"/>
 
-        <AsyncRoot level="info">
-            <AppenderRef ref="RollingRandomAccessFile"/>
-            <AppenderRef ref="Console"/>
-        </AsyncRoot>
+    <!--Level INFO will log the init/reset of HSA cache-->
+    <AsyncLogger name="se.skl.tp.vp.vagval.ResetHsaCacheProcessorTest" level="INFO"/>
 
-    </Loggers>
+    <!--Level INFO will log startup for spring boot application-->
+    <AsyncLogger name="se.skl.tp.vp.VpServicesApplication" level="INFO"/>
+
+    <!--Apache camel-->
+    <AsyncLogger name="org.apache.camel" level="INFO"/>
+
+    <!-- Message logging -->
+    <AsyncLogger name="se.skl.tp.vp.logging.req.in" level="DEBUG"/>
+    <AsyncLogger name="se.skl.tp.vp.logging.req.out" level="DEBUG"/>
+    <AsyncLogger name="se.skl.tp.vp.logging.resp.in" level="DEBUG"/>
+    <AsyncLogger name="se.skl.tp.vp.logging.resp.out" level="DEBUG"/>
+
+
+    <AsyncRoot level="WARN">
+      <!--<AppenderRef ref="RollingRandomAccessFile"/>-->
+      <AppenderRef ref="Console"/>
+    </AsyncRoot>
+
+  </Loggers>
 </Configuration>

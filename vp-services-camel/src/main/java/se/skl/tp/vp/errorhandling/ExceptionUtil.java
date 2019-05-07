@@ -19,28 +19,24 @@ public class ExceptionUtil {
     this.vpCodeMessages = vpCodeMessages;
   }
 
-  public void raiseError(boolean test, VpSemanticErrorCodeEnum codeenum) {
-    if(test) {
-      raiseError(codeenum, null);
-    }
+//  public VpSemanticException createVpSemanticException(VpSemanticErrorCodeEnum codeEnum, String errMsg){
+//    return new VpSemanticException(codeEnum +" "+ errMsg, codeEnum);
+//  }
+
+  public VpSemanticException createVpSemanticException(VpSemanticErrorCodeEnum codeEnum){
+    return createVpSemanticException(codeEnum, null);
   }
 
-  public void raiseError(boolean test, VpSemanticErrorCodeEnum codeenum, Object ... suffix) {
-    if(test) {
-      raiseError(codeenum, suffix);
-    }
+  public VpSemanticException createVpSemanticException(VpSemanticErrorCodeEnum codeEnum, Object ...suffix){
+    String exceptionMessage = createMessage(codeEnum, suffix);
+    return new VpSemanticException(exceptionMessage, codeEnum);
   }
 
-  public void raiseError(VpSemanticErrorCodeEnum codeEnum, Object ...suffix) {
-    String errmsg = String.format( vpCodeMessages.getMessage(codeEnum), suffix);
-
-    LOGGER.error(codeEnum +" "+errmsg);
-    throw new VpSemanticException(codeEnum +" "+ errmsg, codeEnum);
+  public String createMessage(VpSemanticErrorCodeEnum codeEnum, Object ...suffix) {
+    String errorMsg = vpCodeMessages.getMessage(codeEnum);
+    return codeEnum+" "+ String.format(errorMsg, suffix);
   }
 
-  public void raiseErrorMsg(VpSemanticErrorCodeEnum codeEnum, String errMsg) {
 
-    LOGGER.error(codeEnum +" "+errMsg);
-    throw new VpSemanticException(codeEnum +" "+ errMsg, codeEnum);
-  }
+
 }

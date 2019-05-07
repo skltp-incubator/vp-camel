@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 @RunWith(CamelSpringBootRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = VpServicesApplication.class)
 @EnableRouteCoverage
 @DirtiesContext
 public class ApplicationTest {

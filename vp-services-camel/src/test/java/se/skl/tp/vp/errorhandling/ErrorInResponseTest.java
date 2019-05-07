@@ -75,11 +75,13 @@ public class ErrorInResponseTest {
     resultEndpoint.reset();
     Mockito.when(takCache.refresh()).thenReturn(createTakCacheLogOk());
     takCacheService.refresh();
+
+    mockProducer.setResponseHttpStatus(200);
   }
 
   @Test //Test för när ett SOAP-fault kommer från Producenten
   public void errorInResponseTest() throws Exception {
-    mockProducer.setResponseHttpStatus(500);
+    mockProducer.setResponseHttpStatus(200);
     mockProducer.setResponseBody(SoapFaultHelper.generateSoap11FaultWithCause(REMOTE_EXCEPTION_MESSAGE));
 
     List<RoutingInfo> list = new ArrayList<>();
@@ -108,7 +110,6 @@ public class ErrorInResponseTest {
 
   @Test //Test för när en Producent svarar med ett tomt svar
   public void emptyResponseTest() throws Exception {
-    mockProducer.setResponseHttpStatus(500);
     mockProducer.setResponseBody("");
 
     List<RoutingInfo> list = new ArrayList<>();
@@ -123,9 +124,25 @@ public class ErrorInResponseTest {
     resultEndpoint.assertIsSatisfied();
   }
 
+//  @Test //Test för när en Producent svarar med ett tomt svar
+//  public void emptyResponseHttpStatusOkTest() throws Exception {
+//    mockProducer.setResponseBody("");
+//
+//    List<RoutingInfo> list = new ArrayList<>();
+//    list.add(createRoutingInfo(MOCK_PRODUCER_ADDRESS, RIV20));
+//    setTakCacheMockResult(list);
+//
+//    template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+//    String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
+//    assertStringContains(resultBody, "DEFAULT_ERROR_CODE");
+//    assertStringContains(resultBody, "address");
+//    assertStringContains(resultBody, "Empty message when server responded with status code:");
+//    resultEndpoint.assertIsSatisfied();
+//  }
+
   @Test //Test för när en Producent svarar med annat än SOAP tex ett exception, kontrolleras inte av VP
   public void nonSOAPResponseTest() throws Exception {
-    mockProducer.setResponseHttpStatus(500);
+    mockProducer.setResponseHttpStatus(200);
     mockProducer.setResponseBody(createExceptionMessage());
 
     List<RoutingInfo> list = new ArrayList<>();
@@ -155,7 +172,7 @@ public class ErrorInResponseTest {
             .setHeader(HttpHeaders.X_VP_SENDER_ID, constant("UnitTest"))
             .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
             .setHeader("X-Forwarded-For", constant("1.2.3.4"))
-            .to("netty4-http:"+VP_ADDRESS)
+            .to("netty4-http:"+VP_ADDRESS+"?throwExceptionOnFailure=false")
             .to("mock:result");
       }
     });

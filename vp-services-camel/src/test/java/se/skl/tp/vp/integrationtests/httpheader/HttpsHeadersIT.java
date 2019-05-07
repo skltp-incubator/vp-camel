@@ -51,6 +51,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
     public static void afterClass() {
         takMockWebService.stop();
     }
+
     @Autowired
     private HeaderConfigurationProcessorImpl headerConfigurationProcessor;
 
