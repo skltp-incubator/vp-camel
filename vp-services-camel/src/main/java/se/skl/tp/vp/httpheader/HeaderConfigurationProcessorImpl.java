@@ -17,16 +17,16 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProcessor {
 
   @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
-  private static boolean propagateCorrelationIdForHttps;
+  private boolean propagateCorrelationIdForHttps;
 
   @Value("${" + PropertyConstants.VP_HEADER_USER_AGENT + "}")
-  private static String vpHeaderUserAgent;
+  private String vpHeaderUserAgent;
 
   @Value("${" + PropertyConstants.VP_HEADER_CONTENT_TYPE + "}")
-  private static String headerContentType;
+  private String headerContentType;
 
   @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
-  private static String vpInstanceId;
+  private String vpInstanceId;
 
   public boolean getPropagate() {
     return propagateCorrelationIdForHttps;
@@ -67,12 +67,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
       if (senderId != null) {
         exchange.getIn().getHeaders().put(HttpHeaders.X_VP_SENDER_ID, senderId);
       }
-
       exchange.getIn().getHeaders().put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
-
-      if (senderId == null || vpInstanceId == null) {
-        //Already taken care of in HttpSenderIdExtractorProcessorImpl.java
-      }
     }
   }
 
