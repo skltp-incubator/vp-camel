@@ -14,7 +14,6 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
-import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
 public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractorProcessor {
@@ -55,7 +54,7 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
         if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
             LOGGER.debug("Yes, sender id extracted from inbound property {}: {}, check whitelist!", HttpHeaders.X_VP_SENDER_ID, senderId);
             /*
-             * x-vp-sender-id exist as inbound property and x-vp-instance-id macthes this VP instance, a mandatory check against the whitelist of
+             * x-vp-sender-id exist as inbound property and x-vp-instance-id matches this VP instance, a mandatory check against the whitelist of
              * ip addresses is needed. VPUtil.checkCallerOnWhiteList throws VpSemanticException in case ip address is not in whitelist.
              */
             if(!ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress)){
