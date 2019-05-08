@@ -20,9 +20,6 @@
  */
 package se.skl.tp.vp.constants;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class HttpHeaders {
 
 
@@ -70,11 +67,9 @@ public class HttpHeaders {
 	 * @since VP-1.3
 	 */
 	public static final String REVERSE_PROXY_HEADER_NAME = "x-vp-auth-cert";
-	
-	/**
-	 * User-Agent for outgoing requests from VP
-	 * TODO: Make this configurable rather than a static variable.
-	 */
-	public static final String VP_HEADER_USER_AGENT = "SKLTP VP/3.1";
+
+	public static final String HEADER_USER_AGENT = "User-Agent";
+
+	public static final String HEADER_CONTENT_TYPE = "Content-Type";
 
 }
