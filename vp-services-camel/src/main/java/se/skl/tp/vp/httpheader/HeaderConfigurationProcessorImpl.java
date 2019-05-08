@@ -1,6 +1,7 @@
 package se.skl.tp.vp.httpheader;
 
 import java.util.UUID;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -18,6 +19,15 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
   private static boolean propagateCorrelationIdForHttps;
 
+  @Value("${" + PropertyConstants.VP_HEADER_USER_AGENT + "}")
+  private static String vpHeaderUserAgent;
+
+  @Value("${" + PropertyConstants.VP_HEADER_CONTENT_TYPE + "}")
+  private static String headerContentType;
+
+  @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
+  private static String vpInstanceId;
+
   public boolean getPropagate() {
     return propagateCorrelationIdForHttps;
   }
@@ -30,6 +40,40 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   public void process(Exchange exchange) {
     setOriginalConsumerId(exchange);
     propagateCorrelationIdToProducer(exchange);
+    propagateSoapAction(exchange);
+    propagateSenderIdAndVpInstanceIdToProducer(exchange);
+    exchange.getIn().getHeaders().put(HttpHeaders.HEADER_USER_AGENT, vpHeaderUserAgent);
+    exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, headerContentType);
+  }
+
+  // Make sure SOAPAction is forwarded to producer
+  public static void propagateSoapAction(Exchange exchange) {
+    String action = (String) exchange.getProperty("SOAPAction");
+    if (action == null) {
+      action = (String) exchange.getIn().getHeader("SOAPAction");
+    } else {
+      exchange.getIn().getHeaders().put("SOAPAction", action);
+    }
+  }
+
+  /*
+   * Propagate x-vp-sender-id and x-vp-instance-id from this VP instance as an outbound http property as they are both needed
+   * together for another VP to determine if x-vp-sender-id is valid to use.
+   */
+  private void propagateSenderIdAndVpInstanceIdToProducer(Exchange exchange) {
+    Boolean isHttps = exchange.getProperty(VPExchangeProperties.IS_HTTPS, Boolean.class);
+    if (!isHttps) {
+      String senderId = (String) exchange.getProperties().get(VPExchangeProperties.SENDER_ID);
+      if (senderId != null) {
+        exchange.getIn().getHeaders().put(HttpHeaders.X_VP_SENDER_ID, senderId);
+      }
+
+      exchange.getIn().getHeaders().put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+
+      if (senderId == null || vpInstanceId == null) {
+        //Already taken care of in HttpSenderIdExtractorProcessorImpl.java
+      }
+    }
   }
 
   private void propagateCorrelationIdToProducer(Exchange exchange) {
