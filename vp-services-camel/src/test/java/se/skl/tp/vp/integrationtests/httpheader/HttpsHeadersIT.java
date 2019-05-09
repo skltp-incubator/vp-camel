@@ -134,7 +134,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
           @Override
           public void configure() {
             from("direct:start").routeId("start")
-                .to("netty4-http:https://localhost:1024/vp?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
+                .to("netty4-http:https://localhost:1028/vp?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
                         "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
 
             from("netty4-http:https://localhost:19000/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
