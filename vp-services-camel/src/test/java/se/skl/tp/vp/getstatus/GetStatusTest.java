@@ -53,7 +53,7 @@ public class GetStatusTest extends CamelTestSupport {
         assert(!resultEndpoint.getExchanges().isEmpty());
         assertNotNull(resultEndpoint.getExchanges().get(0).getIn().getBody());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getBody();
-        assert(s.startsWith("{") && s.endsWith("}") && s.contains("managementName"));
+        assert(s.startsWith("{") && s.endsWith("}") && s.contains("ManagementName"));
     }
 
     private void createRoute(CamelContext camelContext) {
@@ -62,7 +62,7 @@ public class GetStatusTest extends CamelTestSupport {
                 @Override
                 public void configure() {
                     from("direct:start").routeDescription("GetStatus").id("Status")
-                            .to("netty4-http:http://localhost:80/get")
+                            .to("netty4-http:http://localhost:1080/get")
                             .process(getStatusProcessor)
                             .to("mock:result");
                 }
