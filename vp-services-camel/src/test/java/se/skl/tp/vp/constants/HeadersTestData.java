@@ -23,7 +23,9 @@ public class HeadersTestData {
       ,"host"
       ,"x-vp-sender-id"
       ,"breadcrumbId"
-
+      ,"User-Agent"
+      ,"Content-Type"
+      ,"SoapAction"
       ));
 
   private  Set<String> expectedHeadersIgnoreCase;
@@ -109,8 +111,7 @@ public class HeadersTestData {
             randomCase("x-vp-auth-cert"),
             randomCase("servicecontract_namespace"),
             randomCase("http.disable.status.code.exception.check"),
-            randomCase("PEER_CERTIFICATES"),
-            randomCase("Content-Type")
+            randomCase("PEER_CERTIFICATES")
         )
     );
 

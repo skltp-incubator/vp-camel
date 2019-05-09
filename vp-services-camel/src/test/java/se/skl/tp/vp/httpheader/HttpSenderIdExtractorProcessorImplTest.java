@@ -21,11 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import se.skl.tp.vp.certificate.HeaderCertificateHelperImpl;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.errorhandling.ExceptionUtil;
+import se.skl.tp.vp.errorhandling.VpCodeMessages;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes={SenderIpExtractorFromHeader.class, HeaderCertificateHelperImpl.class, IPWhitelistHandlerImpl.class,
-    HttpSenderIdExtractorProcessorImpl.class})
+    HttpSenderIdExtractorProcessorImpl.class, VpCodeMessages.class, ExceptionUtil.class})
 public class HttpSenderIdExtractorProcessorImplTest {
 
   public static final String VP_INSTANCE_ID = "dev_env";

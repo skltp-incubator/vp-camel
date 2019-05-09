@@ -4,7 +4,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.vagval.ResetHsaCacheProcessor;
-import se.skl.tp.vp.vagval.ResetTakCacheProcessor;
 
 @Component
 public class ResetHsaCacheRouter extends RouteBuilder {

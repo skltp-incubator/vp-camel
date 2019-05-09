@@ -18,6 +18,15 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.integrationtests.httpheader.HeadersUtil;
 import java.util.Map;
 
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.*;
+
+/**
+ * Testing transformation of headers in class HeaderConfigurationProcessor.java.
+ * If a consumerId is present in the request, then just forward it. Otherwise
+ * set the senderId as consumerId.
+ * The correlationId is used with http requests AND https if that is configured.
+ * If it is present, then forward, otherwise create one and forward that one.
+ */
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
@@ -50,44 +59,41 @@ public class HeaderConfigurationTest extends CamelTestSupport {
 
   @Test
   public void positiveCorrelationIdTest() {
-    String body = "aTestBody";
     Map headers = createHeaders();
-    headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, "aTestCorrelationId");
-    template.sendBodyAndHeaders(body, headers);
-    assert ("aTestCorrelationId"
+    headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, TEST_CORRELATION_ID);
+    template.sendBodyAndHeaders(TEST_BODY, headers);
+    assert (TEST_CORRELATION_ID
         .equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
   }
 
   @Test
-  public void positiveOriginalConsumerTest() {
-    String body = "aTestBody";
+  public void negativeCorrelationIdTest() {
     Map headers = createHeaders();
-    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "aTestConsumerId");
-    template.sendBodyAndHeaders(body, headers);
-    assert ("aTestConsumerId".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+    template.sendBodyAndHeaders(TEST_BODY, headers);
+    String correlation = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+            .get(HttpHeaders.X_SKLTP_CORRELATION_ID);
+    //If no correlationId is present in the request, it should have been generated.
+    assertNotNull(correlation);
+    assertNotEquals(TEST_CORRELATION_ID, correlation);
+    assert (correlation.length() > 35);
+  }
+
+  @Test
+  public void positiveOriginalConsumerTest() {
+    Map headers = createHeaders();
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+    template.sendBodyAndHeaders(TEST_BODY, headers);
+    assert (TEST_CONSUMER.equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
         .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
   }
 
   @Test
-  public void negativeCorrelationIdTest() {
-    String body = "aTestBody";
-    Map headers = createHeaders();
-    template.sendBodyAndHeaders(body, headers);
-    String correlationId = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
-        .get(HttpHeaders.X_SKLTP_CORRELATION_ID);
-    //If no SKLTP_CORRELATION_ID is present in the request, it should be generated.
-    assertNotNull(correlationId);
-    assertNotEquals("aTestCorrelationId", correlationId);
-    assert (correlationId.length() > 35);
-  }
-
-  @Test
   public void negativeOriginalConsumerTest() {
-    String body = "aTestBody";
     Map headers = createHeaders();
-    template.sendBodyAndHeaders(body, headers);
-    //The X_VP_SENDER_ID should be used as X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, if ORIGINAL_SERVICE_CONSUMER_HSA_ID isn't present in request.
-    assert ("tp".equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+    template.sendBodyAndHeaders(TEST_BODY, headers);
+    //The senderId should be used as originalConsumerId, if originalConsumerId isn't present in request.
+    String s = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_VP_SENDER_ID);
+    assert (s.equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
         .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
   }
 
