@@ -29,7 +29,9 @@ public class LogExtraInfoBuilder {
   public static final String VP_X_FORWARDED_PROTO = VPExchangeProperties.VP_X_FORWARDED_PROTO;
   public static final String VP_X_FORWARDED_PORT = VPExchangeProperties.VP_X_FORWARDED_PORT;
 
-
+  private LogExtraInfoBuilder() {
+    // Static utility class
+  }
 
   public static Map<String, String> createExtraInfo(Exchange exchange) {
     ExtraInfoMap<String, String> extraInfo = new ExtraInfoMap<>();
@@ -62,7 +64,7 @@ public class LogExtraInfoBuilder {
     addHttpForwardHeaders(exchange, extraInfo);
 
     final Boolean isError = exchange.getProperty(VPExchangeProperties.SESSION_ERROR, Boolean.class);
-    if (isError!=null && isError==true) {
+    if (isError != null && isError) {
       addErrorInfo(exchange, extraInfo);
     }
     return extraInfo;
@@ -95,7 +97,7 @@ public class LogExtraInfoBuilder {
     //    urn:riv:${tjänsteDomän}:${tjänsteInteraktion}:m:${profilKortnamn}
     // See https://riv-ta.atlassian.net/wiki/spaces/RTA/pages/99593635/RIV+Tekniska+Anvisningar+Tj+nsteschema
     //   and https://riv-ta.atlassian.net/wiki/spaces/RTA/pages/77856888/RIV+Tekniska+Anvisningar+Basic+Profile+2.1
-    if(serviceContractNS==null || profile==null){
+    if (serviceContractNS == null || profile == null) {
       return null;
     }
     return serviceContractNS.replace("Responder", "").concat(":").concat(profile);
@@ -114,7 +116,8 @@ public class LogExtraInfoBuilder {
         nullValue2Blank(exchange.getProperty(VPExchangeProperties.SESSION_ERROR_TECHNICAL_DESCRIPTION, String.class)));
     extraInfo.put(VPExchangeProperties.SESSION_ERROR_CODE,
         nullValue2Blank(exchange.getProperty(VPExchangeProperties.SESSION_ERROR_CODE, String.class)));
-    extraInfo.putNotEmpty(VPExchangeProperties.SESSION_HTML_STATUS,  exchange.getProperty(VPExchangeProperties.SESSION_HTML_STATUS, String.class) );
+    extraInfo.putNotEmpty(VPExchangeProperties.SESSION_HTML_STATUS,
+        exchange.getProperty(VPExchangeProperties.SESSION_HTML_STATUS, String.class));
   }
 
   private static String nullValue2Blank(String s) {
@@ -127,13 +130,14 @@ public class LogExtraInfoBuilder {
         .collect(Collectors.joining(", ", "{", "}"));
   }
 
-  private static class ExtraInfoMap<K,V> extends HashMap <K,V>{
-    public V putNotNull(K key, V value){
-      return value==null ? null : put(key, value);
+  private static class ExtraInfoMap<K, V> extends HashMap<K, V> {
+
+    public V putNotNull(K key, V value) {
+      return value == null ? null : put(key, value);
     }
 
-    public V putNotEmpty(K key, V value){
-      return (value==null || ((String)value).isEmpty()) ? null : put(key, value);
+    public V putNotEmpty(K key, V value) {
+      return (value == null || ((String) value).isEmpty()) ? null : put(key, value);
     }
   }
 }

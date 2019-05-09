@@ -22,10 +22,10 @@ public class DefaultRoutingProperties implements DefaultRoutingConfiguration {
   /**
    * Servicecontracts allowed to be used wit old style default routing
    */
-  private List<String> allowedContracts = Collections.EMPTY_LIST;
+  private List<String> allowedContracts = Collections.emptyList();
 
   /**
    * Consumer ids allowed to use old style default routing
    */
-  private List<String> allowedSenderIds = Collections.EMPTY_LIST;
+  private List<String> allowedSenderIds = Collections.emptyList();
 }

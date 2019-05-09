@@ -1,5 +1,6 @@
 package se.skl.tp.vp.requestreader;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.http.NettyChannelBufferStreamCache;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Stack;
 
 @Service
+@Slf4j
 public class RequestReaderProcessorXMLEventReader implements RequestReaderProcessor {
 
     public static final String RIVTABP_21 = "rivtabp21";
@@ -60,7 +62,7 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
                 }
             }
         } catch (XMLStreamException e) {
-            e.printStackTrace();
+            log.error("Failed read Soap", e);
         }
     }
 
