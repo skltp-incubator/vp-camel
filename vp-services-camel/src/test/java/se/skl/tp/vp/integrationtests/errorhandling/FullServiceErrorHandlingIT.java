@@ -1,6 +1,7 @@
 package se.skl.tp.vp.integrationtests.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
@@ -20,7 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.soap.SOAPBody;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
+import org.apache.logging.log4j.core.LogEvent;
 import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +36,8 @@ import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
+import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
@@ -45,6 +51,8 @@ public class FullServiceErrorHandlingIT {
   TestConsumer testConsumer;
 
   static TakMockWebService takMockWebService;
+
+  TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
   @SuppressWarnings("unchecked")
   @BeforeClass
@@ -68,7 +76,10 @@ public class FullServiceErrorHandlingIT {
     }
   }
 
-
+  @Before
+  public void beforeTest(){
+    testLogAppender.clearEvents();
+  }
 
   @Test
   public void shouldGetVP002WhenNoCertificateInHTTPCall() throws Exception {
@@ -84,6 +95,11 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP002.getCode());
 
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP002");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP002");
+
   }
 
   @Test
@@ -98,6 +114,11 @@ public class FullServiceErrorHandlingIT {
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP003.getCode());
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP003");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP003");
 
   }
 
@@ -120,6 +141,10 @@ public class FullServiceErrorHandlingIT {
     assertStringContains(soapBody.getFault().getFaultString(),
         TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
 
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP004");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP004");
   }
 
   @Test
@@ -135,6 +160,11 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP005.getCode());
     assertStringContains(soapBody.getFault().getFaultString(), "rivtabp20");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP005");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP005");
   }
 
   @Test
@@ -150,6 +180,11 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP006.getCode());
     assertStringContains(soapBody.getFault().getFaultString(), "RecevierMultipleVagval");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP006");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP006");
   }
 
   @Test
@@ -171,6 +206,11 @@ public class FullServiceErrorHandlingIT {
     assertStringContains(soapBody.getFault().getFaultString(),
         TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
 
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP007");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP007");
+
   }
 
   @Test
@@ -185,6 +225,11 @@ public class FullServiceErrorHandlingIT {
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP009.getCode());
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP009");
+    assertStringContains(errorLogMsg, "Stacktrace=java.net.ConnectException: Cannot connect to");
   }
 
   @Test
@@ -200,6 +245,11 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP010.getCode());
     assertStringContains(soapBody.getFault().getFaultString(), "RecevierNoPhysicalAddress");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP010");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP010");
   }
 
   @Test
@@ -216,6 +266,11 @@ public class FullServiceErrorHandlingIT {
 
     assertStringContains(soapBody.getFault().getFaultString(), VP011.getCode());
     assertStringContains(soapBody.getFault().getFaultString(), "10.20.30.40");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP011");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
   }
 
 }

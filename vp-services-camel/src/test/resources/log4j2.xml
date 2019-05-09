@@ -9,6 +9,8 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </Console>
+
+        <TestLogAppender name="TestLogAppender"/>
     </Appenders>
 
     <Loggers>
@@ -19,7 +21,7 @@
         <AsyncLogger name="se.skl.tp.vp.vagval.ResetTakCacheProcessor" level="INFO"/>
 
         <!--Level INFO will log the init/reset of HSA cache-->
-        <AsyncLogger name="se.skl.tp.vp.vagval.ResetHsaCacheProcessorTest" level="INFO"/>
+        <AsyncLogger name="se.skl.tp.vp.service.HsaCacheServiceImpl" level="INFO"/>
 
         <!--Level INFO will log startup for spring boot application-->
         <AsyncLogger name="se.skl.tp.vp.VpServicesApplication" level="INFO"/>
@@ -31,16 +33,20 @@
         <AsyncLogger name="se.skl.tp.vp.errorhandling" level="DEBUG"/>
 
         <!-- Message logging -->
-        <AsyncLogger name="se.skl.tp.vp.logging.req.in" level="DEBUG"/>
-        <AsyncLogger name="se.skl.tp.vp.logging.req.out" level="DEBUG"/>
-        <AsyncLogger name="se.skl.tp.vp.logging.resp.in" level="DEBUG"/>
-        <AsyncLogger name="se.skl.tp.vp.logging.resp.out" level="DEBUG"/>
+        <!-- Use synchronous loggers here since some tests use
+        the TestLogAppender to check what is logged. With a async logger we
+        dont know for sure when its logged to appender.-->
+        <Logger name="se.skl.tp.vp.logging.req.in" level="DEBUG"/>
+        <Logger name="se.skl.tp.vp.logging.req.out" level="DEBUG"/>
+        <Logger name="se.skl.tp.vp.logging.resp.in" level="DEBUG"/>
+        <Logger name="se.skl.tp.vp.logging.resp.out" level="DEBUG"/>
 
 
-        <AsyncRoot level="WARN">
+        <Root level="WARN">
             <!--<AppenderRef ref="RollingRandomAccessFile"/>-->
             <AppenderRef ref="Console"/>
-        </AsyncRoot>
+            <AppenderRef ref="TestLogAppender"/>
+        </Root>
 
     </Loggers>
 </Configuration>
