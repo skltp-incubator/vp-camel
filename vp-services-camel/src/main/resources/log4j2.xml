@@ -20,7 +20,8 @@
     <AsyncLogger name="se.skl.tp.vp.vagval.ResetTakCacheProcessor" level="INFO"/>
 
     <!--Level INFO will log the init/reset of HSA cache-->
-    <AsyncLogger name="se.skl.tp.vp.vagval.ResetHsaCacheProcessorTest" level="INFO"/>
+    <AsyncLogger name="se.skl.tp.vp.service.HsaCacheServiceImpl" level="INFO"/>
+
 
     <!--Level INFO will log startup for spring boot application-->
     <AsyncLogger name="se.skl.tp.vp.VpServicesApplication" level="INFO"/>
