@@ -120,7 +120,7 @@ public class HttpHeadersIT extends CamelTestSupport {
                     public void configure() {
                         from("direct:start").routeId("start").routeDescription("consumer")
                                 .to("netty4-http:" + httpRoute);
-
+                        //Address below from tak-vagval-test.xml
                         from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2").routeDescription("producer")
                                 .to("mock:result");
                     }

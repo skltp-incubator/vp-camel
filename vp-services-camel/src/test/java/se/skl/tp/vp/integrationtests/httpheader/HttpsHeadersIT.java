@@ -150,7 +150,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
             from("direct:start").routeId("start")
                 .to("netty4-http:" + httpsRoute + "?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
                         "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
-
+              //Address below from tak-vagval-test.xml
             from("netty4-http:https://localhost:19000/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
                 .to("mock:result");
           }
