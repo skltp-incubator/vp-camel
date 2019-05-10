@@ -82,15 +82,45 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   }
 
   private void setOriginalConsumerId(Exchange exchange) {
+    boolean exist = exchange.getIn().getHeaders().containsKey(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     //The original sender of the request, that might have been transferred by an RTjP. Can be null.
     String originalServiceconsumerHsaid = exchange.getIn().getHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, String.class);
     exchange.setProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
+    //If the header is set, check if approved and log (Jira NTP-832)
+    if (exist) {
+      //Log and Check if approved..
+      boolean ok = checkIfSenderIsApproved(exchange);
+      log.info("Sender");
 
-    if (originalServiceconsumerHsaid == null  || originalServiceconsumerHsaid.trim().isEmpty()) {
-       originalServiceconsumerHsaid = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
-       exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid );
+      if (ok) {
+        //if null or empty, set senderId
+        if (originalServiceconsumerHsaid == null  || originalServiceconsumerHsaid.trim().isEmpty()) {
+          originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
+        }
+      } else {
+
+        //if not
+          //return error
+      }
+    } else {
+      //if nonexisting, set senderId
+      originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
     }
     // This property is set on session for loggers
     exchange.setProperty(VPExchangeProperties.OUT_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
   }
+
+  public String setSenderIdAsOriginalConsumer(Exchange exchange) {
+    String s = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
+    exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, s );
+    return s;
+  }
+
+  private boolean checkIfSenderIsApproved(Exchange exchange) {
+
+
+    return true;
+  }
 }
+
+
