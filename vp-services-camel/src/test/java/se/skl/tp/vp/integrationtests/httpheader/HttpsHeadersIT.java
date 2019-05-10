@@ -22,6 +22,7 @@ import se.skl.tp.vp.httpheader.HeaderConfigurationProcessorImpl;
 import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
+import static se.skl.tp.vp.constants.HttpHeaders.SOAP_ACTION;
 import static se.skl.tp.vp.constants.HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID;
 import static se.skl.tp.vp.constants.HttpHeaders.X_SKLTP_CORRELATION_ID;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
@@ -80,6 +81,16 @@ public class HttpsHeadersIT extends CamelTestSupport {
     @After
     public void after() {
         headerConfigurationProcessor.setPropagate(oldCorrelation);
+    }
+
+
+    @Test
+    public void checkSoapActionTest() {
+        //This param is mandatory for the request to pass.
+        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+        String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
+        assertNotNull(s);
+        assert(!s.isEmpty());
     }
 
     //CorrelationId...passCorrelationId set to false.

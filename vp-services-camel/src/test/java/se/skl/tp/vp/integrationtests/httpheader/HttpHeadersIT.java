@@ -75,6 +75,15 @@ public class HttpHeadersIT extends CamelTestSupport {
     }
 
     @Test
+    public void checkSoapActionTest() {
+        //This param is mandatory for the request to pass.
+        template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+        String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.SOAP_ACTION);
+        assertNotNull(s);
+        assert(!s.isEmpty());
+    }
+
+    @Test
     public void setConfiguredHeadersTest() {
         //These params are partly set by configuration in HeaderConfigurationProcessorImpl.java
         template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
