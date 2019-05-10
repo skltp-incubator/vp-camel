@@ -72,4 +72,6 @@ public class HttpHeaders {
 
 	public static final String HEADER_CONTENT_TYPE = "Content-Type";
 
+	public static final String SOAP_ACTION = "SOAPAction";
+
 }

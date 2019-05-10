@@ -41,6 +41,9 @@ public class HttpHeadersIT extends CamelTestSupport {
     @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
     private String vpInstanceId;
 
+    @Value("${" + PropertyConstants.VP_HTTP_ROUTE_URL + "}")
+    private String httpRoute;
+
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -116,7 +119,7 @@ public class HttpHeadersIT extends CamelTestSupport {
                     @Override
                     public void configure() {
                         from("direct:start").routeId("start").routeDescription("consumer")
-                                .to("netty4-http:http://localhost:12312/vp");
+                                .to("netty4-http:" + httpRoute);
 
                         from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2").routeDescription("producer")
                                 .to("mock:result");
