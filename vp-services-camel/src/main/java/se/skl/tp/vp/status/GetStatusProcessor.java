@@ -1,16 +1,13 @@
 package se.skl.tp.vp.status;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.camel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import se.skl.tp.vp.errorhandling.ExceptionUtil;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
 
 import java.util.HashMap;
-import java.util.List;
-
 
 @Service
 public class GetStatusProcessor  implements Processor {
@@ -21,30 +18,23 @@ public class GetStatusProcessor  implements Processor {
     @Autowired
     TakCacheService takService;
 
-    @JsonProperty("statusMap")
-    private HashMap<String, String> statusMap;
-
     @Override
-    public void process(Exchange exchange) throws Exception {
-        HashMap<String, String> map = new HashMap<>();
-        map = registerInfo(map);
+    public void process(Exchange exchange) {
+        HashMap<String, String> map = registerInfo();
         JSONObject obj = new JSONObject(map);
         exchange.getIn().setBody(obj.toString());
+        exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
     }
 
-    private HashMap registerInfo(HashMap<String, String> map) {
-        map.clear();
+    private HashMap registerInfo() {
+        HashMap<String, String> map = new HashMap<>();
         ServiceStatus serviceStatus = camelContext.getStatus();
-        map.put("serviceStatus", "" + serviceStatus);
-        String uptime = camelContext.getUptime();
-        map.put("uptime", uptime);
-        String managementName = camelContext.getManagementName();
-        map.put("managementName", managementName);
-        if (!serviceStatus.equals(ServiceStatus.Started)) {
-            return map;
-        }
-        boolean takserviceInitialized = takService.isInitalized();
-        map.put("takserviceInitialized", "" + takserviceInitialized);
+        map.put("ServiceStatus", "" + serviceStatus);
+        map.put("Uptime", camelContext.getUptime());
+        map.put("ManagementName", camelContext.getManagementName());
+        map.put("JavaVersion", (String) System.getProperties().get("java.version"));
+        map.put("CamelVersion", camelContext.getVersion());
+        map.put("TakserviceInitialized", "" + takService.isInitalized());
         int mb = 1024 * 1024;
         Runtime instance = Runtime.getRuntime();
         map.put("JvmTotalMemory", "" + instance.totalMemory() / mb + " mB");

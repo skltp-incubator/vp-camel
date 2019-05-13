@@ -42,6 +42,9 @@ public class HttpHeadersIT extends CamelTestSupport {
     @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
     private String vpInstanceId;
 
+    @Value("${" + PropertyConstants.VP_HTTP_ROUTE_URL + "}")
+    private String httpRoute;
+
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
@@ -61,6 +64,15 @@ public class HttpHeadersIT extends CamelTestSupport {
             isContextStarted=true;
         }
         resultEndpoint.reset();
+    }
+
+    @Test
+    public void checkSoapActionTest() {
+        //This param is mandatory for the request to pass.
+        template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+        String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.SOAP_ACTION);
+        assertNotNull(s);
+        assert(!s.isEmpty());
     }
 
     @Test
@@ -96,8 +108,8 @@ public class HttpHeadersIT extends CamelTestSupport {
                     @Override
                     public void configure() {
                         from("direct:start").routeId("start").routeDescription("consumer")
-                                .to("netty4-http:http://localhost:12312/vp");
-
+                                .to("netty4-http:" + httpRoute);
+                        //Address below from tak-vagval-test.xml
                         from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2").routeDescription("producer")
                                 .to("mock:result");
                     }

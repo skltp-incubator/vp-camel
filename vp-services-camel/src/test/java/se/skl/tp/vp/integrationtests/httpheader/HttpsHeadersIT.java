@@ -1,5 +1,6 @@
 package se.skl.tp.vp.integrationtests.httpheader;
 
+import static se.skl.tp.vp.constants.HttpHeaders.SOAP_ACTION;
 import static se.skl.tp.vp.constants.HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID;
 import static se.skl.tp.vp.constants.HttpHeaders.X_SKLTP_CORRELATION_ID;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
@@ -30,19 +31,21 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @StartTakService
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HttpsHeadersIT extends CamelTestSupport {
 
     @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
     private Boolean propagateCorrIdForHttps;
+
+    @Value("${" + PropertyConstants.VP_HTTPS_ROUTE_URL + "}")
+    private String httpsRoute;
 
     @EndpointInject(uri = "mock:result")
     protected MockEndpoint resultEndpoint;
 
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
-
 
     @Autowired
     private HeaderConfigurationProcessorImpl headerConfigurationProcessor;
@@ -68,6 +71,16 @@ public class HttpsHeadersIT extends CamelTestSupport {
     @After
     public void after() {
         headerConfigurationProcessor.setPropagate(oldCorrelation);
+    }
+
+
+    @Test
+    public void checkSoapActionTest() {
+        //This param is mandatory for the request to pass.
+        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+        String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
+        assertNotNull(s);
+        assert(!s.isEmpty());
     }
 
     //CorrelationId...passCorrelationId set to false.
@@ -122,9 +135,9 @@ public class HttpsHeadersIT extends CamelTestSupport {
           @Override
           public void configure() {
             from("direct:start").routeId("start")
-                .to("netty4-http:https://localhost:1028/vp?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
+                .to("netty4-http:" + httpsRoute + "?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
                         "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
-
+              //Address below from tak-vagval-test.xml
             from("netty4-http:https://localhost:19001/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
                 .to("mock:result");
           }

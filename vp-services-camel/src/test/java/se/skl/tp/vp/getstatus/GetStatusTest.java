@@ -9,10 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
+import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.status.GetStatusProcessor;
 
 @RunWith(CamelSpringBootRunner.class)
@@ -35,6 +37,9 @@ public class GetStatusTest extends CamelTestSupport {
     @Autowired
     GetStatusProcessor getStatusProcessor;
 
+    @Value("${" + PropertyConstants.VP_HTTP_GET_ROUTE + "}")
+    private String getUrl;
+
     @Before
     public void setUp() throws Exception {
         if(!isContextStarted){
@@ -53,7 +58,7 @@ public class GetStatusTest extends CamelTestSupport {
         assert(!resultEndpoint.getExchanges().isEmpty());
         assertNotNull(resultEndpoint.getExchanges().get(0).getIn().getBody());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getBody();
-        log.info("BODY RECEIVED:::" + body);
+        System.out.println("BODY RECEIVED:::" + s);
         //assert(s.startsWith("{") && s.endsWith("}") && s.contains("ManagementName"));
     }
 
@@ -63,7 +68,7 @@ public class GetStatusTest extends CamelTestSupport {
                 @Override
                 public void configure() {
                     from("direct:start").routeDescription("GetStatus").id("Status")
-                            .to("netty4-http:http://localhost:1080/get")
+                            .to("netty4-http:" + getUrl)
                             .process(getStatusProcessor)
                             .to("mock:result");
                 }

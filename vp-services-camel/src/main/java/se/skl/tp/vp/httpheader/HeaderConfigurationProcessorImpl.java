@@ -40,20 +40,9 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   public void process(Exchange exchange) {
     setOriginalConsumerId(exchange);
     propagateCorrelationIdToProducer(exchange);
-    propagateSoapAction(exchange);
     propagateSenderIdAndVpInstanceIdToProducer(exchange);
     exchange.getIn().getHeaders().put(HttpHeaders.HEADER_USER_AGENT, vpHeaderUserAgent);
     exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, headerContentType);
-  }
-
-  // Make sure SOAPAction is forwarded to producer
-  public static void propagateSoapAction(Exchange exchange) {
-    String action = (String) exchange.getProperty("SOAPAction");
-    if (action == null) {
-      action = (String) exchange.getIn().getHeader("SOAPAction");
-    } else {
-      exchange.getIn().getHeaders().put("SOAPAction", action);
-    }
   }
 
   /*
