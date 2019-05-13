@@ -5,11 +5,13 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+//import se.skl.tp.vp.exceptions.VpSemanticException;
 
 
 @Service
@@ -28,11 +30,14 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
   private String vpInstanceId;
 
-  public boolean getPropagate() {
+  //@Autowired
+  //private IPWhitelistHandler ipWhitelistHandler;
+
+  public boolean getPropagateCorrelationIdForHttps() {
     return propagateCorrelationIdForHttps;
   }
 
-  public void setPropagate(boolean propagate) {
+  public void setPropagateCorrelationIdForHttps(boolean propagate) {
     this.propagateCorrelationIdForHttps = propagate;
   }
 
@@ -81,7 +86,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     }
   }
 
-  private void setOriginalConsumerId(Exchange exchange) {
+  private void setOriginalConsumerId(Exchange exchange) { //throws VpSemanticException
     boolean exist = exchange.getIn().getHeaders().containsKey(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     //The original sender of the request, that might have been transferred by an RTjP. Can be null.
     String originalServiceconsumerHsaid = exchange.getIn().getHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, String.class);
@@ -89,18 +94,17 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     //If the header is set, check if approved and log (Jira NTP-832)
     if (exist) {
       //Log and Check if approved..
-      boolean ok = checkIfSenderIsApproved(exchange);
-      log.info("Sender");
+      //boolean ok = checkIfSenderIsApproved(exchange);
+      //log.info("Sender");
 
-      if (ok) {
+      if (true) { //ok
         //if null or empty, set senderId
         if (originalServiceconsumerHsaid == null  || originalServiceconsumerHsaid.trim().isEmpty()) {
           originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
         }
       } else {
-
-        //if not
-          //return error
+        //throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " Sender NOT on ConsumerList: ",
+          //      VpSemanticErrorCodeEnum.VP002);
       }
     } else {
       //if nonexisting, set senderId
@@ -116,11 +120,10 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     return s;
   }
 
-  private boolean checkIfSenderIsApproved(Exchange exchange) {
-
-
-    return true;
-  }
+  /*private boolean checkIfSenderIsApproved(Exchange exchange) {
+    String sender = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
+    return ipWhitelistHandler.isCallerOnConsumerList(sender);
+  }*/
 }
 
 
