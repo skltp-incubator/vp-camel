@@ -71,8 +71,7 @@ public class HttpHeadersIT extends CamelTestSupport {
         //This param is mandatory for the request to pass.
         template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.SOAP_ACTION);
-        assertNotNull(s);
-        assert(!s.isEmpty());
+        assertEquals("action", s);
     }
 
     @Test
@@ -86,19 +85,29 @@ public class HttpHeadersIT extends CamelTestSupport {
     }
 
     @Test
-    public void setCorrelationAndConsumerIdTest() {
+    public void setCorrelationIdTest() {
         template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID).equals(TEST_CORRELATION_ID));
+    }
+
+    @Test
+    public void setConsumerIdTest() {
+        template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID).equals(TEST_CONSUMER));
     }
 
     @Test
-    public void setCorrelationAndConsumerIdTestWithoutMembers() throws Exception {
+    public void setCorrelationIdTestWithoutMembers() {
         template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
         assertNotNull(s);
         assert(!s.equals(TEST_CORRELATION_ID));
         assert(s.length() > 20);
+    }
+
+    @Test
+    public void setConsumerIdTestWithoutMembers() {
+        template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID).equals(TEST_SENDER));
     }
 

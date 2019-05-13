@@ -65,12 +65,12 @@ public class HttpsHeadersIT extends CamelTestSupport {
             isContextStarted=true;
         }
         resultEndpoint.reset();
-        oldCorrelation = headerConfigurationProcessor.getPropagate();
+        oldCorrelation = headerConfigurationProcessor.getPropagateCorrelationIdForHttps();
     }
 
     @After
     public void after() {
-        headerConfigurationProcessor.setPropagate(oldCorrelation);
+        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(oldCorrelation);
     }
 
 
@@ -86,14 +86,14 @@ public class HttpsHeadersIT extends CamelTestSupport {
     //CorrelationId...passCorrelationId set to false.
     @Test //with content.
     public void setCorrelationIdPassCorrelationFalseTest() {
-        headerConfigurationProcessor.setPropagate(false);
+        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(false);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
         assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
     }
 
     @Test //Without content
     public void setCorrelationIdNoMembersPassCorrelationFalseTest() {
-        headerConfigurationProcessor.setPropagate(false);
+        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(false);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
         assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
     }
@@ -101,14 +101,14 @@ public class HttpsHeadersIT extends CamelTestSupport {
     //CorrelationId...passCorrelationId set to true.
     @Test //With content
     public void setCorrelationIdPassCorrelationTrueTest() {
-        headerConfigurationProcessor.setPropagate(true);
+        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(true);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
         assert(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID).equals(TEST_CORRELATION_ID));
     }
 
     @Test //Without content
     public void setCorrelationIdNoMembersPassCorrelationTrueTest() {
-        headerConfigurationProcessor.setPropagate(true);
+        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(true);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID);
         assertNotNull(s);
