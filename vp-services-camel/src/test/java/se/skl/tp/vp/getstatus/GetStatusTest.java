@@ -58,8 +58,9 @@ public class GetStatusTest extends CamelTestSupport {
         assert(!resultEndpoint.getExchanges().isEmpty());
         assertNotNull(resultEndpoint.getExchanges().get(0).getIn().getBody());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getBody();
-        System.out.println("BODY RECEIVED:::" + s);
-        //assert(s.startsWith("{") && s.endsWith("}") && s.contains("ManagementName"));
+        s.trim();
+        //System.out.println("BODY RECEIVED:::" + s);
+        assert(s.startsWith("{") && s.endsWith("}") && s.contains("TakserviceInitialized"));
     }
 
     private void createRoute(CamelContext camelContext) {

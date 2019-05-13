@@ -31,7 +31,7 @@ import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.*;
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class HeaderConfigurationTest extends CamelTestSupport {
+public class HttpHeaderConfigurationTest extends CamelTestSupport {
 
   private static boolean isContextStarted = false;
 
@@ -72,7 +72,7 @@ public class HeaderConfigurationTest extends CamelTestSupport {
     template.sendBodyAndHeaders(TEST_BODY, headers);
     String correlation = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
             .get(HttpHeaders.X_SKLTP_CORRELATION_ID);
-    //If no correlationId is present in the request, it should have been generated.
+    //If no correlationId was present in the request, it should have been generated.
     assertNotNull(correlation);
     assertNotEquals(TEST_CORRELATION_ID, correlation);
     assert (correlation.length() > 35);
