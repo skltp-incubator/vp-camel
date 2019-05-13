@@ -25,10 +25,10 @@ public class MessageInfoLogger {
   private static final String LOG_EVENT_ERROR = "logEvent-error";
   private static final String LOG_EVENT_DEBUG = "logEvent-debug";
 
-  private static final String MSG_TYPE_LOG_REQ_IN = "xreq-in";
-  private static final String MSG_TYPE_LOG_REQ_OUT = "xreq-out";
-  private static final String MSG_TYPE_LOG_RESP_IN = "xresp-in";
-  private static final String MSG_TYPE_LOG_RESP_OUT = "xresp-out";
+  private static final String MSG_TYPE_LOG_REQ_IN = "req-in";
+  private static final String MSG_TYPE_LOG_REQ_OUT = "req-out";
+  private static final String MSG_TYPE_LOG_RESP_IN = "resp-in";
+  private static final String MSG_TYPE_LOG_RESP_OUT = "resp-out";
   private static final String MSG_TYPE_ERROR = "error";
 
 

@@ -14,18 +14,14 @@ import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PRODUCER_AVAILABLE;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.TJANSTEKONTRAKT_GET_CERTIFICATE_KEY;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.soap.SOAPBody;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
-import org.apache.logging.log4j.core.LogEvent;
-import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +30,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
+import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.util.TestLogAppender;
@@ -45,36 +41,13 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@StartTakService
 public class FullServiceErrorHandlingIT {
 
   @Autowired
   TestConsumer testConsumer;
 
-  static TakMockWebService takMockWebService;
-
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
-
-  @SuppressWarnings("unchecked")
-  @BeforeClass
-  public static void beforeClass() throws IOException {
-
-    // Seems to be som kind of conflict with JAXB camel dependencies and JDK8 Jaxb impl.
-    // https://stackoverflow.com/questions/42499436/classcastexception-cannot-be-cast-to-com-sun-xml-internal-bind-v2-runtime-refle
-//    System.setProperty( "com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize", "true");
-
-    //TODO Use dynamic ports and also set TAK address used by takcache (Override "takcache.endpoint.address" property)
-    takMockWebService = new TakMockWebService("http://localhost:8086/tak-services/SokVagvalsInfo/v2");
-    takMockWebService.start();
-
-//    System.setProperty("takcache.endpoint.address", String.format("http://localhost:%d/tak-services/SokVagvalsInfo/v2", DYNAMIC_PORT));
-  }
-
-  @AfterClass
-  public static void afterClass(){
-    if(takMockWebService!=null){
-      takMockWebService.stop();
-    }
-  }
 
   @Before
   public void beforeTest(){
@@ -230,6 +203,12 @@ public class FullServiceErrorHandlingIT {
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, "-errorCode=VP009");
     assertStringContains(errorLogMsg, "Stacktrace=java.net.ConnectException: Cannot connect to");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertExtraInfoLog(respOutLogMsg, RECEIVER_NO_PRODUCER_AVAILABLE, "https://localhost:1974/Im/not/available");
   }
 
   @Test
@@ -271,6 +250,29 @@ public class FullServiceErrorHandlingIT {
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, "-errorCode=VP011");
     assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
+  }
+
+
+  private void assertMessageLogsExists() {
+    assertEquals(0, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_IN));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_OUT));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_IN));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+  }
+
+  private void assertExtraInfoLog(String respOutLogMsg, String expectedReceiverId, String expectedProducerUrl) {
+    assertStringContains(respOutLogMsg, "-senderIpAdress=");
+    assertStringContains(respOutLogMsg,
+        "-servicecontract_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
+    assertStringContains(respOutLogMsg, "-senderid=tp");
+    assertStringContains(respOutLogMsg, "-receiverid=" + expectedReceiverId);
+    assertStringContains(respOutLogMsg, "-endpoint_url="+expectedProducerUrl);
+    assertStringContains(respOutLogMsg, "-routerVagvalTrace=" + expectedReceiverId);
+    assertStringContains(respOutLogMsg, "-wsdl_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificate:1:rivtabp20");
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertStringContains(respOutLogMsg, "-rivversion=rivtabp20");
+    assertStringContains(respOutLogMsg, "-routerBehorighetTrace=" + expectedReceiverId);
   }
 
 }

@@ -30,7 +30,7 @@ public class IPWhitelistHandlerTest {
     @Test
     public void ipNotInWhitelistTest() {
 
-        Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.1"));
+        Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.2"));
     }
 
     @Test

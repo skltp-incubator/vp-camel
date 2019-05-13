@@ -14,7 +14,7 @@ import se.skl.tp.vp.logging.logentry.LogRuntimeInfoType;
 @Log4j2
 public class LogMessageFormatter {
 
-  private static final String MSG_ID = "vp-service.log";
+  private static final String MSG_ID = "skltp-messages";
   private static final String LOG_STRING = MSG_ID +
       "\n** {}.start ***********************************************************" +
       "\nIntegrationScenarioId={}\nContractId={}\nLogMessage={}\nServiceImpl={}\nHost={} ({})\nComponentId={}\nEndpoint={}\nMessageId={}\nBusinessCorrelationId={}\nBusinessContextId={}\nExtraInfo={}\nPayload={}" +

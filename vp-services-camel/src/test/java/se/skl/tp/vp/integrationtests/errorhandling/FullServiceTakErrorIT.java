@@ -5,13 +5,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP008;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.soap.SOAPBody;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +38,6 @@ public class FullServiceTakErrorIT {
 
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
-  @SuppressWarnings("unchecked")
-  @BeforeClass
-  public static void beforeClass() throws IOException {
-    // Do not start a takservice
-  }
 
   @Before
   public void beforeTest(){

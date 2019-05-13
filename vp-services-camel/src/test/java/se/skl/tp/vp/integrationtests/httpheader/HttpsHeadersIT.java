@@ -1,6 +1,10 @@
 package se.skl.tp.vp.integrationtests.httpheader;
 
-import java.io.IOException;
+import static se.skl.tp.vp.constants.HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID;
+import static se.skl.tp.vp.constants.HttpHeaders.X_SKLTP_CORRELATION_ID;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
@@ -10,7 +14,9 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,21 +25,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.httpheader.HeaderConfigurationProcessorImpl;
-import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
+import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
-
-import static se.skl.tp.vp.constants.HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID;
-import static se.skl.tp.vp.constants.HttpHeaders.X_SKLTP_CORRELATION_ID;
-import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
-import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
-import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@StartTakService
 public class HttpsHeadersIT extends CamelTestSupport {
-
-    public static TakMockWebService takMockWebService;
 
     @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
     private Boolean propagateCorrIdForHttps;
@@ -44,17 +43,6 @@ public class HttpsHeadersIT extends CamelTestSupport {
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
 
-    @BeforeClass
-    public static void beforeClass() throws IOException {
-        //TODO Use dynamic ports and also set TAK address used by takcache (Override "takcache.endpoint.address" property)
-        takMockWebService = new TakMockWebService("http://localhost:8086/tak-services/SokVagvalsInfo/v2");
-        takMockWebService.start();
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        takMockWebService.stop();
-    }
 
     @Autowired
     private HeaderConfigurationProcessorImpl headerConfigurationProcessor;
@@ -137,7 +125,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
                 .to("netty4-http:https://localhost:1028/vp?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
                         "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
 
-            from("netty4-http:https://localhost:19000/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
+            from("netty4-http:https://localhost:19001/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
                 .to("mock:result");
           }
         });

@@ -1,6 +1,16 @@
 package se.skl.tp.vp.timeout;
 
-import org.apache.camel.*;
+import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
+import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.Produce;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -15,20 +25,15 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
-import se.skl.tp.vp.TestBeanConfiguration;
+import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
-import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
-import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest(classes = TestBeanConfiguration.class)
@@ -57,6 +62,8 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     @Autowired
     TakCacheService takCacheService;
 
+    TestLogAppender testLogAppender = TestLogAppender.getInstance();
+
     @Before
     public void setUp() throws Exception {
         createRoute(camelContext);
@@ -64,6 +71,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
         resultEndpoint.reset();
         Mockito.when(takCache.refresh()).thenReturn(createTakCacheLogOk());
         takCacheService.refresh();
+        testLogAppender.clearEvents();
     }
 
     @Test
@@ -82,6 +90,11 @@ public class ProducerTimeoutTest extends CamelTestSupport {
         String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
         assertStringContains(resultBody , "Timeout");
         resultEndpoint.assertIsSatisfied();
+
+        assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+        String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+        assertStringContains(errorLogMsg, "-errorCode=VP009");
+        assertStringContains(errorLogMsg, "Stacktrace=io.netty.handler.timeout.ReadTimeoutException:");
     }
 
     private void createRoute(CamelContext camelContext) throws Exception {
