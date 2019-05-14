@@ -1,7 +1,6 @@
 package se.skl.tp.vp.service;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import se.skl.tp.behorighet.BehorighetHandler;
@@ -31,11 +30,6 @@ public class TakCacheServiceImpl implements TakCacheService {
     this.takCache = takCache;
     behorighetHandler = new BehorighetHandlerImpl(hsaCache, takCache, defaultRoutingProperties);
     vagvalHandler = new VagvalHandlerImpl(hsaCache, takCache, defaultRoutingProperties);
-  }
-
-  @PostConstruct
-  public void init(){
-    refresh();
   }
 
   @Override

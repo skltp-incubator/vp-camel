@@ -24,7 +24,6 @@ public class SecurityProperties {
 
     @Data
     public static class Producer {
-      private String type;
       private String file;
       private String password;
       private String keyPassword;
@@ -32,7 +31,6 @@ public class SecurityProperties {
 
     @Data
     public static class Consumer {
-      private String type;
       private String file;
       private String password;
       private String keyPassword;
@@ -40,7 +38,6 @@ public class SecurityProperties {
 
     @Data
     public static class Truststore {
-      private String type;
       private String file;
       private String password;
     }

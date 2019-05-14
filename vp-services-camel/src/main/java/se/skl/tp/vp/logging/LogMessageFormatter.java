@@ -1,9 +1,9 @@
 package se.skl.tp.vp.logging;
 
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.helpers.MessageFormatter;
 import se.skl.tp.vp.logging.logentry.LogEntry;
 import se.skl.tp.vp.logging.logentry.LogMessageExceptionType;
@@ -11,29 +11,33 @@ import se.skl.tp.vp.logging.logentry.LogMessageType;
 import se.skl.tp.vp.logging.logentry.LogMetadataInfoType;
 import se.skl.tp.vp.logging.logentry.LogRuntimeInfoType;
 
+@Log4j2
 public class LogMessageFormatter {
 
-  private static final String MSG_ID = "vp-service.log"; // TODO Change this??
+  private static final String MSG_ID = "skltp-messages";
   private static final String LOG_STRING = MSG_ID +
       "\n** {}.start ***********************************************************" +
-      "\nIntegrationScenarioId={}\nContractId={}\nLogMessage={}\nServiceImpl={}\nHost={} ({})\nComponentId={}\nEndpoint={}\nMessageId={}\nBusinessCorrelationId={}\nBusinessContextId={}\nExtraInfo={}\nPayload={}" +
+      "\nLogMessage={}\nServiceImpl={}\nHost={} ({})\nComponentId={}\nEndpoint={}\nMessageId={}\nBusinessCorrelationId={}\nExtraInfo={}\nPayload={}" +
       "{}" + // Placeholder for stack trace info if an error is logged
       "\n** {}.end *************************************************************";
 
-  protected static InetAddress HOST = null;
-  protected static String HOST_NAME = "UNKNOWN";
-  protected static String HOST_IP = "UNKNOWN";
-  protected static String PROCESS_ID = "UNKNOWN";
+  protected static final String UNKNOWN = "UNKNOWN";
+  protected static String hostName = UNKNOWN;
+  protected static String hostIp = UNKNOWN;
 
   static {
     try {
       // Let's give it a try, fail silently...
-      HOST       = InetAddress.getLocalHost();
-      HOST_NAME  = HOST.getCanonicalHostName();
-      HOST_IP    = HOST.getHostAddress();
-      PROCESS_ID = ManagementFactory.getRuntimeMXBean().getName();
-    } catch (Throwable ex) {
+      InetAddress host = InetAddress.getLocalHost();
+      hostName = host.getCanonicalHostName();
+      hostIp = host.getHostAddress();
+    } catch (Exception ex) {
+      log.warn("Failed get runtime values for logging.", ex);
     }
+  }
+
+  private LogMessageFormatter() {
+    // Static utility class
   }
 
   protected static String format(String logEventName, LogEntry logEntry) {
@@ -41,19 +45,16 @@ public class LogMessageFormatter {
     LogMetadataInfoType metadataInfo = logEntry.getMetadataInfo();
     LogRuntimeInfoType runtimeInfo  = logEntry.getRuntimeInfo();
 
-    String integrationScenarioId   = "";
-    String contractId              = "";
-    String logMessage              = messageInfo.getMessage();
+     String logMessage              = messageInfo.getMessage();
     String serviceImplementation   = metadataInfo.getServiceImplementation();
     String componentId             = runtimeInfo.getComponentId();
     String endpoint                = metadataInfo.getEndpoint();
     String messageId               = runtimeInfo.getMessageId();
     String businessCorrelationId   = runtimeInfo.getBusinessCorrelationId();
     String payload                 = logEntry.getPayload();
-    String businessContextIdString = "";
     String extraInfoString         = extraInfoToString(logEntry.getExtraInfo());
 
-    StringBuffer stackTrace = new StringBuffer();
+    StringBuilder stackTrace = new StringBuilder();
     LogMessageExceptionType lmeException = logEntry.getMessageInfo().getException();
     if (lmeException != null) {
       String ex = lmeException.getExceptionClass();
@@ -66,7 +67,8 @@ public class LogMessageFormatter {
       }
     }
     return MessageFormatter
-        .arrayFormat(LOG_STRING, new String[] {logEventName, integrationScenarioId, contractId, logMessage, serviceImplementation, HOST_NAME, HOST_IP, componentId, endpoint, messageId, businessCorrelationId, businessContextIdString, extraInfoString, payload, stackTrace.toString(), logEventName}).getMessage();
+        .arrayFormat(LOG_STRING, new String[] {logEventName, logMessage, serviceImplementation,
+            hostName, hostIp, componentId, endpoint, messageId, businessCorrelationId, extraInfoString, payload, stackTrace.toString(), logEventName}).getMessage();
   }
 
 
@@ -76,7 +78,7 @@ public class LogMessageFormatter {
       return "";
     }
 
-    StringBuffer extraInfoString = new StringBuffer();
+    StringBuilder extraInfoString = new StringBuilder();
     extraInfo.forEach((k,v)->extraInfoString.append("\n-").append(k).append("=").append(v));
     return extraInfoString.toString();
   }

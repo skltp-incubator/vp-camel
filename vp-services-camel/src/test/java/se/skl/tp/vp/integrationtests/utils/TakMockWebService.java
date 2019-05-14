@@ -3,41 +3,60 @@ package se.skl.tp.vp.integrationtests.utils;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.ws.Endpoint;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 import se.skltp.tak.vagvalsinfo.wsdl.v2.AnropsBehorighetsInfoType;
 import se.skltp.tak.vagvalsinfo.wsdl.v2.VirtualiseringsInfoType;
 
-@Slf4j
+@Log4j2
+@Service
+@Profile("StartTakService")
 public class TakMockWebService {
-
 
   private Endpoint endpoint;
   private String url;
+
   SokVagvalsServiceSoap11LitDoc sokVagvalsInfo;
 
-  @XmlRootElement(name="persistentCache")
+  @XmlRootElement(name = "persistentCache")
   public static class VirtuliseringCache {
+
     @XmlElement
     protected List<VirtualiseringsInfoType> virtualiseringsInfo;
   }
 
-  @XmlRootElement(name="persistentCache")
+  @XmlRootElement(name = "persistentCache")
   public static class BehorighetCache {
+
     @XmlElement
     protected List<AnropsBehorighetsInfoType> anropsBehorighetsInfo;
   }
 
-  public TakMockWebService(String url) {
+
+  public TakMockWebService(@Value("${takcache.endpoint.address}") String url) {
     sokVagvalsInfo = new SokVagvalsServiceSoap11LitDoc();
-    this.url = url;
+    setUrl(url);
     setBehorigheterFromXmlResource("takdata/tak-behorigheter-test.xml");
     setVagvalFromXmlResource("takdata/tak-vagval-test.xml");
+  }
+
+  @PostConstruct
+  public void postConstruct() {
+    start();
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
   }
 
   public void setBehorigheterFromXmlResource(String resourceName) {
@@ -51,13 +70,24 @@ public class TakMockWebService {
   }
 
   public void start() {
-    endpoint = Endpoint.publish(url, sokVagvalsInfo);
+    if (!isStarted()) {
+      log.info("Starting TakMockWebService  at: {}", url);
+      endpoint = Endpoint.publish(url, sokVagvalsInfo);
+    } else {
+      log.warn("TakMockWebService is already started.");
+    }
   }
 
+  @PreDestroy
   public void stop() {
     if (endpoint != null) {
       endpoint.stop();
+      endpoint = null;
     }
+  }
+
+  public boolean isStarted() {
+    return endpoint != null && endpoint.isPublished();
   }
 
   public void setVirtualiseringarResult(VirtuliseringCache virtualiseringar) {
@@ -80,9 +110,10 @@ public class TakMockWebService {
       jaxbUnmarshaller = jaxbContext.createUnmarshaller();
       return (T) jaxbUnmarshaller.unmarshal(new File(fileName));
     } catch (JAXBException e) {
-//      log.error;
+      log.error(e);
       return null;
     }
   }
+
 
 }
