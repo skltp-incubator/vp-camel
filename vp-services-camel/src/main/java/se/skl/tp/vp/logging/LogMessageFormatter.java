@@ -17,7 +17,7 @@ public class LogMessageFormatter {
   private static final String MSG_ID = "skltp-messages";
   private static final String LOG_STRING = MSG_ID +
       "\n** {}.start ***********************************************************" +
-      "\nIntegrationScenarioId={}\nContractId={}\nLogMessage={}\nServiceImpl={}\nHost={} ({})\nComponentId={}\nEndpoint={}\nMessageId={}\nBusinessCorrelationId={}\nBusinessContextId={}\nExtraInfo={}\nPayload={}" +
+      "\nLogMessage={}\nServiceImpl={}\nHost={} ({})\nComponentId={}\nEndpoint={}\nMessageId={}\nBusinessCorrelationId={}\nExtraInfo={}\nPayload={}" +
       "{}" + // Placeholder for stack trace info if an error is logged
       "\n** {}.end *************************************************************";
 
@@ -45,16 +45,13 @@ public class LogMessageFormatter {
     LogMetadataInfoType metadataInfo = logEntry.getMetadataInfo();
     LogRuntimeInfoType runtimeInfo  = logEntry.getRuntimeInfo();
 
-    String integrationScenarioId   = "";
-    String contractId              = "";
-    String logMessage              = messageInfo.getMessage();
+     String logMessage              = messageInfo.getMessage();
     String serviceImplementation   = metadataInfo.getServiceImplementation();
     String componentId             = runtimeInfo.getComponentId();
     String endpoint                = metadataInfo.getEndpoint();
     String messageId               = runtimeInfo.getMessageId();
     String businessCorrelationId   = runtimeInfo.getBusinessCorrelationId();
     String payload                 = logEntry.getPayload();
-    String businessContextIdString = "";
     String extraInfoString         = extraInfoToString(logEntry.getExtraInfo());
 
     StringBuilder stackTrace = new StringBuilder();
@@ -70,8 +67,8 @@ public class LogMessageFormatter {
       }
     }
     return MessageFormatter
-        .arrayFormat(LOG_STRING, new String[] {logEventName, integrationScenarioId, contractId, logMessage, serviceImplementation,
-            hostName, hostIp, componentId, endpoint, messageId, businessCorrelationId, businessContextIdString, extraInfoString, payload, stackTrace.toString(), logEventName}).getMessage();
+        .arrayFormat(LOG_STRING, new String[] {logEventName, logMessage, serviceImplementation,
+            hostName, hostIp, componentId, endpoint, messageId, businessCorrelationId, extraInfoString, payload, stackTrace.toString(), logEventName}).getMessage();
   }
 
 

@@ -2,6 +2,7 @@ package se.skl.tp.vp.integrationtests;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTP;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTPS;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
@@ -82,6 +83,7 @@ public class FullServiceTestIT {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID,"originalid");
     String response = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_HTTP), headers);
     assertEquals("<mocked answer/>", response);
 
@@ -93,6 +95,10 @@ public class FullServiceTestIT {
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
     assertStringContains(respOutLogMsg, "Endpoint="+vpHttpsUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTP, HTTP_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid_in=originalid");
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=originalid");
+
+
   }
 
   @Test
@@ -113,6 +119,8 @@ public class FullServiceTestIT {
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
     assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
   }
 
   /**
@@ -173,7 +181,6 @@ public class FullServiceTestIT {
     assertStringContains(respOutLogMsg, "-endpoint_url="+expectedProducerUrl);
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=" + expectedReceiverId);
     assertStringContains(respOutLogMsg, "-wsdl_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificate:1:rivtabp20");
-    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertStringContains(respOutLogMsg, "-rivversion=rivtabp20");
     assertStringContains(respOutLogMsg, "-time.producer=");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=" + expectedReceiverId);
