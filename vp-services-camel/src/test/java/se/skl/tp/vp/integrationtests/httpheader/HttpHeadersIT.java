@@ -1,13 +1,18 @@
 package se.skl.tp.vp.integrationtests.httpheader;
 
-import org.apache.camel.*;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
+
+import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Produce;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +23,15 @@ import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
-import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
+import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
-import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
-import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
-import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@StartTakService
 public class HttpHeadersIT extends CamelTestSupport {
-
-    public static TakMockWebService takMockWebService;
 
     @Value("${" + PropertyConstants.VP_HEADER_USER_AGENT + "}")
     private String vpHeaderUserAgent;
@@ -49,18 +50,6 @@ public class HttpHeadersIT extends CamelTestSupport {
 
     @Produce(uri = "direct:start")
     protected ProducerTemplate template;
-
-    @BeforeClass
-    public static void beforeClass() {
-        //TODO Use dynamic ports and also set TAK address used by takcache (Override "takcache.endpoint.address" property)
-        takMockWebService = new TakMockWebService("http://localhost:8086/tak-services/SokVagvalsInfo/v2");
-        takMockWebService.start();
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        takMockWebService.stop();
-    }
 
     @Autowired
     private CamelContext camelContext;

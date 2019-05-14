@@ -5,12 +5,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP008;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.soap.SOAPBody;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
+import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.TakCacheLog;
@@ -35,10 +36,12 @@ public class FullServiceTakErrorIT {
   @Autowired
   TakCacheService takCacheService;
 
-  @SuppressWarnings("unchecked")
-  @BeforeClass
-  public static void beforeClass() throws IOException {
-    // Do not start a takservice
+  TestLogAppender testLogAppender = TestLogAppender.getInstance();
+
+
+  @Before
+  public void beforeTest(){
+    testLogAppender.clearEvents();
   }
 
   @Test
@@ -57,6 +60,11 @@ public class FullServiceTakErrorIT {
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
     assertStringContains(soapBody.getFault().getFaultString(), VP008.getCode());
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP008");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP008");
 
   }
 

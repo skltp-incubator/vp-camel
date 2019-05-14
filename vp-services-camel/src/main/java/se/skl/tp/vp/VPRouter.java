@@ -86,7 +86,6 @@ public class VPRouter extends RouteBuilder {
                 .log(LoggingLevel.ERROR, "Catched exception: ${exception}")
                 .process(exceptionMessageProcessor)
                 .bean(MessageInfoLogger.class, "logError(*)")
-            // TODO should we lo resp-out at this kind of errors
                 .bean(MessageInfoLogger.class, "logRespOut(*)")
                 .handled(true);
 
@@ -129,8 +128,8 @@ public class VPRouter extends RouteBuilder {
                             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
                             .bean(MessageInfoLogger.class, "logReqOut(*)")
                             .toD(NETTY4_HTTPS_OUTGOING_TOD)
-                            .bean(MessageInfoLogger.class, "logRespIn(*)")
                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
+                            .bean(MessageInfoLogger.class, "logRespIn(*)")
                         .otherwise()
                             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
                             .bean(MessageInfoLogger.class, "logReqOut(*)")
