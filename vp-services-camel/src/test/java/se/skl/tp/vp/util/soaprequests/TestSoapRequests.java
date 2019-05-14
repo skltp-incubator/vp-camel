@@ -5,7 +5,7 @@ public class TestSoapRequests {
   public static final String RECEIVER_UNIT_TEST = "UnitTest";
   public static final String RECEIVER_HTTP = "HttpProducer";
   public static final String RECEIVER_HTTPS = "HttpsProducer";
-  public static final String RECEVIER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
+  public static final String RECEIVER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
   public static final String RECEIVER_WITH_NO_VAGVAL = "NoVagvalReceiver";
   public static final String RECEIVER_NOT_AUHORIZED = "NotAuhorizedReceiver";
   public static final String RECEIVER_UNKNOWN_RIVVERSION = "RecevierUnknownRivVersion";
@@ -40,7 +40,7 @@ public class TestSoapRequests {
   public static final String GET_CERTIFICATE_NO_VAGVAL_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
       RECEIVER_WITH_NO_VAGVAL);
   public static final String GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEVIER_NO_PRODUCER_AVAILABLE);
+      RECEIVER_NO_PRODUCER_AVAILABLE);
   public static final String GET_CERTIFICATE_UNKNOWN_RIVVERSION_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
       RECEIVER_UNKNOWN_RIVVERSION);
   public static final String GET_CERTIFICATE_NO_RECEIVER = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER, "");
@@ -49,5 +49,7 @@ public class TestSoapRequests {
   public static final String GET_CERTIFICATE_NO_PHYSICAL_ADDRESS = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
       RECEIVER_NO_PHYSICAL_ADDRESS);
 
-
+  public static String createGetCertificateRequest(String receiver){
+    return String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER, receiver);
+  }
 }
