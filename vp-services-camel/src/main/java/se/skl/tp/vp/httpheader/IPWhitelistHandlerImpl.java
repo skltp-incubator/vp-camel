@@ -31,9 +31,13 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     @Override
     public boolean isCallerOnConsumerList(String senderIpAdress) {
-        LOGGER.debug(
-                "Check if caller {} is in consumer list before using HTTP header {}...",
+        LOGGER.debug("Check if caller {} is in consumer list before using HTTP header {}...",
                 senderIpAdress, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+        if (consumerListArray == null) {
+            LOGGER.debug("ConsumerList was NULL, so returning true. Might be changed...");
+            //If list isn't configured we return true. Maybe install a switch instead..
+            return true;
+        }
         return isCallerOnList(senderIpAdress, consumerListArray, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "Consumerlist");
     }
     @Override
