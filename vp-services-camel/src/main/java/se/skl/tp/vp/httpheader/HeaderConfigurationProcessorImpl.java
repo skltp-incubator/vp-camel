@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-//import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
@@ -30,8 +30,8 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
   private String vpInstanceId;
 
-  //@Autowired
-  //private IPWhitelistHandler ipWhitelistHandler;
+  @Autowired
+  private IPWhitelistHandler ipWhitelistHandler;
 
   public boolean getPropagateCorrelationIdForHttps() {
     return propagateCorrelationIdForHttps;
@@ -94,10 +94,10 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     //If the header is set, check if approved and log (Jira NTP-832)
     if (exist) {
       //Log and Check if approved..
-      //boolean ok = checkIfSenderIsApproved(exchange);
+      boolean ok = checkIfSenderIsApproved(exchange);
       //log.info("Sender");
 
-      if (true) { //ok
+      if (ok) {
         //if null or empty, set senderId
         if (originalServiceconsumerHsaid == null  || originalServiceconsumerHsaid.trim().isEmpty()) {
           originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
@@ -120,10 +120,10 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     return s;
   }
 
-  /*private boolean checkIfSenderIsApproved(Exchange exchange) {
+  private boolean checkIfSenderIsApproved(Exchange exchange) {
     String sender = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
     return ipWhitelistHandler.isCallerOnConsumerList(sender);
-  }*/
+  }
 }
 
 

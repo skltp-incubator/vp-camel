@@ -4,6 +4,7 @@ public class PropertyConstants {
 
     public static final String CERTIFICATE_SENDERID_SUBJECT = "certificate.senderid.subject";
     public static final String IP_WHITELIST = "ip.whitelist";
+    public static final String IP_CONSUMER_LIST = "ip.consumer.list";
     public static final String VP_INSTANCE_ID = "vp.instance.id";
 
     public static final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = "http.forwarded.header.for";
