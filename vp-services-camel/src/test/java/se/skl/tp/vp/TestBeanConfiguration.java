@@ -38,12 +38,12 @@ public class TestBeanConfiguration {
 
     @Bean
     public IPWhitelistHandler ipWhitelistHandler() {
-        return new IPWhitelistHandlerImpl(environment.getProperty(PropertyConstants.IP_WHITELIST));
+        return new IPWhitelistHandlerImpl(environment.getProperty(PropertyConstants.IP_WHITELIST), environment.getProperty(PropertyConstants.IP_CONSUMER_LIST));
     }
 
     @Bean
     public IPWhitelistHandler emptyIpWhitelistHandler() {
-        return new IPWhitelistHandlerImpl(null);
+        return new IPWhitelistHandlerImpl(null, null);
     }
 
     /*@Bean
