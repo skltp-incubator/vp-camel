@@ -1,14 +1,22 @@
 package se.skl.tp.vp.status;
 
-import org.apache.camel.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
+import org.apache.camel.Route;
+import org.apache.camel.ServiceStatus;
+import org.apache.camel.impl.EventDrivenConsumerRoute;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class GetStatusProcessor  implements Processor {
@@ -21,16 +29,18 @@ public class GetStatusProcessor  implements Processor {
 
     @Override
     public void process(Exchange exchange) {
-        Map mapp = camelContext.getGlobalOptions();
-        String s = (String) mapp.get("TAK_CACHE_RESET");
-        HashMap<String, String> map = registerInfo();
+        Map<String, Object> map = registerInfo();
         JSONObject obj = new JSONObject(map);
-        exchange.getIn().setBody(obj.toString());
+        try {
+            exchange.getIn().setBody(obj.toString(2).replace("\\/","/"));
+        } catch (JSONException e) {
+            exchange.getIn().setBody(obj.toString());
+        }
         exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
     }
 
-    private HashMap registerInfo() {
-        HashMap<String, String> map = new HashMap<>();
+    private Map<String, Object> registerInfo() {
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         ServiceStatus serviceStatus = camelContext.getStatus();
         map.put("ServiceStatus", "" + serviceStatus);
         map.put("Uptime", camelContext.getUptime());
@@ -43,8 +53,22 @@ public class GetStatusProcessor  implements Processor {
         map.put("JvmTotalMemory", "" + instance.totalMemory() / mb + " mB");
         map.put("JvmFreeMemory", "" + instance.freeMemory() / mb + " mB");
         map.put("JvmUsedMemory", "" + (instance.totalMemory() - instance.freeMemory()) / mb + " mB");
-        map.put("JvmMaxMenory", "" + instance.maxMemory() / mb + " mB");
+        map.put("JvmMaxMemory", "" + instance.maxMemory() / mb + " mB");
+        map.put("Routes", getRoutesInfo());
 
+
+        return map;
+    }
+
+    private HashMap getRoutesInfo(){
+        HashMap<String, Object> map = new HashMap<>();
+        List<Route> routes = camelContext.getRoutes();
+        for(Route route : routes){
+            List<String> routeInfos = new ArrayList<>();
+            routeInfos.add(route.getEndpoint().getEndpointKey());
+            routeInfos.add(((EventDrivenConsumerRoute)route).getStatus().toString());
+            map.put( route.getId(), routeInfos);
+        }
         return map;
     }
 

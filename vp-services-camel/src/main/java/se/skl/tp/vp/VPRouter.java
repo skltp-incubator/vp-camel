@@ -33,10 +33,10 @@ public class VPRouter extends RouteBuilder {
     public static final String VAGVAL_ROUTE = "vagval-route";
 
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?matchOnUriPrefix=true";
-    public static final String NETTY4_HTTP_TOD = "netty4-http:${exchange.getProperty('vagval')}";
+    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}";
     public static final String DIRECT_VP = "direct:vp";
     public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true";
-    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${exchange.getProperty('vagval')}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
+    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
 
@@ -127,13 +127,13 @@ public class VPRouter extends RouteBuilder {
                         .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
                             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
                             .bean(MessageInfoLogger.class, "logReqOut(*)")
-                            .toD(NETTY4_HTTPS_OUTGOING_TOD)
+                            .recipientList(simple(NETTY4_HTTPS_OUTGOING_TOD))
                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
-                            .bean(MessageInfoLogger.class, "logRespIn(*)")
+                            .bean(MessageInfoLogger.class, "logRespIn(*)").endChoice()
                         .otherwise()
                             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
                             .bean(MessageInfoLogger.class, "logReqOut(*)")
-                            .toD(NETTY4_HTTP_TOD)
+                            .recipientList(simple(NETTY4_HTTP_TOD))
                             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
                             .bean(MessageInfoLogger.class, "logRespIn(*)")
                     .endChoice()
