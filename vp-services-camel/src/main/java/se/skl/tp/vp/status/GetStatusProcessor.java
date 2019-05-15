@@ -8,6 +8,7 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class GetStatusProcessor  implements Processor {
@@ -20,6 +21,8 @@ public class GetStatusProcessor  implements Processor {
 
     @Override
     public void process(Exchange exchange) {
+        Map mapp = camelContext.getGlobalOptions();
+        String s = (String) mapp.get("TAK_CACHE_RESET");
         HashMap<String, String> map = registerInfo();
         JSONObject obj = new JSONObject(map);
         exchange.getIn().setBody(obj.toString());
