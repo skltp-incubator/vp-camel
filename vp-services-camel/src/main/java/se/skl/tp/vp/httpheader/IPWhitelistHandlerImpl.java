@@ -18,12 +18,12 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     private String [] consumerListArray;
 
-    @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + "}")
+    @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + ":#{true}}")
     private boolean enforceConsumerList;
 
     @Autowired
-    public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + "}") String whitelistString,
-                                  @Value("${" + PropertyConstants.IP_CONSUMER_LIST + "}") String consumerlistString) {
+    public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + ":#{null}}") String whitelistString,
+                                  @Value("${" + PropertyConstants.IP_CONSUMER_LIST + ":#{null}}") String consumerlistString) {
         if(whitelistString != null && !whitelistString.isEmpty()) {
             whiteListArray = whitelistString.split(",");
         }
@@ -41,7 +41,6 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
         } else {
             return true;
         }
-
     }
 
     @Override

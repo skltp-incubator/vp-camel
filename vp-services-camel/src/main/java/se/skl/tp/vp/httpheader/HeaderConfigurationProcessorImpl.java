@@ -105,7 +105,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
         //log.warn("Sender");
         //throw new VpSemanticException(VpSemanticErrorCodeEnum.VP012 + " Sender NOT on ConsumerList: ",
           //      VpSemanticErrorCodeEnum.VP012);
-        System.out.println("ERROR should be thrown, because list existed AND was set to be used AND sender was NOT on it..");
+        System.out.println("ERROR should be thrown, because list was set to be used AND sender was NOT on it..");
       }
     } else {
       //if nonexisting, set senderId
