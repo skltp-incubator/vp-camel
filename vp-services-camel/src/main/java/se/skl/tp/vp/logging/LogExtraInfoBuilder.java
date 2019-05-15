@@ -109,15 +109,18 @@ public class LogExtraInfoBuilder {
   }
 
   private static void addErrorInfo(Exchange exchange, ExtraInfoMap<String, String> extraInfo) {
+    Exception exception = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+    String errorDescription = exception!=null ? exception.getMessage() : "";
+    String technicalDescription = exception!=null ? exception.toString() : "";
+    String errorCode = exchange.getProperty(VPExchangeProperties.SESSION_ERROR_CODE, String.class);
+    String htmlStatus = exchange.getProperty(VPExchangeProperties.SESSION_HTML_STATUS, String.class);
+
     extraInfo.put(VPExchangeProperties.SESSION_ERROR, "true");
-    extraInfo.put(VPExchangeProperties.SESSION_ERROR_DESCRIPTION,
-        nullValue2Blank(exchange.getProperty(VPExchangeProperties.SESSION_ERROR_DESCRIPTION, String.class)));
-    extraInfo.put(VPExchangeProperties.SESSION_ERROR_TECHNICAL_DESCRIPTION,
-        nullValue2Blank(exchange.getProperty(VPExchangeProperties.SESSION_ERROR_TECHNICAL_DESCRIPTION, String.class)));
-    extraInfo.put(VPExchangeProperties.SESSION_ERROR_CODE,
-        nullValue2Blank(exchange.getProperty(VPExchangeProperties.SESSION_ERROR_CODE, String.class)));
-    extraInfo.putNotEmpty(VPExchangeProperties.SESSION_HTML_STATUS,
-        exchange.getProperty(VPExchangeProperties.SESSION_HTML_STATUS, String.class));
+    extraInfo.put(VPExchangeProperties.SESSION_ERROR_DESCRIPTION, nullValue2Blank(errorDescription));
+    extraInfo.put(VPExchangeProperties.SESSION_ERROR_TECHNICAL_DESCRIPTION, nullValue2Blank(technicalDescription));
+    extraInfo.put(VPExchangeProperties.SESSION_ERROR_CODE, nullValue2Blank(errorCode));
+    extraInfo.putNotEmpty(VPExchangeProperties.SESSION_HTML_STATUS, htmlStatus);
+
   }
 
   private static String nullValue2Blank(String s) {
