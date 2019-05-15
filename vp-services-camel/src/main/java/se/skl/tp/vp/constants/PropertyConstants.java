@@ -16,6 +16,7 @@ public class PropertyConstants {
     public static final String WSDL_JSON_FILE = "wsdl.json.file";
     public static final String WSDLFILES_DIRECTORY = "wsdlfiles.directory";
 
+    public static final String ENFORCE_CONSUMER_LIST = "ip.consumer.list.use";
     public static final String PROPAGATE_CORRELATION_ID_FOR_HTTPS = "propagate.correlation.id.for.https";
     public static final String VP_HEADER_USER_AGENT = "vp.header.user.agent";
     public static final String VP_HEADER_CONTENT_TYPE = "vp.header.content.type";

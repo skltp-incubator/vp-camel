@@ -20,8 +20,8 @@ public class TestTakDataDefines {
     public static final String RECEIVER_2_DEFAULT_RECEIVER_3 = String.format("%s#%s", RECEIVER_2, RECEIVER_3);
     public static final String RECEIVER_3_DEFAULT_RECEIVER_4 = String.format("%s#%s", RECEIVER_3, RECEIVER_4);
 
-    public static final String AUTHORIZED_RECEIVER_IN_HSA_TREE = "SE0000000003-1234";
-    public static final String CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE = "SE0000000001-1234";
+    public static final String AUTHORIZED_RECEIVER_IN_HSA_TREE =           "SE0000000003-1234";
+    public static final String CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE =  "SE0000000001-1234";
     public static final String PARENT_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE = "SE0000000004-1234";
 
 }

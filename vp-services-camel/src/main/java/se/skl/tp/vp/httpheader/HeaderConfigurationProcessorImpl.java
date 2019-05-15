@@ -30,6 +30,9 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
   private String vpInstanceId;
 
+  @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + "}")
+  private boolean enforceConsumerList;
+
   @Autowired
   private IPWhitelistHandler ipWhitelistHandler;
 
@@ -94,7 +97,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     //If the header is set, check if approved and log (Jira NTP-832)
     if (exist) {
       //Log and Check if approved..
-      boolean ok = checkIfSenderIsApproved(exchange);
+      boolean ok = enforceConsumerList ? checkIfSenderIsApproved(exchange) : true;
       //log.info("Sender");
 
       if (ok) {
