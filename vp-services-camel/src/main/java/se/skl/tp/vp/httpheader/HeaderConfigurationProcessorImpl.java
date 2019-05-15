@@ -108,7 +108,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
         System.out.println("ERROR should be thrown, because list was set to be used AND sender was NOT on it..");
       }
     } else {
-      //if nonexisting, set senderId
+      //if nonexisting, set senderId as replacement.
       originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
     }
     // This property is set on session for loggers

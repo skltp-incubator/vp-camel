@@ -62,7 +62,7 @@ public class HttpHeaderConfigurationTest extends CamelTestSupport {
     Map headers = createHeaders();
     headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, TEST_CORRELATION_ID);
     template.sendBodyAndHeaders(TEST_BODY, headers);
-    assert (TEST_CORRELATION_ID
+    assertTrue (TEST_CORRELATION_ID
         .equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID)));
   }
 
@@ -75,7 +75,7 @@ public class HttpHeaderConfigurationTest extends CamelTestSupport {
     //If no correlationId was present in the request, it should have been generated.
     assertNotNull(correlation);
     assertNotEquals(TEST_CORRELATION_ID, correlation);
-    assert (correlation.length() > 35);
+    assertTrue (correlation.length() > 35);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class HttpHeaderConfigurationTest extends CamelTestSupport {
     Map headers = createHeaders();
     headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
     template.sendBodyAndHeaders(TEST_BODY, headers);
-    assert (TEST_CONSUMER.equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+    assertTrue (TEST_CONSUMER.equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
         .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
   }
 
@@ -93,7 +93,7 @@ public class HttpHeaderConfigurationTest extends CamelTestSupport {
     template.sendBodyAndHeaders(TEST_BODY, headers);
     //The senderId should be used as originalConsumerId, if originalConsumerId isn't present in request.
     String s = (String) resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_VP_SENDER_ID);
-    assert (s.equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
+    assertTrue (s.equals(resultEndpoint.getReceivedExchanges().get(0).getIn().getHeaders()
         .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)));
   }
 
