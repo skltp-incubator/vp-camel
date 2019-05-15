@@ -21,7 +21,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring.boot-version>2.1.0.RELEASE</spring.boot-version>
     <lmax_disruptor-version>3.3.6</lmax_disruptor-version>
-    <camel.version>2.23.1</camel.version>
+    <camel.version>2.24.0</camel.version>
     <javax.servlet-api-version>4.0.1</javax.servlet-api-version>
 
     <takdatahandler.version>1.0.1</takdatahandler.version>
