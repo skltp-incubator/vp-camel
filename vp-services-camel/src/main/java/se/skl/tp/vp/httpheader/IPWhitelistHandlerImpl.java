@@ -18,6 +18,9 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     private String [] consumerListArray;
 
+    @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + "}")
+    private boolean enforceConsumerList;
+
     @Autowired
     public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + "}") String whitelistString,
                                   @Value("${" + PropertyConstants.IP_CONSUMER_LIST + "}") String consumerlistString) {
@@ -33,18 +36,18 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
     public boolean isCallerOnConsumerList(String senderIpAdress) {
         LOGGER.debug("Check if caller {} is in consumer list before using HTTP header {}...",
                 senderIpAdress, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
-        if (consumerListArray == null) {
-            LOGGER.debug("ConsumerList was NULL, so returning true. Might be changed...");
-            //If list isn't configured we return true. Maybe install a switch instead..
+        if (enforceConsumerList) {
+            return isCallerOnList(senderIpAdress, consumerListArray, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "Consumerlist");
+        } else {
             return true;
         }
-        return isCallerOnList(senderIpAdress, consumerListArray, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "Consumerlist");
+
     }
+
     @Override
     public boolean isCallerOnWhiteList(String senderIpAdress) {
         LOGGER.debug("Check if caller {} is in white list before using HTTP header {}...", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
         return isCallerOnList(senderIpAdress, whiteListArray, NettyConstants.NETTY_REMOTE_ADDRESS, "Whitelist");
-
     }
 
     private boolean isCallerOnList(String senderIpAdress, String[] list, String header, String listName) {
@@ -55,9 +58,13 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
             return false;
         }
 
+        if (list == null) {
+            LOGGER.debug(listName + " was NULL, so nothing to compare against. Returning false...");
+            return false;
+        }
 
         //When no list exist we can not validate incoming ip address
-        if (list == null) {
+        if (list.length == 0) {
             LOGGER.warn("A check against the ip address in {} was requested, but the {} is configured empty. Update VP configuration for the {}", listName, listName, listName);
             return false;
         }

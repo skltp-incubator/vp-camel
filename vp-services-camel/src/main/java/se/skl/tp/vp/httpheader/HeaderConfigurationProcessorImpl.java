@@ -30,9 +30,6 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
   private String vpInstanceId;
 
-  @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + "}")
-  private boolean enforceConsumerList;
-
   @Autowired
   private IPWhitelistHandler ipWhitelistHandler;
 
@@ -97,18 +94,18 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     //If the header is set, check if approved and log (Jira NTP-832)
     if (exist) {
       //Log and Check if approved..
-      boolean ok = enforceConsumerList ? checkIfSenderIsApproved(exchange) : true;
-      //log.info("Sender");
-
+      boolean ok = checkIfSenderIsApproved(exchange);
       if (ok) {
+        //log.info("Sender");
         //if null or empty, set senderId
         if (originalServiceconsumerHsaid == null  || originalServiceconsumerHsaid.trim().isEmpty()) {
           originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
         }
       } else {
-        //throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " Sender NOT on ConsumerList: ",
-          //      VpSemanticErrorCodeEnum.VP002);
-        System.out.println("ERROR should be thrown, because list existed and sender was NOT on it..");
+        //log.warn("Sender");
+        //throw new VpSemanticException(VpSemanticErrorCodeEnum.VP012 + " Sender NOT on ConsumerList: ",
+          //      VpSemanticErrorCodeEnum.VP012);
+        System.out.println("ERROR should be thrown, because list existed AND was set to be used AND sender was NOT on it..");
       }
     } else {
       //if nonexisting, set senderId
