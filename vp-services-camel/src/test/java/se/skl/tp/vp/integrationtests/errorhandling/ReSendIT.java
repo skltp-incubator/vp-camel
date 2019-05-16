@@ -1,8 +1,11 @@
 package se.skl.tp.vp.integrationtests.errorhandling;
 import static se.skl.tp.vp.integrationtests.errorhandling.AddTemporarySocketProblem.BODY_ON_SECOND_INVOKATION;
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
 import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.camel.CamelContext;
@@ -24,7 +27,6 @@ import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
@@ -39,7 +41,6 @@ public class ReSendIT {
   private static final String URL_MOCK_ENDPOINT= "mock:result";
   private static boolean isContextStarted = false;
 
- // private boolean resent = false;
 
   @MockBean TakCache takCache;
 
@@ -67,10 +68,7 @@ public class ReSendIT {
     takCacheService.refresh();
   }
 
-  /**
-   *
-   *
-   */
+
   @Test
   public void worksForSingleException() throws InterruptedException {
     List<RoutingInfo> list = new ArrayList<>();
@@ -80,7 +78,7 @@ public class ReSendIT {
     resultEndpoint.setExpectedCount(1);
     resultEndpoint.expectedBodiesReceived(BODY_ON_SECOND_INVOKATION);
 
-    template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+    template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     resultEndpoint.assertIsSatisfied();
   }
 

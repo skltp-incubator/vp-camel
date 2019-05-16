@@ -12,10 +12,15 @@ import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP009;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_MULTIPLE_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
-import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PHYSICAL_ADDRESS;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PRODUCER_AVAILABLE;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNKNOWN_RIVVERSION;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.TJANSTEKONTRAKT_GET_CERTIFICATE_KEY;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +40,6 @@ import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
@@ -58,7 +62,7 @@ public class FullServiceErrorHandlingIT {
   public void shouldGetVP002WhenNoCertificateInHTTPCall() throws Exception {
     Map<String, Object> headers = new HashMap<>();
 
-    String result = testConsumer.sendHttpRequestToVP(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST, headers);
+    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_UNIT_TEST), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -78,7 +82,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP003WhenNoReveieverExist() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_RECEIVER, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(""), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -98,7 +102,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP004WhenRecieverNotInVagval() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_VAGVAL_IN_TAK, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_WITH_NO_VAGVAL), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -123,8 +127,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP005WhenUnkownRivVersionInTAK() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_UNKNOWN_RIVVERSION_, headers);
-
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_UNKNOWN_RIVVERSION), headers);
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
     assertNotNull("Expected a SOAPFault", soapBody.hasFault());
@@ -143,7 +146,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP006WhenMultipleVagvalExist() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_MULTIPLE_VAGVAL, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_MULTIPLE_VAGVAL), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -163,7 +166,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP007WhenRecieverNotAuhtorized() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NOT_AUHORIZED), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -189,7 +192,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP009WhenProducerNotAvailable() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -214,7 +217,7 @@ public class FullServiceErrorHandlingIT {
   @Test
   public void shouldGetVP010WhenPhysicalAdressEmptyInVagval() throws Exception {
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PHYSICAL_ADDRESS, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NO_PHYSICAL_ADDRESS), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
@@ -237,7 +240,7 @@ public class FullServiceErrorHandlingIT {
     headers.put(HttpHeaders.X_VP_SENDER_ID, "Urken");
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
     headers.put("X-Forwarded-For", "10.20.30.40");
-    String result = testConsumer.sendHttpRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_, headers);
+    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
