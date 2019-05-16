@@ -4,11 +4,11 @@ import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
@@ -24,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
+import se.skl.tp.vp.VPRouter;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.integrationtests.utils.MockProducer;
@@ -31,7 +32,6 @@ import se.skl.tp.vp.service.TakCacheService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
-
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 //@TestPropertySource("classpath:application.properties")
@@ -99,13 +99,14 @@ public class ErrorInResponseTest {
     List<RoutingInfo> list = new ArrayList<>();
     list.add(createRoutingInfo(NO_EXISTING_PRODUCER, RIV20));
     setTakCacheMockResult(list);
-
-    template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+    String testBody = TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST;
+    template.sendBody(testBody);
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "VP009");
     assertStringContains(resultBody, "address");
     assertStringContains(resultBody, "Exception Caught by Camel when contacting producer.");
     resultEndpoint.assertIsSatisfied();
+
   }
 
   @Test //Test för när en Producent svarar med ett tomt svar
