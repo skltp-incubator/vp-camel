@@ -1,5 +1,7 @@
 package se.skl.tp.vp.service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ public class TakCacheServiceImpl implements TakCacheService {
 
   TakCacheLog takCacheLog = null;
 
+  private static Date latestResetDate;
+
   @Autowired
   public TakCacheServiceImpl(HsaCache hsaCache, TakCache takCache, DefaultRoutingProperties defaultRoutingProperties) {
     this.takCache = takCache;
@@ -35,6 +39,7 @@ public class TakCacheServiceImpl implements TakCacheService {
   @Override
   public TakCacheLog refresh() {
     takCacheLog = takCache.refresh();
+    latestResetDate = new Date();
     return takCacheLog;
   }
 
@@ -53,5 +58,7 @@ public class TakCacheServiceImpl implements TakCacheService {
     return vagvalHandler.getRoutingInfo(tjanstegranssnitt, receiverAddress);
   }
 
-
+  public static Date getLatestResetDate() {
+    return latestResetDate;
+  }
 }
