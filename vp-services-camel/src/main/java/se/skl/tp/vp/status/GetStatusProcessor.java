@@ -1,10 +1,10 @@
 package se.skl.tp.vp.status;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -17,6 +17,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.service.TakCacheServiceImpl;
 
 @Service
 public class GetStatusProcessor  implements Processor {
@@ -29,6 +30,7 @@ public class GetStatusProcessor  implements Processor {
 
     @Override
     public void process(Exchange exchange) {
+
         Map<String, Object> map = registerInfo();
         JSONObject obj = new JSONObject(map);
         try {
@@ -48,6 +50,10 @@ public class GetStatusProcessor  implements Processor {
         map.put("JavaVersion", (String) System.getProperties().get("java.version"));
         map.put("CamelVersion", camelContext.getVersion());
         map.put("TakserviceInitialized", "" + takService.isInitalized());
+        Date d = TakCacheServiceImpl.getLatestResetDate();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        String dateText = format.format(d);
+        map.put("LatestTAKcacheReset", dateText);
         int mb = 1024 * 1024;
         Runtime instance = Runtime.getRuntime();
         map.put("JvmTotalMemory", "" + instance.totalMemory() / mb + " mB");
@@ -55,8 +61,6 @@ public class GetStatusProcessor  implements Processor {
         map.put("JvmUsedMemory", "" + (instance.totalMemory() - instance.freeMemory()) / mb + " mB");
         map.put("JvmMaxMemory", "" + instance.maxMemory() / mb + " mB");
         map.put("Routes", getRoutesInfo());
-
-
         return map;
     }
 
