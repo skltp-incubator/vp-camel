@@ -18,9 +18,6 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
     private String [] consumerListArray;
 
-    @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + ":#{true}}")
-    private boolean enforceConsumerList;
-
     @Autowired
     public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + ":#{null}}") String whitelistString,
                                   @Value("${" + PropertyConstants.IP_CONSUMER_LIST + ":#{null}}") String consumerlistString) {
@@ -36,11 +33,7 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
     public boolean isCallerOnConsumerList(String senderIpAdress) {
         logger.debug("Check if caller {} is in consumer list before using HTTP header {}...",
                 senderIpAdress, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
-        if (enforceConsumerList) {
-            return isCallerOnList(senderIpAdress, consumerListArray, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "Consumerlist");
-        } else {
-            return true;
-        }
+        return isCallerOnList(senderIpAdress, consumerListArray, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "Consumerlist");
     }
 
     @Override
@@ -58,20 +51,20 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
         }
 
         if (list == null) {
-            logger.debug(listName + " was NULL, so nothing to compare against. Returning false...");
+            logger.debug(listName + " was NULL, so nothing to compare sender {} against. Returning false...", senderIpAdress);
             return false;
         }
 
         //When no list exist we can not validate incoming ip address
         if (list.length == 0) {
-            logger.warn("A check against the ip address in {} was requested, but the {} is configured empty. Update VP configuration for the {}", listName, listName, listName);
+            logger.warn("A check for sender {} against the ip address in {} was requested, but the {} is configured empty. Update VP configuration for the {}", senderIpAdress, listName, listName, listName);
             return false;
         }
 
 
         for (String ipAddress : list) {
             if(senderIpAdress.trim().startsWith(ipAddress.trim())){
-                logger.debug("Caller matches ip address/subdomain in {}", listName);
+                logger.debug("Caller {} matches ip address/subdomain in {}", senderIpAdress, listName);
                 return true;
             }
         }
