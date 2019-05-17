@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-//import se.skl.tp.vp.exceptions.VpSemanticException;
+import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
+import se.skl.tp.vp.exceptions.VpSemanticException;
 
 
 @Service
@@ -30,6 +31,9 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   @Value("${" + PropertyConstants.VP_INSTANCE_ID + "}")
   private String vpInstanceId;
 
+  @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + ":#{true}}")
+  private boolean enforceConsumerList;
+
   @Autowired
   private IPWhitelistHandler ipWhitelistHandler;
 
@@ -42,7 +46,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   }
 
   @Override
-  public void process(Exchange exchange) {
+  public void process(Exchange exchange) throws Exception  {
     setOriginalConsumerId(exchange);
     propagateCorrelationIdToProducer(exchange);
     propagateSenderIdAndVpInstanceIdToProducer(exchange);
@@ -86,26 +90,26 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     }
   }
 
-  private void setOriginalConsumerId(Exchange exchange) { //throws VpSemanticException
+  private void setOriginalConsumerId(Exchange exchange) throws VpSemanticException {
     boolean exist = exchange.getIn().getHeaders().containsKey(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     //The original sender of the request, that might have been transferred by an RTjP. Can be null.
     String originalServiceconsumerHsaid = exchange.getIn().getHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, String.class);
     exchange.setProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceconsumerHsaid);
-    //If the header is set, check if approved and log (Jira NTP-832)
+    //If the header is set, check if approved. Logging is done in IPWhiteListHandlerImpl (Jira NTP-832)
+    String sender = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
     if (exist) {
-      //Log and Check if approved..
-      boolean ok = checkIfSenderIsApproved(exchange);
+      boolean ok = checkIfSenderIsApproved(sender);
       if (ok) {
-        //log.info("Sender");
         //if null or empty, set senderId
         if (originalServiceconsumerHsaid == null  || originalServiceconsumerHsaid.trim().isEmpty()) {
           originalServiceconsumerHsaid = setSenderIdAsOriginalConsumer(exchange);
         }
       } else {
-        //log.warn("Sender");
-        //throw new VpSemanticException(VpSemanticErrorCodeEnum.VP012 + " Sender NOT on ConsumerList: ",
-          //      VpSemanticErrorCodeEnum.VP012);
-        System.out.println("ERROR should be thrown, because list was set to be used AND sender was NOT on it..");
+        //If !enforceConsumerList all is accepted, just continue processing..
+        if (enforceConsumerList) {
+          throw new VpSemanticException(VpSemanticErrorCodeEnum.VP013 + " Sender NOT on ConsumerList:" + sender,
+                VpSemanticErrorCodeEnum.VP013);
+        }
       }
     } else {
       //if nonexisting, set senderId as replacement.
@@ -121,8 +125,7 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     return s;
   }
 
-  private boolean checkIfSenderIsApproved(Exchange exchange) {
-    String sender = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
+  private boolean checkIfSenderIsApproved(String sender) {
     return ipWhitelistHandler.isCallerOnConsumerList(sender);
   }
 }
