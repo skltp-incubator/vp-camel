@@ -35,9 +35,6 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HttpsHeadersIT extends CamelTestSupport {
 
-    @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
-    private Boolean propagateCorrIdForHttps;
-
     @Value("${" + PropertyConstants.VP_HTTPS_ROUTE_URL + "}")
     private String httpsRoute;
 

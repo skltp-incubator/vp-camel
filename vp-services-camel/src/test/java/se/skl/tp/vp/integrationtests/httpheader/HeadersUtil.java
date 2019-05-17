@@ -9,7 +9,7 @@ import static org.apache.camel.language.constant.ConstantLanguage.constant;
 
 public class HeadersUtil {
 
-    public static String TEST_CONSUMER = "aTestConsumeer";
+    public static String TEST_CONSUMER = "aTestConsumer";
     public static String TEST_CORRELATION_ID = "aTestCorrelationId";
     public static String TEST_SENDER = "tp";
     public static String TEST_BODY = "aTestBody";
