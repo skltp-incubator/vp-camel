@@ -32,13 +32,12 @@ public class VPRouter extends RouteBuilder {
     public static final String VP_HTTPS_ROUTE = "vp-https-route";
     public static final String VAGVAL_ROUTE = "vagval-route";
     public static final String TO_PRODUCER_ROUTE = "to-producer-route";
-    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}";
-
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?matchOnUriPrefix=true";
+    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}?useRelativePath=true";
     public static final String DIRECT_VP = "direct:vp";
     public static final String DIRECT_PRODUCER_ROUTE = "direct:to-producer";
     public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true";
-    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?sslContextParameters=#outgoingSSLContextParameters&ssl=true";
+    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?sslContextParameters=#outgoingSSLContextParameters&ssl=true&useRelativePath=true";
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
