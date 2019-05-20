@@ -92,10 +92,10 @@
       <artifactId>bcprov-ext-jdk16</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- connector -->
+
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-netty4-http</artifactId>
+      <artifactId>camel-netty4-http-starter</artifactId>
     </dependency>
 
     <dependency>
@@ -121,6 +121,13 @@
       <version>${javax.servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

@@ -13,6 +13,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import se.skl.tp.vp.logging.MessageInfoLogger;
 
 // note: class name need not match the @Plugin name.
 @Plugin(name = "TestLogAppender", category = "Core", elementType = "appender", printObject = true)
@@ -21,6 +22,9 @@ public class TestLogAppender extends AbstractAppender {
   private static TestLogAppender instance;
 
   public static TestLogAppender getInstance() {
+    if(instance != null){
+      instance.clearEvents();
+    }
     return instance;
   }
 
@@ -43,6 +47,11 @@ public class TestLogAppender extends AbstractAppender {
 
   @Override
   public void append(final LogEvent event) {
+
+    // Clear events if start if new incomming message to VP
+    if(event.getLoggerName().equalsIgnoreCase(MessageInfoLogger.REQ_IN)) {
+      clearEvents();
+    }
 
     events.add(event.toImmutable());
   }

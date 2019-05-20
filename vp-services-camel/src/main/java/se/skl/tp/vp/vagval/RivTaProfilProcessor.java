@@ -1,7 +1,13 @@
 package se.skl.tp.vp.vagval;
 
-import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang.StringUtils;
@@ -13,9 +19,6 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpTechnicalException;
-
-import javax.xml.stream.*;
-import java.io.ByteArrayOutputStream;
 
 @Component
 public class RivTaProfilProcessor implements Processor {
@@ -41,7 +44,7 @@ public class RivTaProfilProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         log.debug("Riv transformer executing");
 
-        String rivVersionIn = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION);
+            String rivVersionIn = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION);
         String rivVersionOut = (String) exchange.getProperty(VPExchangeProperties.RIV_VERSION_OUT);
         if(rivVersionIn == null){
             throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP001);
