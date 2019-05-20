@@ -92,7 +92,6 @@
       <artifactId>bcprov-ext-jdk16</artifactId>
       <scope>test</scope>
     </dependency>
-
     <!-- connector -->
     <dependency>
       <groupId>org.apache.camel</groupId>

@@ -1,5 +1,6 @@
 package se.skl.tp.vp.vagval;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
@@ -8,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.service.TakCacheService;
 import se.skltp.takcache.TakCacheLog;
+
+import java.util.Date;
+import java.util.Map;
 
 @Component
 public class ResetTakCacheProcessor implements Processor {
@@ -20,9 +24,13 @@ public class ResetTakCacheProcessor implements Processor {
         this.takService = takService;
     }
 
+    /*@Autowired
+    private CamelContext camelContext;*/
+
     @Override
     public void process(Exchange exchange) throws Exception {
-        log.info("Start a reset of TAKcache.");
+       /* Map map = camelContext.getGlobalOptions();
+        map.put("TAK_CACHE_RESET", new Date().toString());*/
         TakCacheLog result = takService.refresh();
         exchange.getOut().setBody(getResultAsString(result));
         exchange.getOut().setHeader("Content-Type", "text/html;");

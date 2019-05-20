@@ -6,48 +6,77 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 
 @Service
 public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
 
-    private static Logger LOGGER = LogManager.getLogger(IPWhitelistHandlerImpl.class);
+    private static Logger logger = LogManager.getLogger(IPWhitelistHandlerImpl.class);
 
     private String [] whiteListArray;
 
+    private String [] consumerListArray;
+
     @Autowired
-    public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + "}") String whitelistString) {
+    public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + ":#{null}}") String whitelistString,
+                                  @Value("${" + PropertyConstants.IP_CONSUMER_LIST + ":#{null}}") String consumerlistString) {
         if(whitelistString != null && !whitelistString.isEmpty()) {
             whiteListArray = whitelistString.split(",");
         }
+        if(consumerlistString != null && !consumerlistString.isEmpty()) {
+            consumerListArray = consumerlistString.split(",");
+        }
+    }
+
+    /**
+     * This method check's whether the caller has the right to use the header X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID.
+     */
+    @Override
+    public boolean isCallerOnConsumerList(String senderIpAdress) {
+        logger.debug("Check if caller {} is in consumer list before using HTTP header {}...",
+                senderIpAdress, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+        return isCallerOnList(senderIpAdress, consumerListArray, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "Consumerlist");
     }
 
     @Override
     public boolean isCallerOnWhiteList(String senderIpAdress) {
-        LOGGER.debug("Check if caller {} is in white list before using HTTP header {}...", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
+        logger.debug("Check if caller {} is in white list before using HTTP header {}...", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
+        return isCallerOnList(senderIpAdress, whiteListArray, NettyConstants.NETTY_REMOTE_ADDRESS, "Whitelist");
+    }
 
-        //When no ip address exist we can not validate against whitelist
+    private boolean isCallerOnList(String senderIpAdress, String[] list, String header, String listName) {
+
+        //When no sender exist we can not validate against the list
         if (senderIpAdress == null || senderIpAdress.trim().isEmpty()) {
-            LOGGER.warn("A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ", senderIpAdress, NettyConstants.NETTY_REMOTE_ADDRESS);
+            logger.warn("A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ", senderIpAdress, header);
+            return false;
+        }
+
+        if (list == null) {
+            logger.debug(listName + " was NULL, so nothing to compare sender {} against. Returning false...", senderIpAdress);
+            return false;
+        }
+
+        //When no list exist we can not validate incoming ip address
+        if (list.length == 0) {
+            logger.warn("A check for sender {} against the ip address in {} was requested, but the {} is configured empty. Update VP configuration for the {}", senderIpAdress, listName, listName, listName);
             return false;
         }
 
 
-        //When no whitelist exist we can not validate incoming ip address
-        if (whiteListArray == null) {
-            LOGGER.warn("A check against the ip address whitelist was requested, but the whitelist is configured empty. Update VP configuration property IP_WHITE_LIST");
-            return false;
-        }
-
-
-        for (String ipAddress : whiteListArray) {
+        for (String ipAddress : list) {
             if(senderIpAdress.trim().startsWith(ipAddress.trim())){
-                LOGGER.debug("Caller matches ip address/subdomain in white list");
+                logger.debug("Caller {} matches ip address/subdomain in {}", senderIpAdress, listName);
                 return true;
             }
         }
+        StringBuilder content = new StringBuilder();
+        for (String s : list) {
 
-        LOGGER.warn("Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST: {}", senderIpAdress, this.toString());
+            content.append(s + ",");
+        }
+        logger.warn("Caller was not on the {} of accepted IP-addresses. IP-address: {}, accepted IP-addresses in {}: {}", listName, senderIpAdress, listName, content.toString());
         return false;
     }
 }

@@ -59,7 +59,6 @@ public class GetStatusTest extends CamelTestSupport {
         assertNotNull(resultEndpoint.getExchanges().get(0).getIn().getBody());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getBody();
         s.trim();
-        //System.out.println("BODY RECEIVED:::" + s);
         assert(s.startsWith("{") && s.endsWith("}") && s.contains("TakserviceInitialized"));
     }
 

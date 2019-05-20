@@ -2,6 +2,10 @@ package se.skl.tp.vp.util.soaprequests;
 
 public class TestSoapRequests {
 
+  private TestSoapRequests(){
+    // Static utility to create Soap request
+  }
+
   public static final String RECEIVER_UNIT_TEST = "UnitTest";
   public static final String RECEIVER_HTTP = "HttpProducer";
   public static final String RECEIVER_HTTPS = "HttpsProducer";
@@ -13,6 +17,7 @@ public class TestSoapRequests {
   public static final String RECEIVER_NO_PHYSICAL_ADDRESS = "RecevierNoPhysicalAddress";
 
   public static final String TJANSTEKONTRAKT_GET_CERTIFICATE_KEY = "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1";
+
 
   public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER =
       "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n"
@@ -29,27 +34,36 @@ public class TestSoapRequests {
           "   </soapenv:Body>\n" +
           "</soapenv:Envelope>";
 
-  public static final String GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_UNIT_TEST);
-  public static final String GET_NO_CERT_HTTP_SOAP_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-          RECEIVER_HTTP);
-  public static final String GET_CERT_HTTPS_REQUEST = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-          RECEIVER_HTTPS);
-  public static final String GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_NOT_AUHORIZED);
-  public static final String GET_CERTIFICATE_NO_VAGVAL_IN_TAK = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_WITH_NO_VAGVAL);
-  public static final String GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_NO_PRODUCER_AVAILABLE);
-  public static final String GET_CERTIFICATE_UNKNOWN_RIVVERSION_ = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_UNKNOWN_RIVVERSION);
-  public static final String GET_CERTIFICATE_NO_RECEIVER = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER, "");
-  public static final String GET_CERTIFICATE_MULTIPLE_VAGVAL = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_MULTIPLE_VAGVAL);
-  public static final String GET_CERTIFICATE_NO_PHYSICAL_ADDRESS = String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER,
-      RECEIVER_NO_PHYSICAL_ADDRESS);
+
+  public static final String GET_ACTIVITIES_REQUEST_VARIABLE_RECEIVER =
+      "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:riv:itintegration:registry:1\" xmlns:urn1=\"urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1\" xmlns:urn2=\"urn:riv:clinicalprocess:activity:actions:1\">\n"
+          +
+          "   <soapenv:Header>\n" +
+          "      <urn:LogicalAddress>%s</urn:LogicalAddress>\n" +
+          "   </soapenv:Header>\n" +
+          "   <soapenv:Body>\n" +
+          "      <urn1:GetActivities>\n" +
+          "         <urn1:patientId>\n" +
+          "             <urn2:root>patientIdType</urn2:root>\n"+
+          "             <urn2:extension>197404188888</urn2:extension>\n" +
+          "         </urn1:patientId>\n" +
+          "         <urn1:interactionAgreementId>2866a7c4-9c60-433f-9035-a4d779ffe7a1</urn1:interactionAgreementId>" +
+          "         <urn1:sourceSystemId>"+
+          "             <urn2:root>1.2.752.129.2.1.4.1</urn2:root>" +
+          "             <urn2:extension>${sourceSystemHSAId}</urn2:extension>" +
+          "         </urn1:sourceSystemId>" +
+          "      </urn1:GetActivities>\n" +
+          "   </soapenv:Body>\n" +
+          "</soapenv:Envelope>";
+
+  public static final String GET_NO_CERT_HTTP_SOAP_REQUEST =  createGetCertificateRequest(RECEIVER_HTTP);
+  public static final String GET_CERT_HTTPS_REQUEST = createGetCertificateRequest(RECEIVER_HTTPS);
 
   public static String createGetCertificateRequest(String receiver){
     return String.format(GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST_VARIABLE_RECEIVER, receiver);
+  }
+
+  public static String createGetActivitiesRequest(String receiver){
+    return String.format(GET_ACTIVITIES_REQUEST_VARIABLE_RECEIVER, receiver);
   }
 }

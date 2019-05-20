@@ -4,6 +4,8 @@ import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP008;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +23,6 @@ import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.service.TakCacheService;
 import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.TakCacheLog;
 import se.skltp.takcache.TakCacheLog.RefreshStatus;
 
@@ -38,7 +39,6 @@ public class FullServiceTakErrorIT {
 
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
-
   @Before
   public void beforeTest(){
     testLogAppender.clearEvents();
@@ -51,7 +51,7 @@ public class FullServiceTakErrorIT {
     assertEquals(RefreshStatus.REFRESH_FAILED, takCacheLog.getRefreshStatus());
 
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NOT_AUTHORIZED_IN_TAK, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NOT_AUHORIZED), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);

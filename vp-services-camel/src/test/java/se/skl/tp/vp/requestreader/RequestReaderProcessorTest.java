@@ -1,5 +1,8 @@
 package se.skl.tp.vp.requestreader;
 
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
+
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
@@ -12,9 +15,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.TestBeanConfiguration;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
+import se.skl.tp.vp.constants.VPExchangeProperties;
 
 @RunWith( CamelSpringBootRunner.class )
 @ContextConfiguration(classes = TestBeanConfiguration.class)
@@ -32,12 +34,12 @@ public class RequestReaderProcessorTest extends CamelTestSupport {
 
     @Test
     public void testSendRivta20Message() throws Exception {
-        resultEndpoint.expectedBodiesReceived(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        resultEndpoint.expectedBodiesReceived(createGetCertificateRequest(RECEIVER_UNIT_TEST));
         resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RECEIVER_ID, "UnitTest");
         resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RIV_VERSION, RequestReaderProcessorXMLEventReader.RIVTABP_20);
         resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
 
-        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
         resultEndpoint.assertIsSatisfied();
     }
 

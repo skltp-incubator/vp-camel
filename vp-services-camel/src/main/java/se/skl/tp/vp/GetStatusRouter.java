@@ -9,9 +9,8 @@ import se.skl.tp.vp.status.GetStatusProcessor;
 public class GetStatusRouter extends RouteBuilder {
 
     public static final String HTTP_GET = "get-status";
-    //public static final String NETTY4_HTTP_GET = "netty4-http:http://localhost:80/get"; //{{vp.http.get.url}}";
-    //http://localhost:80/get
-    public static final String NETTY4_HTTP_GET = "netty4-http:{{vp.http.get.url}}";
+
+    public static final String NETTY4_HTTP_GET = "netty4-http:{{vp.status.url}}";
 
     @Autowired
     GetStatusProcessor getStatusProcessor;
