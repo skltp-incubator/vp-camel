@@ -29,6 +29,9 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler{
         }
     }
 
+    /**
+     * This method check's whether the caller has the right to use the header X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID.
+     */
     @Override
     public boolean isCallerOnConsumerList(String senderIpAdress) {
         logger.debug("Check if caller {} is in consumer list before using HTTP header {}...",
