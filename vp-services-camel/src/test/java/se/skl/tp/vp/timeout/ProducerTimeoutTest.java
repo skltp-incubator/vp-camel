@@ -1,6 +1,8 @@
 package se.skl.tp.vp.timeout;
 
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
 import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
 import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
@@ -31,7 +33,6 @@ import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.service.TakCacheService;
 import se.skl.tp.vp.util.TestLogAppender;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
@@ -84,7 +85,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
         timeoutConfig.setProducertimeout(500);
         Mockito.when(timeoutConfiguration.getOnTjanstekontrakt("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1")).thenReturn(timeoutConfig);
 
-        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
 
         resultEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 500);
         String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);

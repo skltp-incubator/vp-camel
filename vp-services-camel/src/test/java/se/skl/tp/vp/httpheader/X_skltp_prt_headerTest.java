@@ -1,6 +1,18 @@
 package se.skl.tp.vp.httpheader;
 
-import org.apache.camel.*;
+import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
+import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
+import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.Produce;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -17,16 +29,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
-import static se.skl.tp.vp.util.takcache.TakCacheMockUtil.createTakCacheLogOk;
-import static se.skl.tp.vp.util.takcache.TestTakDataDefines.RIV20;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
@@ -65,7 +69,7 @@ public class X_skltp_prt_headerTest extends CamelTestSupport {
         Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
         Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
 
-        template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
+        template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
 
         String header = (String) resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME);
         assertNotNull(header);

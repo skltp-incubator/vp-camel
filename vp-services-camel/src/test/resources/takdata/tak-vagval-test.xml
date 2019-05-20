@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <persistentCache xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
 
+  <!--Virtualiseringar för GetCertificateResponder-->
+
   <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
     <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
     <ns2:receiverId>HttpProducer</ns2:receiverId>
@@ -18,15 +20,6 @@
     <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
     <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
     <ns2:adress>https://localhost:19001/vardgivare-b/tjanst2</ns2:adress>
-  </virtualiseringsInfo>
-  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
-    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
-    <ns2:receiverId>UnitTest</ns2:receiverId>
-    <ns2:rivProfil>RIVTABP20</ns2:rivProfil>
-    <ns2:tjansteKontrakt>urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1</ns2:tjansteKontrakt>
-    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
-    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
-    <ns2:adress>https://localhost:19000/vardgivare-b/tjanst2</ns2:adress>
   </virtualiseringsInfo>
   <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
     <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
@@ -82,5 +75,43 @@
     <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
     <ns2:adress></ns2:adress>
   </virtualiseringsInfo>
+
+  <!--Virtualiseringar för GetActivitiesResponder-->
+
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>HttpProducer</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>http://localhost:1900/explicit/GetActivitiesResponder</ns2:adress>
+  </virtualiseringsInfo>
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>SE0000000003-1234</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>http://localhost:1900/treeclimbing/GetActivitiesResponder</ns2:adress>
+  </virtualiseringsInfo>
+
+  <!-- Default vagval:
+    contract: GetActivitiesResponder
+    adress:   http://localhost:1900/default/GetActivitiesResponder
+    -->
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>*</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>http://localhost:1900/default/GetActivitiesResponder</ns2:adress>
+  </virtualiseringsInfo>
+
+
+
 </persistentCache>
 

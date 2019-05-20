@@ -4,6 +4,8 @@ import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.VPRouter.VAGVAL_PROCESSOR_ID;
 import static se.skl.tp.vp.VPRouter.VAGVAL_ROUTE;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PRODUCER_AVAILABLE;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +26,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
-import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
@@ -53,7 +54,7 @@ public class SoapFaultIT {
   public void unexpectedExceptionInRouteShouldResultInSoapFault() throws Exception {
 
     Map<String, Object> headers = new HashMap<>();
-    String result = testConsumer.sendHttpsRequestToVP(TestSoapRequests.GET_CERTIFICATE_NO_PRODUCER_NOT_AVAILABLE_, headers);
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertNotNull("Expected a SOAP message", soapBody);
