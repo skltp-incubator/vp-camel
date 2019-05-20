@@ -32,8 +32,8 @@ public class TestBeanConfiguration {
     }
 
     @Bean
-    public HeaderConfigurationProcessor headerConfigurationProcessor() {
-        return new HeaderConfigurationProcessorImpl();
+    public HeaderProcessor headerProcessor() {
+        return new HeaderProcessorImpl();
     }
 
     @Bean

@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.PropertyConstants;
-import se.skl.tp.vp.httpheader.HeaderConfigurationProcessorImpl;
+import se.skl.tp.vp.httpheader.HeaderProcessorImpl;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
@@ -34,6 +34,9 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @StartTakService
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HttpsHeadersIT extends CamelTestSupport {
+
+    @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
+    private Boolean propagateCorrIdForHttps;
 
     @Value("${" + PropertyConstants.VP_HTTPS_ROUTE_URL + "}")
     private String httpsRoute;
@@ -45,7 +48,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Autowired
-    private HeaderConfigurationProcessorImpl headerConfigurationProcessor;
+    private HeaderProcessorImpl headerProcessor;
 
     private boolean oldCorrelation;
 
@@ -62,12 +65,12 @@ public class HttpsHeadersIT extends CamelTestSupport {
             isContextStarted=true;
         }
         resultEndpoint.reset();
-        oldCorrelation = headerConfigurationProcessor.getPropagateCorrelationIdForHttps();
+        oldCorrelation = headerProcessor.getPropagateCorrelationIdForHttps();
     }
 
     @After
     public void after() {
-        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(oldCorrelation);
+        headerProcessor.setPropagateCorrelationIdForHttps(oldCorrelation);
     }
 
 
@@ -77,20 +80,20 @@ public class HttpsHeadersIT extends CamelTestSupport {
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
         assertNotNull(s);
-        assertTrue(!s.isEmpty());
+        assertFalse(s.isEmpty());
     }
 
     //CorrelationId...passCorrelationId set to false.
     @Test //with content.
     public void setCorrelationIdPassCorrelationFalseTest() {
-        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(false);
+        headerProcessor.setPropagateCorrelationIdForHttps(false);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
         assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
     }
 
     @Test //Without content
     public void setCorrelationIdNoMembersPassCorrelationFalseTest() {
-        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(false);
+        headerProcessor.setPropagateCorrelationIdForHttps(false);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
         assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
     }
@@ -98,18 +101,18 @@ public class HttpsHeadersIT extends CamelTestSupport {
     //CorrelationId...passCorrelationId set to true.
     @Test //With content
     public void setCorrelationIdPassCorrelationTrueTest() {
-        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(true);
+        headerProcessor.setPropagateCorrelationIdForHttps(true);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
-        assertTrue(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID).equals(TEST_CORRELATION_ID));
+        assertEquals(TEST_CORRELATION_ID, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
     }
 
     @Test //Without content
     public void setCorrelationIdNoMembersPassCorrelationTrueTest() {
-        headerConfigurationProcessor.setPropagateCorrelationIdForHttps(true);
+        headerProcessor.setPropagateCorrelationIdForHttps(true);
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
         String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID);
         assertNotNull(s);
-        assertTrue(!s.equals(TEST_CORRELATION_ID));
+        assertNotEquals(TEST_CORRELATION_ID, s);
         assertTrue(s.length() > 20);
     }
 
@@ -117,13 +120,13 @@ public class HttpsHeadersIT extends CamelTestSupport {
     @Test  //With content.
     public void setConsumerIdTest() {
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
-        assertTrue(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID).equals(TEST_CONSUMER));
+        assertEquals(TEST_CONSUMER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
     }
 
     @Test  //Without content.
     public void setConsumerIdNoMembersTest() {
         template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
-        assertTrue(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID).equals(TEST_SENDER));
+        assertEquals(TEST_SENDER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
     }
 
     private void addConsumerRoute(CamelContext camelContext) throws Exception {

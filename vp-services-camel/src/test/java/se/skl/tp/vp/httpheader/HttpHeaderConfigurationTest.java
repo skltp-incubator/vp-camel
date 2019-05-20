@@ -21,7 +21,7 @@ import java.util.Map;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.*;
 
 /**
- * Testing transformation of headers in class HeaderConfigurationProcessor.java.
+ * Testing transformation of headers in class HeaderProcessor.java.
  * If a consumerId is present in the request, then just forward it. Otherwise
  * set the senderId as consumerId.
  * The correlationId is used with http requests AND https if that is configured.
@@ -45,7 +45,7 @@ public class HttpHeaderConfigurationTest extends CamelTestSupport {
   protected ProducerTemplate template;
 
   @Autowired
-  HeaderConfigurationProcessorImpl headerConfigurationProcessor;
+  HeaderProcessorImpl headerProcessor;
 
   @Before
   public void setUp() throws Exception {
@@ -103,9 +103,9 @@ public class HttpHeaderConfigurationTest extends CamelTestSupport {
         @Override
         public void configure() {
           from("direct:start").routeDescription("Consumer").id("Consumer")
-              .setProperty(VPExchangeProperties.IS_HTTPS, constant(false))
               .setProperty(VPExchangeProperties.SENDER_ID, constant("tp"))
-              .process(headerConfigurationProcessor)
+              .setProperty(VPExchangeProperties.VAGVAL, constant("http://test.com"))
+              .process(headerProcessor)
               .to("mock:result");
         }
       });
