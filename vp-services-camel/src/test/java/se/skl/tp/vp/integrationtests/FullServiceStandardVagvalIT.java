@@ -3,7 +3,7 @@ package se.skl.tp.vp.integrationtests;
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertEquals;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTP;
-import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetActivitiesRequest;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetActivitiesRiv21Request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +68,7 @@ public class FullServiceStandardVagvalIT {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
     headers.put(HttpHeaders.X_VP_SENDER_ID,"SenderWithDefaultBehorighet");
-    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRequest("AnyReceiver"), headers);
+    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRiv21Request("AnyReceiver"), headers);
 
     assertEquals(ANSWER_FROM_DEFAULT_PRODUCER, response);
 
@@ -88,7 +88,7 @@ public class FullServiceStandardVagvalIT {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
     headers.put(HttpHeaders.X_VP_SENDER_ID,"SenderWithDefaultBehorighet");
-    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRequest(RECEIVER_HTTP), headers);
+    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRiv21Request(RECEIVER_HTTP), headers);
 
     assertEquals(ANSWER_FROM_EXPLICIT_PRODUCER, response);
 
@@ -109,7 +109,7 @@ public class FullServiceStandardVagvalIT {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
     headers.put(HttpHeaders.X_VP_SENDER_ID,"AnySender");
-    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRequest("AnyReceiver"), headers);
+    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRiv21Request("AnyReceiver"), headers);
 
     assertStringContains(response, "VP007" );
 
@@ -131,7 +131,7 @@ public class FullServiceStandardVagvalIT {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
     headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
-    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRequest("GetActivitiesReceiverWithNoExplicitVagval"), headers);
+    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRiv21Request("GetActivitiesReceiverWithNoExplicitVagval"), headers);
 
     assertEquals(ANSWER_FROM_DEFAULT_PRODUCER, response);
 
@@ -152,7 +152,7 @@ public class FullServiceStandardVagvalIT {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
     headers.put(HttpHeaders.X_VP_SENDER_ID,"SenderWithDefaultBehorighet");
-    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRequest("SE0000000001-1234"), headers);
+    String response = testConsumer.sendHttpRequestToVP(createGetActivitiesRiv21Request("SE0000000001-1234"), headers);
 
     assertEquals(ANSWER_FROM_HSATREE_PRODUCER, response);
 

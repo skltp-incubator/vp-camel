@@ -74,6 +74,26 @@
     <ns2:fromTidpunkt>2013-08-09T13:25:24.293+02:00</ns2:fromTidpunkt>
     <ns2:tomTidpunkt>2023-08-09T14:25:24.294+02:00</ns2:tomTidpunkt>
   </anropsBehorighetsInfo>
+  <anropsBehorighetsInfo>
+    <ns2:anropsBehorighetsInfoId>5</ns2:anropsBehorighetsInfoId>
+    <ns2:receiverId>ReceiverRiv20</ns2:receiverId>
+    <ns2:senderId>tp</ns2:senderId>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1
+    </ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.293+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.294+02:00</ns2:tomTidpunkt>
+  </anropsBehorighetsInfo>
+  <anropsBehorighetsInfo>
+    <ns2:anropsBehorighetsInfoId>5</ns2:anropsBehorighetsInfoId>
+    <ns2:receiverId>ReceiverRiv21</ns2:receiverId>
+    <ns2:senderId>tp</ns2:senderId>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1
+    </ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.293+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.294+02:00</ns2:tomTidpunkt>
+  </anropsBehorighetsInfo>
+
+
 
   <!--Default behorighet for
       sender:   SenderWithDefaultBehorighet

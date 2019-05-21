@@ -142,6 +142,11 @@
         <artifactId>camel-stream</artifactId>
         <version>${camel.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-netty4-http-starter</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
 
       <!-- test -->
       <dependency>
@@ -174,23 +179,6 @@
         <scope>test</scope>
       </dependency>
 
-      <!-- connector -->
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-netty4-http</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-netty4</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-http-common</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-stax</artifactId>
@@ -201,6 +189,13 @@
         <artifactId>camel-core</artifactId>
         <version>${camel.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>jaxws-rt</artifactId>
+        <version>2.3.2</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -229,20 +224,20 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>2.22.1</version>
         <configuration>
-          <systemPropertyVariables>
-            <!-- Seems to be som kind of conflict with JAXB camel dependencies and JDK8 Jaxb impl.
-            https://stackoverflow.com/questions/42499436/classcastexception-cannot-be-cast-to-com-sun-xml-internal-bind-v2-runtime-refle -->
-            <com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>true
-            </com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>
-          </systemPropertyVariables>
+          <!--<systemPropertyVariables>-->
+            <!--&lt;!&ndash; Seems to be som kind of conflict with JAXB camel dependencies and JDK8 Jaxb impl.-->
+            <!--https://stackoverflow.com/questions/42499436/classcastexception-cannot-be-cast-to-com-sun-xml-internal-bind-v2-runtime-refle &ndash;&gt;-->
+            <!--<com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>true-->
+            <!--</com.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize>-->
+          <!--</systemPropertyVariables>-->
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.22.0</version>
+        <version>2.22.2</version>
         <configuration>
           <!-- Seems to be som kind of conflict with JAXB camel dependencies and JDK8 Jaxb impl.
           https://stackoverflow.com/questions/42499436/classcastexception-cannot-be-cast-to-com-sun-xml-internal-bind-v2-runtime-refle -->

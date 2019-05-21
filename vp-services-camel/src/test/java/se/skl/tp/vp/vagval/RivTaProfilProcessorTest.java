@@ -15,27 +15,32 @@
  */
 package se.skl.tp.vp.vagval;
 
-import java.io.IOException;
-import javax.xml.stream.XMLStreamException;
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.component.netty4.NettyConstants;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.impl.DefaultExchange;
-import org.junit.Rule;
-import org.junit.Test;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static se.skl.tp.vp.vagval.RivTaProfilProcessor.RIV20;
+import static se.skl.tp.vp.vagval.RivTaProfilProcessor.RIV21;
+import static se.skl.tp.vp.vagval.RivTaProfilProcessor.UTF_8;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Iterator;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URL;
-import java.util.Iterator;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.DefaultExchange;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +48,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticException;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static se.skl.tp.vp.vagval.RivTaProfilProcessor.RIV20;
-import static se.skl.tp.vp.vagval.RivTaProfilProcessor.RIV21;
-import static se.skl.tp.vp.vagval.RivTaProfilProcessor.UTF_8;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = VagvalTestConfiguration.class)
@@ -99,7 +98,7 @@ public class RivTaProfilProcessorTest {
     final URL resultFile = Thread.currentThread().getContextClassLoader()
         .getResource("testfiles/GetSubjectOfCareRequest20.xml");
     final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
-    XMLStreamReader resultBody = (XMLStreamReader)exchange.getIn().getBody();
+    XMLStreamReader resultBody = exchange.getIn().getBody(XMLStreamReader.class);
     this.executeComparison(toXMLEventReader(resultBody), expected);
     assertEquals(exchange.getProperty(VPExchangeProperties.RIV_VERSION), RIV20);
   }
@@ -251,22 +250,26 @@ public class RivTaProfilProcessorTest {
 
     System.out.println("Comparing xml results");
     while (expected.hasNext()) {
-      final XMLEvent e1 = expected.nextEvent();
-      final XMLEvent e2 = result.nextEvent();
+      final XMLEvent expectedEvent = nextEventIgnoreLF(expected);
+      final XMLEvent resultEvent = nextEventIgnoreLF(result);
 
-      if (e1.isStartElement()) {
+      if(expectedEvent.isStartDocument()){
+        assertTrue(resultEvent.isStartDocument());
+      }
 
-        final StartElement se1 = e1.asStartElement();
-        final StartElement se2 = e2.asStartElement();
+      if (expectedEvent.isStartElement()) {
 
-        System.out.println(se1.getName().getLocalPart() + " == " + se2.getName().getLocalPart());
+        final StartElement expectedElement = expectedEvent.asStartElement();
+        final StartElement resultElement = resultEvent.asStartElement();
 
-        assertEquals(se1.getName().getLocalPart(), se2.getName().getLocalPart());
-        assertEquals(se1.getName().getPrefix(), se2.getName().getPrefix());
-        assertEquals(se1.getName().getNamespaceURI(), se2.getName().getNamespaceURI());
+        System.out.println(expectedElement.getName().getLocalPart() + " == " + resultElement.getName().getLocalPart());
 
-        @SuppressWarnings("rawtypes") final Iterator ns1 = se1.getNamespaces();
-        @SuppressWarnings("rawtypes") final Iterator ns2 = se2.getNamespaces();
+        assertEquals(expectedElement.getName().getLocalPart(), resultElement.getName().getLocalPart());
+        assertEquals(expectedElement.getName().getPrefix(), resultElement.getName().getPrefix());
+        assertEquals(expectedElement.getName().getNamespaceURI(), resultElement.getName().getNamespaceURI());
+
+        @SuppressWarnings("rawtypes") final Iterator ns1 = expectedElement.getNamespaces();
+        @SuppressWarnings("rawtypes") final Iterator ns2 = resultElement.getNamespaces();
 
         while (ns1.hasNext()) {
           final Namespace n1 = (Namespace) ns1.next();
@@ -280,10 +283,10 @@ public class RivTaProfilProcessorTest {
         }
       }
 
-      if (e1.isEndElement()) {
+      if (expectedEvent.isEndElement()) {
 
-        final EndElement ee1 = e1.asEndElement();
-        final EndElement ee2 = e2.asEndElement();
+        final EndElement ee1 = expectedEvent.asEndElement();
+        final EndElement ee2 = resultEvent.asEndElement();
 
         System.out.println(ee1.getName().getLocalPart() + " == " + ee2.getName().getLocalPart());
 
@@ -292,6 +295,22 @@ public class RivTaProfilProcessorTest {
         assertEquals(ee1.getName().getNamespaceURI(), ee2.getName().getNamespaceURI());
       }
     }
+  }
+
+  private XMLEvent nextEventIgnoreLF(XMLEventReader expected) throws XMLStreamException {
+    XMLEvent expectedEvent = expected.nextEvent();
+    while(isNewLine(expectedEvent)){
+      expectedEvent = expected.nextEvent();
+    }
+    return expectedEvent;
+  }
+
+  private boolean isNewLine(XMLEvent expectedEvent){
+    if( expectedEvent.isCharacters()){
+      String charData = expectedEvent.asCharacters().getData().trim();
+      return charData.isEmpty();
+    }
+    return false;
   }
 
   private Exchange createExchange(String rivVersionIn, String rivVersionOut) throws IOException, XMLStreamException {
