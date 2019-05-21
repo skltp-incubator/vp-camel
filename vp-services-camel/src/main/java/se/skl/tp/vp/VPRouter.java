@@ -1,28 +1,30 @@
 package se.skl.tp.vp;
 
+import static org.apache.camel.builder.PredicateBuilder.or;
+
 import io.netty.handler.timeout.ReadTimeoutException;
+import java.net.SocketException;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
+import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
+import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
 import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
 import se.skl.tp.vp.httpheader.HeaderProcessor;
-import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
-import se.skl.tp.vp.vagval.*;
+import se.skl.tp.vp.vagval.BehorighetProcessor;
+import se.skl.tp.vp.vagval.RivTaProfilProcessor;
+import se.skl.tp.vp.vagval.VPEventNotifierSupport;
+import se.skl.tp.vp.vagval.VagvalProcessor;
 import se.skl.tp.vp.wsdl.WsdlProcessor;
-
-import java.net.SocketException;
-
-import static org.apache.camel.builder.PredicateBuilder.or;
 
 @Component
 public class VPRouter extends RouteBuilder {
@@ -40,6 +42,11 @@ public class VPRouter extends RouteBuilder {
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
+    public static final String LOG_ERROR_METHOD = "logError(*)";
+    public static final String LOG_RESP_OUT_METHOD = "logRespOut(*)";
+    public static final String LOG_REQ_IN_METHOD = "logReqIn(*)";
+    public static final String LOG_REQ_OUT_METHOD = "logReqOut(*)";
+    public static final String LOG_RESP_IN_METHOD = "logRespIn(*)";
 
 
     @Autowired
@@ -87,51 +94,49 @@ public class VPRouter extends RouteBuilder {
 
 
         onException(Exception.class)
-                .log(LoggingLevel.ERROR, "Catched exception: ${exception}")
-                .process(exceptionMessageProcessor)
-                .bean(MessageInfoLogger.class, "logError(*)")
-            // TODO should we lo resp-out at this kind of errors
-                .bean(MessageInfoLogger.class, "logRespOut(*)")
-                .handled(true);
+            .log(LoggingLevel.ERROR, "Catched exception: ${exception}")
+            .process(exceptionMessageProcessor)
+            .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+            .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
+            .handled(true);
 
 
         from(NETTY4_HTTPS_INCOMING_FROM).routeId(VP_HTTPS_ROUTE)
-                .choice().when(header("wsdl").isNotNull())
-                    .process(wsdlProcessor)
-                .otherwise()
-                    .process(certificateExtractorProcessor)
-                    .to(DIRECT_VP)
-                    .bean(MessageInfoLogger.class, "logRespOut(*)")
-                .end();
+            .choice().when(header("wsdl").isNotNull())
+                .process(wsdlProcessor)
+            .otherwise()
+                .process(certificateExtractorProcessor)
+                .to(DIRECT_VP)
+                .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
+            .end();
 
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
-                .choice().when(header("wsdl").isNotNull())
-                    .process(wsdlProcessor)
-                .otherwise()
-                    .process(httpSenderIdExtractorProcessor)
-                    .to(DIRECT_VP)
-                    .bean(MessageInfoLogger.class, "logRespOut(*)")
-                .end();
+            .choice().when(header("wsdl").isNotNull())
+                .process(wsdlProcessor)
+            .otherwise()
+                .process(httpSenderIdExtractorProcessor)
+                .to(DIRECT_VP)
+                .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
+            .end();
 
         from(DIRECT_VP).routeId(VAGVAL_ROUTE)
-                .streamCaching()
-                .setProperty(VPExchangeProperties.HTTP_URL_IN,  simple("header.CamelHttpUrl"))
-                .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  simple("header.{{http.forwarded.header.host}}"))
-                .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  simple("header.{{http.forwarded.header.port}}"))
-                .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  simple("header.{{http.forwarded.header.proto}}"))
-                .process(requestReaderProcessor)
-                .bean(MessageInfoLogger.class, "logReqIn(*)")
-                .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
-                .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
-                .process(headerProcessor)
-                .process(requestTimoutProcessor)
-                .process(rivTaProfilProcessor)
-
+            .streamCaching()
+            .setProperty(VPExchangeProperties.HTTP_URL_IN,  header("CamelHttpUrl"))
+            .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
+            .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
+            .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
+            .process(requestReaderProcessor)
+            .bean(MessageInfoLogger.class, LOG_REQ_IN_METHOD)
+            .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
+            .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
+            .process(headerProcessor)
+            .process(requestTimoutProcessor)
+            .process(rivTaProfilProcessor)
             .to(DIRECT_PRODUCER_ROUTE)
             .choice().when(or(body().isNull(), body().isEqualTo("")))
                 .log(LoggingLevel.ERROR, "Response from producer is empty")
                 .process(handleEmptyResponseProcessor)
-                .bean(MessageInfoLogger.class, "logError(*)")
+                .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
             .end();
 
         from(DIRECT_PRODUCER_ROUTE)
@@ -145,31 +150,28 @@ public class VPRouter extends RouteBuilder {
                     .logRetryStackTrace(false)
                 .log(LoggingLevel.ERROR, "Catched in test route: ${exception}")
             .process(handleProducerExceptionProcessor)
-                .bean(MessageInfoLogger.class, "logError(*)")
-                .bean(MessageInfoLogger.class, "logRespOut(*)")
+                .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+                .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
                 .handled(true)
             .end()
             .onException(ReadTimeoutException.class)
                 .log(LoggingLevel.ERROR, "Catched exception when calling producer: ${exception}")
                 .process(handleProducerExceptionProcessor)
-                .bean(MessageInfoLogger.class, "logError(*)")
-                .bean(MessageInfoLogger.class, "logRespOut(*)")
+                .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+                .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
                 .handled(true)
             .end()
-            .choice()
-                .when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
-                    .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
-                    .bean(MessageInfoLogger.class, "logReqOut(*)")
+            .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
+            .bean(MessageInfoLogger.class, LOG_REQ_OUT_METHOD)
+            .choice().when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
                     .recipientList(simple(NETTY4_HTTPS_OUTGOING_TOD))
-                    .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
-                    .bean(MessageInfoLogger.class, "logRespIn(*)").endChoice()
+                    .endChoice()
                 .otherwise()
-                    .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
-                    .bean(MessageInfoLogger.class, "logReqOut(*)")
                     .recipientList(simple(NETTY4_HTTP_TOD))
-                    .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
-                    .bean(MessageInfoLogger.class, "logRespIn(*)")
-                .endChoice()
+                    .endChoice()
+            .end()
+            .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
+            .bean(MessageInfoLogger.class, LOG_RESP_IN_METHOD)
             .end();
 
 
