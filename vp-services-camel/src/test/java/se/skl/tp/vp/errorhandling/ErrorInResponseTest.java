@@ -121,22 +121,6 @@ public class ErrorInResponseTest {
     resultEndpoint.assertIsSatisfied();
   }
 
-//  @Test //Test för när en Producent svarar med ett tomt svar
-//  public void emptyResponseHttpStatusOkTest() throws Exception {
-//    mockProducer.setResponseBody("");
-//
-//    List<RoutingInfo> list = new ArrayList<>();
-//    list.add(createRoutingInfo(MOCK_PRODUCER_ADDRESS, RIV20));
-//    setTakCacheMockResult(list);
-//
-//    template.sendBody(TestSoapRequests.GET_CERTIFICATE_TO_UNIT_TEST_SOAP_REQUEST);
-//    String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
-//    assertStringContains(resultBody, "DEFAULT_ERROR_CODE");
-//    assertStringContains(resultBody, "address");
-//    assertStringContains(resultBody, "Empty message when server responded with status code:");
-//    resultEndpoint.assertIsSatisfied();
-//  }
-
   @Test //Test för när en Producent svarar med annat än SOAP tex ett exception, kontrolleras inte av VP
   public void nonSOAPResponseTest() throws Exception {
     mockProducer.setResponseHttpStatus(200);
