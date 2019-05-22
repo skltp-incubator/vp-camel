@@ -148,6 +148,13 @@
         <version>${camel.version}</version>
       </dependency>
 
+      <!--hawt.io-->
+      <dependency>
+        <groupId>io.hawt</groupId>
+        <artifactId>hawtio-springboot</artifactId>
+        <version>2.6.0</version>
+      </dependency>
+
       <!-- test -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -195,7 +202,6 @@
         <artifactId>jaxws-rt</artifactId>
         <version>2.3.2</version>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 
