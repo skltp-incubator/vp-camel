@@ -80,7 +80,7 @@ public class FullServiceErrorHandlingIT {
   }
 
   @Test
-  public void shouldGetVP003WhenNoReveieverExist() throws Exception {
+  public void shouldGetVP003WhenNoReceieverExist() throws Exception {
     Map<String, Object> headers = new HashMap<>();
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(""), headers);
 
