@@ -93,7 +93,7 @@ public class FullServiceTestIT {
     assertStringContains(respOutLogMsg, "skltp-messages");
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpsUrl);
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpsUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTP, HTTP_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid_in=originalid");
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=originalid");

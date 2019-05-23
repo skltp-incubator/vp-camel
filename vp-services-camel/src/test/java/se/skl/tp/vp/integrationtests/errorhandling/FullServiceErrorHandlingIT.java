@@ -125,6 +125,25 @@ public class FullServiceErrorHandlingIT {
   }
 
   @Test
+  public void loggingCapturesCorrelationIdHeaderTest() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, "testCorrelationId");
+    testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_WITH_NO_VAGVAL), headers);
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_IN));
+    String reqInLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_IN,0);
+    //assertStringContains(reqInLogMsg, "BusinessCorrelationId=testCorrelationId"); //OR
+    //assertStringContains(reqInLogMsg, "-correlationId=testCorrelationId");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    //assertStringContains(errorLogMsg, "BusinessCorrelationId=testCorrelationId"); //OR?
+    //assertStringContains(errorLogMsg, "-correlationId=testCorrelationId");
+
+
+  }
+
+  @Test
   public void shouldGetVP005WhenUnkownRivVersionInTAK() throws Exception {
     Map<String, Object> headers = new HashMap<>();
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_UNKNOWN_RIVVERSION), headers);
