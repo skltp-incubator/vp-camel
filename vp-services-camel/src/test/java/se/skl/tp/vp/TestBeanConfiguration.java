@@ -1,6 +1,5 @@
 package se.skl.tp.vp;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -16,49 +15,55 @@ import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.requestreader.RequestReaderProcessorXMLEventReader;
 
 @TestConfiguration
-@ComponentScan(basePackages = {"se.skl.tp.vp.errorhandling","se.skltp.takcache", "se.skl.tp.hsa.cache"})
+@ComponentScan(basePackages = {"se.skl.tp.vp.errorhandling", "se.skltp.takcache", "se.skl.tp.hsa.cache"})
 public class TestBeanConfiguration {
-    @Autowired
-    private Environment environment;
+  @Autowired private Environment environment;
 
-    @Bean(name = "requestReaderProcessor")
-    public RequestReaderProcessor requestReaderProcessor() {
-        return new RequestReaderProcessorXMLEventReader();
-    }
+  @Bean(name = "requestReaderProcessor")
+  public RequestReaderProcessor requestReaderProcessor() {
+    return new RequestReaderProcessorXMLEventReader();
+  }
 
-    @Bean(name = "certificateExtractorProcessor")
-    public CertificateExtractorProcessor certificateExtractorProcessor() {
-        return new CertificateExtractorProcessorImpl(environment.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT));
-    }
+  @Bean(name = "certificateExtractorProcessor")
+  public CertificateExtractorProcessor certificateExtractorProcessor() {
+    return new CertificateExtractorProcessorImpl(
+        environment.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT));
+  }
 
-    @Bean
-    public HeaderProcessor headerProcessor() {
-        return new HeaderProcessorImpl();
-    }
+  @Bean
+  public HeaderConfigurationProcessor headerProcessor() {
+    return new HeaderConfigurationProcessorImpl();
+  }
 
-    @Bean
-    public IPWhitelistHandler ipWhitelistHandler() {
-        return new IPWhitelistHandlerImpl(environment.getProperty(PropertyConstants.IP_WHITELIST), environment.getProperty(PropertyConstants.IP_CONSUMER_LIST));
-    }
+  @Bean
+  public IPWhitelistHandler ipWhitelistHandler() {
+    return new IPWhitelistHandlerImpl(environment.getProperty(PropertyConstants.IP_WHITELIST));
+  }
 
-    @Bean
-    public IPWhitelistHandler emptyIpWhitelistHandler() {
-        return new IPWhitelistHandlerImpl(null, null);
-    }
+  @Bean
+  public IPWhitelistHandler emptyIpWhitelistHandler() {
+    return new IPWhitelistHandlerImpl(null);
+  }
 
-    /*@Bean
-    public Pattern certificateSenderIDPattern() {
-        return Pattern.compile(environment.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT)+CertificateExtractorProcessorImpl.CERT_SENDERID_PATTERN);
-    }*/
+  @Bean
+  public IPConsumerListHandler ipConsumerListHandler() {
+    return new IPConsumerListHandlerImpl(
+        environment.getProperty(PropertyConstants.IP_CONSUMER_LIST));
+  }
 
-    @Bean
-    ExceptionMessageProcessor exceptionMessageProcessor() {
-        return new ExceptionMessageProcessorImpl();
-    }
+  @Bean
+  public IPConsumerListHandler emptyIpConsumerListHandler() {
+    return new IPConsumerListHandlerImpl(null);
+  }
 
-    @Bean
-    public SenderIpExtractor senderIpExtractor() {
-        return new SenderIpExtractorFromHeader(environment.getProperty(PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER));
-    }
+  @Bean
+  ExceptionMessageProcessor exceptionMessageProcessor() {
+    return new ExceptionMessageProcessorImpl();
+  }
+
+  @Bean
+  public SenderIpExtractor senderIpExtractor() {
+    return new SenderIpExtractorFromHeader(
+        environment.getProperty(PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER));
+  }
 }
-

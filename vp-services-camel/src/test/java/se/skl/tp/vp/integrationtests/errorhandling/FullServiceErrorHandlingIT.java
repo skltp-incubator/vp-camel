@@ -3,15 +3,8 @@ package se.skl.tp.vp.integrationtests.errorhandling;
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP002;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP003;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP004;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP005;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP006;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP007;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP009;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
-import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
+import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.*;
+import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_MULTIPLE_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PHYSICAL_ADDRESS;
@@ -122,25 +115,6 @@ public class FullServiceErrorHandlingIT {
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, "-errorCode=VP004");
     assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP004");
-  }
-
-  @Test
-  public void loggingCapturesCorrelationIdHeaderTest() throws Exception {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, "testCorrelationId");
-    testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_WITH_NO_VAGVAL), headers);
-
-    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_IN));
-    String reqInLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_IN,0);
-    //assertStringContains(reqInLogMsg, "BusinessCorrelationId=testCorrelationId"); //OR
-    //assertStringContains(reqInLogMsg, "-correlationId=testCorrelationId");
-
-    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
-    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
-    //assertStringContains(errorLogMsg, "BusinessCorrelationId=testCorrelationId"); //OR?
-    //assertStringContains(errorLogMsg, "-correlationId=testCorrelationId");
-
-
   }
 
   @Test
@@ -297,4 +271,45 @@ public class FullServiceErrorHandlingIT {
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=" + expectedReceiverId);
   }
 
+  @Test
+  public void shouldGetVP013WhenIllegalSender() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "1.2.3.4"); //Not on list ip.consumer.list
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
+    assertStringContains(soapBody.getFault().getFaultString(), "Sender NOT on ConsumerList:1.2.3.4");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP013");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP013");
+  }
+
+  @Test
+  public void shouldGetVP013WhenEmptySender() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, ""); //Not on list ip.consumer.list
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
+    assertEquals(soapBody.getFault().getFaultString(), "VP013 Sender NOT on ConsumerList:");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP013");
+    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP013");
+  }
 }

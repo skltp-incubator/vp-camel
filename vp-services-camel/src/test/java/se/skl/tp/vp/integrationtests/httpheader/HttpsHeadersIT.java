@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.PropertyConstants;
-import se.skl.tp.vp.httpheader.HeaderProcessorImpl;
+import se.skl.tp.vp.httpheader.HeaderConfigurationProcessorImpl;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
@@ -48,7 +48,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
     protected ProducerTemplate template;
 
     @Autowired
-    private HeaderProcessorImpl headerProcessor;
+    private HeaderConfigurationProcessorImpl headerProcessor;
 
     private boolean oldCorrelation;
 
