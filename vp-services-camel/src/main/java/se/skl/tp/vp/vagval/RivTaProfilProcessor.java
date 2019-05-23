@@ -1,7 +1,12 @@
 package se.skl.tp.vp.vagval;
 
-import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang.StringUtils;
@@ -13,9 +18,6 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionUtil;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpTechnicalException;
-
-import javax.xml.stream.*;
-import java.io.ByteArrayOutputStream;
 
 @Component
 public class RivTaProfilProcessor implements Processor {
@@ -50,19 +52,15 @@ public class RivTaProfilProcessor implements Processor {
         if (!rivVersionIn.equalsIgnoreCase(rivVersionOut)) {
             if (rivVersionIn.equalsIgnoreCase(RIV20) && rivVersionOut.equalsIgnoreCase(RIV21)) {
                 ByteArrayOutputStream strPayload = doTransform(exchange, RIV20_NS, RIV21_NS, RIV20_ELEM, RIV21_ELEM);
-                exchange.getIn().setBody(toXMLStreamReader(strPayload));
+                exchange.getIn().setBody(strPayload, InputStream.class);
             } else if (rivVersionIn.equalsIgnoreCase(RIV21) && rivVersionOut.equalsIgnoreCase(RIV20)) {
                 ByteArrayOutputStream strPayload = doTransform(exchange, RIV21_NS, RIV20_NS, RIV21_ELEM, RIV20_ELEM);
-                exchange.getIn().setBody(toXMLStreamReader(strPayload));
+                exchange.getIn().setBody(strPayload, InputStream.class);
             }else {
                 throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP005, rivVersionIn);
             }
             exchange.setProperty(VPExchangeProperties.RIV_VERSION, rivVersionOut);
         }
-    }
-
-    static XMLStreamReader toXMLStreamReader(ByteArrayOutputStream byteArrayOutputStream) throws XMLStreamException {
-        return XMLInputFactory.newInstance().createXMLStreamReader(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()), UTF_8);
     }
 
     static ByteArrayOutputStream doTransform(final Exchange msg, final String fromNs, final String toNs, final String fromElem,

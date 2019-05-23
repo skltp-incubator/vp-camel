@@ -30,7 +30,7 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        String name = (String)exchange.getIn().getHeader(NettyConstants.NETTY_SSL_CLIENT_CERT_SUBJECT_NAME);
+        String name = (String)""+exchange.getIn().getHeader(NettyConstants.NETTY_SSL_CLIENT_CERT_SUBJECT_NAME);
 
         final Matcher matcher = certificateSenderIDPattern.matcher(name);
 

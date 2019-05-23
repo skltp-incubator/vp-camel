@@ -2,6 +2,7 @@ package se.skl.tp.vp.certificate;
 
 import static org.hamcrest.Matchers.containsString;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.NettyConstants;
@@ -29,6 +30,19 @@ public class CertificateReaderTest {
   }
 
   @Test
+  public void testExtractIdFromMessageNotContainingCertHeader() throws Exception {
+
+    thrown.expect(VpSemanticException.class);
+    thrown.expectMessage(containsString("VP002"));
+
+    Exchange exchange = createExchangeWithoutNettyCert();
+
+    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("SERIALNUMBER");
+    certificateExtractorProcessor.process(exchange);
+
+  }
+
+  @Test
   public void testExtractSenderIdInHexFormat() throws Exception {
     // TODO Hitta exempel på hur ett riktigt serialnumber i hex format ser ut.
     Exchange exchange = createExchange("SERIALNUMBER=#hex:7470,CN=kentor.ntjp.sjunet.org,O=Inera AB,L=Stockholm,C=SE");
@@ -38,8 +52,9 @@ public class CertificateReaderTest {
     Assert.assertEquals("tp", exchange.getProperty(VPExchangeProperties.SENDER_ID));
   }
 
+
   @Test
-  public void testSenderIdNotFoundShouldCauseVP002 () throws Exception {
+  public void testSenderIdNotFoundShouldCauseVP002() throws Exception {
     thrown.expect(VpSemanticException.class);
     thrown.expectMessage(containsString("VP002"));
 
@@ -55,5 +70,11 @@ public class CertificateReaderTest {
     return ex;
   }
 
+  private Exchange createExchangeWithoutNettyCert() {
+    CamelContext ctx = new DefaultCamelContext();
+    Exchange ex = new DefaultExchange(ctx);
+    ex.getIn().setHeader("MyCatsName", "Sally");
+    return ex;
+  }
 
 }

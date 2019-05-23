@@ -96,6 +96,24 @@
     <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
     <ns2:adress>http://localhost:1900/treeclimbing/GetActivitiesResponder</ns2:adress>
   </virtualiseringsInfo>
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>ReceiverRiv20</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP20</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>http://localhost:19000/GetActivitiesResponder</ns2:adress>
+  </virtualiseringsInfo>
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>ReceiverRiv21</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>http://localhost:19000/GetActivitiesResponder</ns2:adress>
+  </virtualiseringsInfo>
 
   <!-- Default vagval:
     contract: GetActivitiesResponder

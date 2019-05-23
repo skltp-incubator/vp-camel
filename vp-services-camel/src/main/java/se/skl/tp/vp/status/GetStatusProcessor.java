@@ -1,10 +1,11 @@
 package se.skl.tp.vp.status;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -16,15 +17,36 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
+import se.skl.tp.vp.service.HsaCacheService;
+import se.skl.tp.vp.service.HsaCacheStatus;
 import se.skl.tp.vp.service.TakCacheService;
-import se.skl.tp.vp.service.TakCacheServiceImpl;
+import se.skltp.takcache.TakCacheLog;
 
 @Service
 public class GetStatusProcessor implements Processor {
 
-  @Autowired private CamelContext camelContext;
+  public static final String KEY_SERVICE_STATUS = "ServiceStatus";
+  public static final String KEY_UPTIME = "Uptime";
+  public static final String KEY_MANAGEMENT_NAME = "ManagementName";
+  public static final String KEY_JAVA_VERSION = "JavaVersion";
+  public static final String KEY_CAMEL_VERSION = "CamelVersion";
+  public static final String KEY_TAK_CACHE_INITIALIZED = "TakCacheInitialized";
+  public static final String KEY_TAK_CACHE_RESET_INFO = "TakCacheResetInfo";
+  public static final String KEY_HSA_CACHE_INITIALIZED = "HsaCacheInitialized";
+  public static final String KEY_HSA_CACHE_RESET_INFO = "HsaCacheResetInfo";
+  public static final String KEY_JVM_TOTAL_MEMORY = "JvmTotalMemory";
+  public static final String KEY_JVM_FREE_MEMORY = "JvmFreeMemory";
+  public static final String KEY_JVM_USED_MEMORY = "JvmUsedMemory";
+  public static final String KEY_JVM_MAX_MEMORY = "JvmMaxMemory";
+  public static final String KEY_ENDPOINTS = "Endpoints";
+  @Autowired
+  private CamelContext camelContext;
 
-  @Autowired TakCacheService takService;
+  @Autowired
+  TakCacheService takService;
+
+  @Autowired
+  HsaCacheService hsaService;
 
   @Override
   public void process(Exchange exchange) {
@@ -42,35 +64,64 @@ public class GetStatusProcessor implements Processor {
   private Map<String, Object> registerInfo() {
     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
     ServiceStatus serviceStatus = camelContext.getStatus();
-    map.put("ServiceStatus", "" + serviceStatus);
-    map.put("Uptime", camelContext.getUptime());
-    map.put("ManagementName", camelContext.getManagementName());
-    map.put("JavaVersion", (String) System.getProperties().get("java.version"));
-    map.put("CamelVersion", camelContext.getVersion());
-    map.put("TakserviceInitialized", "" + takService.isInitalized());
-    Date d = TakCacheServiceImpl.getLatestResetDate();
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    String dateText = format.format(d);
-    map.put("LatestTAKcacheReset", dateText);
+    map.put(KEY_SERVICE_STATUS, "" + serviceStatus);
+    map.put(KEY_UPTIME, camelContext.getUptime());
+    map.put(KEY_MANAGEMENT_NAME, camelContext.getManagementName());
+    map.put(KEY_JAVA_VERSION, (String) System.getProperties().get("java.version"));
+    map.put(KEY_CAMEL_VERSION, camelContext.getVersion());
+    map.put(KEY_TAK_CACHE_INITIALIZED, "" + takService.isInitalized());
+    map.put(KEY_TAK_CACHE_RESET_INFO, getTakRefreshInfo());
+
+    HsaCacheStatus hsaCacheStatus = hsaService.getHsaCacheStatus();
+    map.put(KEY_HSA_CACHE_INITIALIZED, "" + hsaCacheStatus.isInitialized());
+    map.put(KEY_HSA_CACHE_RESET_INFO, getHsaRefreshInfo(hsaCacheStatus));
+
     int mb = 1024 * 1024;
     Runtime instance = Runtime.getRuntime();
-    map.put("JvmTotalMemory", "" + instance.totalMemory() / mb + " mB");
-    map.put("JvmFreeMemory", "" + instance.freeMemory() / mb + " mB");
-    map.put("JvmUsedMemory", "" + (instance.totalMemory() - instance.freeMemory()) / mb + " mB");
-    map.put("JvmMaxMemory", "" + instance.maxMemory() / mb + " mB");
-    map.put("Routes", getRoutesInfo());
+    map.put(KEY_JVM_TOTAL_MEMORY, "" + instance.totalMemory() / mb + " mB");
+    map.put(KEY_JVM_FREE_MEMORY, "" + instance.freeMemory() / mb + " mB");
+    map.put(KEY_JVM_USED_MEMORY, "" + (instance.totalMemory() - instance.freeMemory()) / mb + " mB");
+    map.put(KEY_JVM_MAX_MEMORY, "" + instance.maxMemory() / mb + " mB");
+    map.put(KEY_ENDPOINTS, getEndpointInfo());
     return map;
   }
 
-  private HashMap getRoutesInfo() {
-    HashMap<String, Object> map = new HashMap<>();
+  private List getEndpointInfo() {
+    List<String> endPoints = new ArrayList<>();
     List<Route> routes = camelContext.getRoutes();
     for (Route route : routes) {
-      List<String> routeInfos = new ArrayList<>();
-      routeInfos.add(route.getEndpoint().getEndpointKey());
-      routeInfos.add(((EventDrivenConsumerRoute) route).getStatus().toString());
-      map.put(route.getId(), routeInfos);
+      String endpoint = route.getEndpoint().getEndpointKey();
+      if (endpoint.startsWith("http") && ((EventDrivenConsumerRoute) route).getStatus() == ServiceStatus.Started) {
+        endPoints.add(route.getEndpoint().getEndpointKey());
+      }
     }
-    return map;
+    return endPoints;
   }
+
+  public String getHsaRefreshInfo(HsaCacheStatus hsaCacheStatus) {
+    return String.format("Date:%s Status:%s oldNum:%d newNum:%d",
+        getFormattedDate(hsaCacheStatus.getResetDate()),
+        hsaCacheStatus.isInitialized(),
+        hsaCacheStatus.getNumInCacheOld(),
+        hsaCacheStatus.getNumInCacheNew());
+  }
+
+  public String getTakRefreshInfo() {
+    TakCacheLog takCacheLog = takService.getLastRefreshLog();
+    if (takCacheLog == null) {
+      return "Not initialized";
+    }
+
+    return String.format("Date:%s Status:%s vagval:%d behorigheter:%d",
+        getFormattedDate(takService.getLastResetDate()),
+        takCacheLog.getRefreshStatus(),
+        takCacheLog.getNumberVagval(),
+        takCacheLog.getNumberBehorigheter());
+  }
+
+  private String getFormattedDate(Date date) {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+    return date == null ? "" : dateFormat.format(date);
+  }
+
 }

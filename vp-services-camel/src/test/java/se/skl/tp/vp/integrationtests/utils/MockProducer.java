@@ -1,5 +1,7 @@
 package se.skl.tp.vp.integrationtests.utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.camel.CamelContext;
@@ -21,6 +23,9 @@ public class MockProducer {
 
   private CamelContext camelContext;
 
+  String inBody;
+  Map<String, Object> inHeaders = new HashMap<>();
+
   @Autowired
   public MockProducer(CamelContext camelContext){
     this.camelContext = camelContext;
@@ -31,7 +36,10 @@ public class MockProducer {
     start(producerAddress);
   }
 
+
   public void start(String producerAddress) throws Exception {
+    inHeaders.clear();
+    inBody=null;
     Route route = camelContext.getRoute(producerAddress);
     if(route!=null){
       log.info("Producer route with address '{}' already started", producerAddress);
@@ -42,7 +50,10 @@ public class MockProducer {
       @Override
       public void configure() throws Exception {
         from(NETTY4_HTTP + producerAddress).id(producerAddress).routeDescription("Producer")
+            .streamCaching()
             .process((Exchange exchange) -> {
+              inHeaders.putAll(exchange.getIn().getHeaders());
+              inBody = exchange.getIn().getBody(String.class);
               exchange.getOut().setBody(responseBody);
               exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, responseHttpStatus);
               Thread.sleep(timeout);
