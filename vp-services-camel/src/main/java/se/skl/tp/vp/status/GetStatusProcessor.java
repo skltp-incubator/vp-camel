@@ -15,6 +15,7 @@ import org.apache.camel.impl.EventDrivenConsumerRoute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.HsaCacheService;
@@ -25,6 +26,9 @@ import se.skltp.takcache.TakCacheLog;
 @Service
 public class GetStatusProcessor implements Processor {
 
+  public static final String KEY_APP_NAME = "Name";
+  public static final String KEY_APP_VERSION = "Version";
+  public static final String KEY_APP_BUILD_TIME = "BuildTime";
   public static final String KEY_SERVICE_STATUS = "ServiceStatus";
   public static final String KEY_UPTIME = "Uptime";
   public static final String KEY_MANAGEMENT_NAME = "ManagementName";
@@ -48,6 +52,9 @@ public class GetStatusProcessor implements Processor {
   @Autowired
   HsaCacheService hsaService;
 
+  @Autowired
+  BuildProperties buildProperties;
+
   @Override
   public void process(Exchange exchange) {
 
@@ -63,12 +70,18 @@ public class GetStatusProcessor implements Processor {
 
   private Map<String, Object> registerInfo() {
     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+
+    map.put(KEY_APP_NAME, buildProperties.getName());
+    map.put(KEY_APP_VERSION, buildProperties.getVersion());
+    map.put(KEY_APP_BUILD_TIME, buildProperties.getTime());
+
     ServiceStatus serviceStatus = camelContext.getStatus();
     map.put(KEY_SERVICE_STATUS, "" + serviceStatus);
     map.put(KEY_UPTIME, camelContext.getUptime());
     map.put(KEY_MANAGEMENT_NAME, camelContext.getManagementName());
     map.put(KEY_JAVA_VERSION, (String) System.getProperties().get("java.version"));
     map.put(KEY_CAMEL_VERSION, camelContext.getVersion());
+
     map.put(KEY_TAK_CACHE_INITIALIZED, "" + takService.isInitalized());
     map.put(KEY_TAK_CACHE_RESET_INFO, getTakRefreshInfo());
 
