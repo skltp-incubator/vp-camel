@@ -27,6 +27,14 @@ public class InitialHeaderCheckProcessorImpl implements InitialHeaderCheckProces
     String originalConsumer = null;
     String correlationId = null;
 
+    if (exchange.getIn().getHeaders().containsKey(HttpHeaders.X_SKLTP_CORRELATION_ID)) {
+      correlationId = "" + exchange.getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
+    }
+    if (StringUtils.isEmpty(correlationId)) {
+      correlationId = UUID.randomUUID().toString();
+    }
+    exchange.setProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, correlationId);
+
     if (exchange
         .getIn()
         .getHeaders()
@@ -49,14 +57,6 @@ public class InitialHeaderCheckProcessorImpl implements InitialHeaderCheckProces
     }
     exchange.setProperty(
         VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalConsumer);
-
-    if (exchange.getIn().getHeaders().containsKey(HttpHeaders.X_SKLTP_CORRELATION_ID)) {
-      correlationId = "" + exchange.getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
-    }
-    if (StringUtils.isEmpty(correlationId)) {
-      correlationId = UUID.randomUUID().toString();
-    }
-    exchange.setProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, correlationId);
 
     // TODO More headers to check?
   }
