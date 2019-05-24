@@ -67,8 +67,9 @@ public class IPConsumerListHandlerImpl implements IPConsumerListHandler {
     for (String s : consumerListArray) {
       content.append(s + ",");
     }
+    content.deleteCharAt(content.length() - 1);
     LOGGER.warn(
-        "Caller was not on the list {}. IP-address: {}, accepted IP-addresses in ConsumerList: {}",
+        "Caller was not on the list {}. IP-address: {}, accepted IP-addresses in ConsumerList: <{}>",
         PropertyConstants.IP_CONSUMER_LIST,
         senderIpAdress,
         content.toString());
