@@ -284,12 +284,12 @@ public class FullServiceErrorHandlingIT {
     assertNotNull("Expected a SOAPFault", soapBody.hasFault());
 
     assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), "Sender NOT on ConsumerList:1.2.3.4");
+    assertStringContains(soapBody.getFault().getFaultString(), "VP013 Sender NOT on ConsumerList. Sender was:1.2.3.4");
 
     assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, "-errorCode=VP013");
-    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList:1.2.3.4");
+    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList. Sender was:1.2.3.4");
   }
 
   @Test
@@ -305,11 +305,11 @@ public class FullServiceErrorHandlingIT {
     assertNotNull("Expected a SOAPFault", soapBody.hasFault());
 
     assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
-    assertEquals(soapBody.getFault().getFaultString(), "VP013 Sender NOT on ConsumerList:");
+    assertEquals(soapBody.getFault().getFaultString(), "VP013 Sender NOT on ConsumerList. Sender was:");
 
     assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, VP013.getCode());
-    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList:");
+    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList. Sender was:");
   }
 }

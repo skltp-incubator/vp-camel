@@ -36,7 +36,7 @@ public class InitialHeaderCheckProcessorImpl implements InitialHeaderCheckProces
         boolean ok = checkIfApproved(senderIP);
         if (!ok) {
           throw new VpSemanticException(
-              VpSemanticErrorCodeEnum.VP013 + " Sender NOT on ConsumerList:" + senderIP,
+              VpSemanticErrorCodeEnum.VP013 + " Sender NOT on ConsumerList. Sender was:" + senderIP,
               VpSemanticErrorCodeEnum.VP013);
         }
       }
