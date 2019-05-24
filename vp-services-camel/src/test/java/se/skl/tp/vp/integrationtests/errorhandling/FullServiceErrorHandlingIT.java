@@ -289,7 +289,7 @@ public class FullServiceErrorHandlingIT {
     assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, "-errorCode=VP013");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP013");
+    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList:1.2.3.4");
   }
 
   @Test
@@ -309,7 +309,7 @@ public class FullServiceErrorHandlingIT {
 
     assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
-    assertStringContains(errorLogMsg, "-errorCode=VP013");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP013");
+    assertStringContains(errorLogMsg, VP013.getCode());
+    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList:");
   }
 }

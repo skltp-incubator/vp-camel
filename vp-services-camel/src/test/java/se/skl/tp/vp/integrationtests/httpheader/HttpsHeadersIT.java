@@ -35,112 +35,140 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HttpsHeadersIT extends CamelTestSupport {
 
-    @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
-    private Boolean propagateCorrIdForHttps;
+  @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
+  private Boolean propagateCorrIdForHttps;
 
-    @Value("${" + PropertyConstants.VP_HTTPS_ROUTE_URL + "}")
-    private String httpsRoute;
+  @Value("${" + PropertyConstants.VP_HTTPS_ROUTE_URL + "}")
+  private String httpsRoute;
 
-    @EndpointInject(uri = "mock:result")
-    protected MockEndpoint resultEndpoint;
+  @EndpointInject(uri = "mock:result")
+  protected MockEndpoint resultEndpoint;
 
-    @Produce(uri = "direct:start")
-    protected ProducerTemplate template;
+  @Produce(uri = "direct:start")
+  protected ProducerTemplate template;
 
-    @Autowired
-    private HeaderConfigurationProcessorImpl headerProcessor;
+  @Autowired private HeaderConfigurationProcessorImpl headerProcessor;
 
-    private boolean oldCorrelation;
+  private boolean oldCorrelation;
 
-    @Autowired
-    private CamelContext camelContext;
+  @Autowired private CamelContext camelContext;
 
-    private static boolean isContextStarted = false;
+  private static boolean isContextStarted = false;
 
-    @Before
-    public void setUp() throws Exception {
-        if(!isContextStarted){
-            addConsumerRoute(camelContext);
-            camelContext.start();
-            isContextStarted=true;
-        }
-        resultEndpoint.reset();
-        oldCorrelation = headerProcessor.getPropagateCorrelationIdForHttps();
+  @Before
+  public void setUp() throws Exception {
+    if (!isContextStarted) {
+      addConsumerRoute(camelContext);
+      camelContext.start();
+      isContextStarted = true;
     }
+    resultEndpoint.reset();
+    oldCorrelation = headerProcessor.getPropagateCorrelationIdForHttps();
+  }
 
-    @After
-    public void after() {
-        headerProcessor.setPropagateCorrelationIdForHttps(oldCorrelation);
-    }
+  @After
+  public void after() {
+    headerProcessor.setPropagateCorrelationIdForHttps(oldCorrelation);
+  }
 
+  @Test
+  public void checkSoapActionTest() {
+    // This param is mandatory for the request to pass.
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
+    assertNotNull(s);
+    assertFalse(s.isEmpty());
+  }
 
-    @Test
-    public void checkSoapActionTest() {
-        //This param is mandatory for the request to pass.
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
-        String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
-        assertNotNull(s);
-        assertFalse(s.isEmpty());
-    }
+  // CorrelationId...passCorrelationId set to false.
+  @Test // with content.
+  public void setCorrelationIdPassCorrelationFalseTest() {
+    headerProcessor.setPropagateCorrelationIdForHttps(false);
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
+    assertNull(
+        resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
+  }
 
-    //CorrelationId...passCorrelationId set to false.
-    @Test //with content.
-    public void setCorrelationIdPassCorrelationFalseTest() {
-        headerProcessor.setPropagateCorrelationIdForHttps(false);
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
-        assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
-    }
+  @Test // Without content
+  public void setCorrelationIdNoMembersPassCorrelationFalseTest() {
+    headerProcessor.setPropagateCorrelationIdForHttps(false);
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    assertNull(
+        resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
+  }
 
-    @Test //Without content
-    public void setCorrelationIdNoMembersPassCorrelationFalseTest() {
-        headerProcessor.setPropagateCorrelationIdForHttps(false);
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
-        assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
-    }
+  // CorrelationId...passCorrelationId set to true.
+  @Test // With content
+  public void setCorrelationIdPassCorrelationTrueTest() {
+    headerProcessor.setPropagateCorrelationIdForHttps(true);
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
+    assertEquals(
+        TEST_CORRELATION_ID,
+        resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
+  }
 
-    //CorrelationId...passCorrelationId set to true.
-    @Test //With content
-    public void setCorrelationIdPassCorrelationTrueTest() {
-        headerProcessor.setPropagateCorrelationIdForHttps(true);
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
-        assertEquals(TEST_CORRELATION_ID, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
-    }
+  @Test // Without content
+  public void setCorrelationIdNoMembersPassCorrelationTrueTest() {
+    headerProcessor.setPropagateCorrelationIdForHttps(true);
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    String s =
+        (String)
+            resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID);
+    assertNotNull(s);
+    assertNotEquals(TEST_CORRELATION_ID, s);
+    assertTrue(s.length() > 20);
+  }
 
-    @Test //Without content
-    public void setCorrelationIdNoMembersPassCorrelationTrueTest() {
-        headerProcessor.setPropagateCorrelationIdForHttps(true);
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
-        String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID);
-        assertNotNull(s);
-        assertNotEquals(TEST_CORRELATION_ID, s);
-        assertTrue(s.length() > 20);
-    }
+  // OriginalConsumerId
+  @Test // With content.
+  public void setConsumerIdTest() {
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
+    assertEquals(
+        TEST_CONSUMER,
+        resultEndpoint
+            .getExchanges()
+            .get(0)
+            .getIn()
+            .getHeaders()
+            .get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+  }
 
-    //OriginalConsumerId
-    @Test  //With content.
-    public void setConsumerIdTest() {
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
-        assertEquals(TEST_CONSUMER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
-    }
+  @Test // Without content.
+  public void setConsumerIdNoMembersTest() {
+    template.sendBodyAndHeaders(
+        TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    assertEquals(
+        TEST_SENDER,
+        resultEndpoint
+            .getExchanges()
+            .get(0)
+            .getIn()
+            .getHeaders()
+            .get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+  }
 
-    @Test  //Without content.
-    public void setConsumerIdNoMembersTest() {
-        template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
-        assertEquals(TEST_SENDER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
-    }
-
-    private void addConsumerRoute(CamelContext camelContext) throws Exception {
+  private void addConsumerRoute(CamelContext camelContext) throws Exception {
     camelContext.addRoutes(
         new RouteBuilder() {
           @Override
           public void configure() {
-            from("direct:start").routeId("start")
-                .to("netty4-http:" + httpsRoute + "?sslContextParameters=#incomingSSLContextParameters&ssl=true&" +
-                        "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
-              //Address below from tak-vagval-test.xml
+            from("direct:start")
+                .routeId("start")
+                .to(
+                    "netty4-http:"
+                        + httpsRoute
+                        + "?sslContextParameters=#incomingSSLContextParameters&ssl=true&"
+                        + "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
+            // Address below from tak-vagval-test.xml
             from("netty4-http:https://localhost:19001/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
                 .to("mock:result");
           }
         });
-    }
+  }
 }
