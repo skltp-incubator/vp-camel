@@ -39,12 +39,12 @@ public class TestSoapRequests {
 
   public static final String GET_ACTIVITIES_REQUEST_RIV21 =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-          + "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:riv:itintegration:registry:1\" xmlns:urn1=\"urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1\" xmlns:urn2=\"urn:riv:clinicalprocess:activity:actions:1\">\n"
+          + "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"  >\n"
           +
-          "   <soapenv:Header>\n" +
+          "   <soapenv:Header xmlns:urn=\"urn:riv:itintegration:registry:1\">\n" +
           "      <urn:LogicalAddress>%s</urn:LogicalAddress>\n" +
           "   </soapenv:Header>\n" +
-          "   <soapenv:Body>\n" +
+          "   <soapenv:Body xmlns:urn1=\"urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1\" xmlns:urn2=\"urn:riv:clinicalprocess:activity:actions:1\">\n" +
           "      <urn1:GetActivities>\n" +
           "         <urn1:patientId>\n" +
           "             <urn2:root>patientIdType</urn2:root>\n"+
@@ -61,23 +61,23 @@ public class TestSoapRequests {
 
   public static final String GET_ACTIVITIES_REQUEST_RIV20 =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-          + "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn1=\"urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1\" xmlns:urn2=\"urn:riv:clinicalprocess:activity:actions:1\">\n"
+          + "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" >\n"
           +
           "   <soapenv:Header>\n" +
           "      <add:To>%s</add:To>\n" +
           "   </soapenv:Header>\n" +
           "   <soapenv:Body>\n" +
-          "      <urn1:GetActivities>\n" +
-          "         <urn1:patientId>\n" +
+          "      <GetActivities  xmlns=\"urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1\" xmlns:urn2=\"urn:riv:clinicalprocess:activity:actions:1\">\n" +
+          "         <patientId>\n" +
           "             <urn2:root>patientIdType</urn2:root>\n"+
           "             <urn2:extension>197404188888</urn2:extension>\n" +
-          "         </urn1:patientId>\n" +
-          "         <urn1:interactionAgreementId>2866a7c4-9c60-433f-9035-a4d779ffe7a1</urn1:interactionAgreementId>" +
-          "         <urn1:sourceSystemId>"+
+          "         </patientId>\n" +
+          "         <interactionAgreementId>2866a7c4-9c60-433f-9035-a4d779ffe7a1</interactionAgreementId>" +
+          "         <sourceSystemId>"+
           "             <urn2:root>1.2.752.129.2.1.4.1</urn2:root>" +
           "             <urn2:extension>${sourceSystemHSAId}</urn2:extension>" +
-          "         </urn1:sourceSystemId>" +
-          "      </urn1:GetActivities>\n" +
+          "         </sourceSystemId>" +
+          "      </GetActivities>\n" +
           "   </soapenv:Body>\n" +
           "</soapenv:Envelope>";
 
