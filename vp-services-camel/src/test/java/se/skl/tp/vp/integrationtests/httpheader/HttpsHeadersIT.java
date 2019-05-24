@@ -15,6 +15,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,8 +78,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
     String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
-    assertNotNull(s);
-    assertFalse(s.isEmpty());
+    assertFalse(StringUtils.isEmpty(s));
   }
 
   // CorrelationId...passCorrelationId set to false.
@@ -116,9 +116,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
     headerProcessor.setPropagateCorrelationIdForHttps(true);
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
-    String s =
-        (String)
-            resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID);
+    String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID);
     assertNotNull(s);
     assertNotEquals(TEST_CORRELATION_ID, s);
     assertTrue(s.length() > 20);
