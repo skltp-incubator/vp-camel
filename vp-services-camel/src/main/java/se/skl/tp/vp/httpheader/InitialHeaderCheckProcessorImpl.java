@@ -14,13 +14,11 @@ import se.skl.tp.vp.exceptions.VpSemanticException;
 
 import java.util.UUID;
 
-
 @Service
 @Slf4j
 public class InitialHeaderCheckProcessorImpl implements InitialHeaderCheckProcessor {
 
-  @Autowired
-  private IPConsumerListHandler ipConsumerListHandler;
+  @Autowired private IPConsumerListHandler ipConsumerListHandler;
 
   @Value("${" + PropertyConstants.ENFORCE_CONSUMER_LIST + ":#{true}}")
   private boolean enforceConsumerList;
@@ -29,18 +27,28 @@ public class InitialHeaderCheckProcessorImpl implements InitialHeaderCheckProces
     String originalConsumer = null;
     String correlationId = null;
 
-    if (exchange.getIn().getHeaders().containsKey(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)) {
+    if (exchange
+        .getIn()
+        .getHeaders()
+        .containsKey(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)) {
       if (enforceConsumerList) {
-        String senderIP = (String)exchange.getProperty(VPExchangeProperties.SENDER_ID);
+        String senderIP = (String) exchange.getProperty(VPExchangeProperties.SENDER_ID);
         boolean ok = checkIfApproved(senderIP);
         if (!ok) {
-          throw new VpSemanticException(VpSemanticErrorCodeEnum.VP013 + " Sender NOT on ConsumerList:" + senderIP,
-                VpSemanticErrorCodeEnum.VP013);
+          throw new VpSemanticException(
+              VpSemanticErrorCodeEnum.VP013 + " Sender NOT on ConsumerList:" + senderIP,
+              VpSemanticErrorCodeEnum.VP013);
         }
       }
-      originalConsumer = "" + exchange.getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+      originalConsumer =
+          ""
+              + exchange
+                  .getIn()
+                  .getHeaders()
+                  .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     }
-    exchange.setProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalConsumer);
+    exchange.setProperty(
+        VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalConsumer);
 
     if (exchange.getIn().getHeaders().containsKey(HttpHeaders.X_SKLTP_CORRELATION_ID)) {
       correlationId = "" + exchange.getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
@@ -50,11 +58,10 @@ public class InitialHeaderCheckProcessorImpl implements InitialHeaderCheckProces
     }
     exchange.setProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, correlationId);
 
-    //TODO More headers to check?
+    // TODO More headers to check?
   }
 
   private boolean checkIfApproved(String senderIP) {
     return ipConsumerListHandler.isCallerOnConsumerList(senderIP);
   }
-
 }

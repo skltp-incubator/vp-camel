@@ -11,7 +11,7 @@ import se.skl.tp.vp.constants.PropertyConstants;
 @Service
 public class IPConsumerListHandlerImpl implements IPConsumerListHandler {
 
-  private static Logger logger = LogManager.getLogger(IPWhitelistHandlerImpl.class);
+  private static Logger LOGGER = LogManager.getLogger(IPWhitelistHandlerImpl.class);
   private String[] consumerListArray;
 
   @Autowired
@@ -28,36 +28,38 @@ public class IPConsumerListHandlerImpl implements IPConsumerListHandler {
    * X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID.
    */
   public boolean isCallerOnConsumerList(String senderIpAdress) {
-    logger.debug(
-        "Check if caller {} is in consumer list before using HTTP header {}...",
-        senderIpAdress,
-        HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
 
     if (senderIpAdress == null || senderIpAdress.trim().isEmpty()) {
-      logger.warn(
-          "A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ",
-          senderIpAdress,
+      LOGGER.warn(
+          "The sender was null/empty. Could not check address in list {}. HTTP header that caused checking: {} ",
+          PropertyConstants.IP_CONSUMER_LIST,
           HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
       return false;
     }
 
     if (consumerListArray == null) {
-      logger.debug(
-          "ConsumerList was NULL, so nothing to compare sender {} against. Returning false...",
+      LOGGER.warn(
+          "{} was NULL, so nothing to compare sender {} against. Returning false...",
+          PropertyConstants.IP_CONSUMER_LIST,
           senderIpAdress);
       return false;
     }
 
     if (consumerListArray.length == 0) {
-      logger.warn(
-          "A check for sender {} against the ip address in ConsumerList was requested, but the list is configured empty. Update VP configuration for the ConsumerList",
-          senderIpAdress);
+      LOGGER.warn(
+          "A check for sender {} against the ip address in {} was requested, but the list is configured empty.\n"
+              + "Update the list OR set flag ip.consumer.list.use to false.",
+          senderIpAdress,
+          PropertyConstants.IP_CONSUMER_LIST);
       return false;
     }
 
     for (String ipAddress : consumerListArray) {
       if (senderIpAdress.trim().startsWith(ipAddress.trim())) {
-        logger.debug("Caller {} matches ip address/subdomain in ConsumerList", senderIpAdress);
+        LOGGER.info(
+            "Caller {} matches ip address/subdomain in {}",
+            senderIpAdress,
+            PropertyConstants.IP_CONSUMER_LIST);
         return true;
       }
     }
@@ -65,8 +67,9 @@ public class IPConsumerListHandlerImpl implements IPConsumerListHandler {
     for (String s : consumerListArray) {
       content.append(s + ",");
     }
-    logger.warn(
-        "Caller was not on the ConsumerList of accepted IP-addresses. IP-address: {}, accepted IP-addresses in ConsumerList: {}",
+    LOGGER.warn(
+        "Caller was not on the list {}. IP-address: {}, accepted IP-addresses in ConsumerList: {}",
+        PropertyConstants.IP_CONSUMER_LIST,
         senderIpAdress,
         content.toString());
     return false;
