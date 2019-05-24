@@ -1,80 +1,88 @@
 package se.skl.tp.vp.requestreader;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Stack;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
+import lombok.Data;
+import lombok.extern.log4j.Log4j2;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.http.NettyChannelBufferStreamCache;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Namespace;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
-
 @Service
-@Slf4j
+@Log4j2
 public class RequestReaderProcessorXMLEventReader implements RequestReaderProcessor {
 
-    public static final String RIVTABP_21 = "rivtabp21";
-    public static final String RIVTABP_20 = "rivtabp20";
+  public static final String RIVTABP_21 = "rivtabp21";
+  public static final String RIVTABP_20 = "rivtabp20";
 
-    @Override
-    public void process(Exchange exchange) throws Exception {
-        NettyChannelBufferStreamCache body = (NettyChannelBufferStreamCache)exchange.getIn().getBody();
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        XMLEventReader eventReader = null;
-        Stack<String> elementHierarchy = new Stack<>();
-        try {
-            eventReader = inputFactory.createXMLEventReader(body);
+  @Override
+  public void process(Exchange exchange) throws Exception {
+    NettyChannelBufferStreamCache body = (NettyChannelBufferStreamCache) exchange.getIn().getBody();
+    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
-            while(eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
+    try {
+      XMLEventReader eventReader = inputFactory.createXMLEventReader(body);
+      PayloadInfo payloadInfo = parsePayloadForInfo(eventReader);
+      exchange.setProperty(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, payloadInfo.getServiceContractNamespace());
+      exchange.setProperty(VPExchangeProperties.RECEIVER_ID, payloadInfo.getReceiverId());
+      exchange.setProperty(VPExchangeProperties.RIV_VERSION, payloadInfo.getRivVersion());
 
-                if(event.isStartDocument()) {
-
-                } else if(event.isStartElement()) {
-                    elementHierarchy.add(event.asStartElement().getName().getLocalPart());
-                    if(elementHierarchy.peek().equalsIgnoreCase("Envelope")) {
-                        getTjanstekontrakt(exchange, (StartElement) event);
-                    } else if(elementHierarchy.peek().equalsIgnoreCase("Body")) {
-                        getTjanstekontrakt(exchange, (StartElement) event);
-                        return;
-                    }
-                } else if(event.isCharacters()) {
-                    if(elementHierarchy.peek().equalsIgnoreCase("LogicalAddress")) {
-                        exchange.setProperty(VPExchangeProperties.RECEIVER_ID, event.asCharacters().getData());
-                        exchange.setProperty(VPExchangeProperties.RIV_VERSION, RIVTABP_21);
-                    }
-                    if(elementHierarchy.peek().equalsIgnoreCase("To")) {
-                        exchange.setProperty(VPExchangeProperties.RECEIVER_ID, event.asCharacters().getData());
-                        exchange.setProperty(VPExchangeProperties.RIV_VERSION, RIVTABP_20);
-                    }
-                } else if(event.isEndElement()) {
-                    elementHierarchy.pop();
-                } else if(event.isEndDocument()) {
-
-                }
-            }
-        } catch (XMLStreamException e) {
-            log.error("Failed read Soap", e);
-        }
+    } catch (XMLStreamException e) {
+      log.error("Failed read Soap", e);
     }
+  }
 
-    private void getTjanstekontrakt(Exchange exchange, StartElement event) {
-        StartElement startElement = event;
-        Iterator namespaces = startElement.getNamespaces();
-        List ns = new ArrayList();
-        namespaces.forEachRemaining(o -> ns.add(o));
-        for (Object obj: ns) {
-            if(((Namespace)obj).getNamespaceURI().toLowerCase().contains("responder")) {
-                exchange.setProperty(VPExchangeProperties.SERVICECONTRACT_NAMESPACE , ((Namespace)obj).getNamespaceURI());
-            }
+  private PayloadInfo parsePayloadForInfo(XMLEventReader eventReader)
+      throws XMLStreamException {
+
+    boolean bodyFound = false;
+    Stack<String> elementHierarchy = new Stack<>();
+    PayloadInfo payloadInfo = new PayloadInfo();
+
+    while (eventReader.hasNext()) {
+      XMLEvent event = eventReader.nextEvent();
+
+      if (event.isStartElement()) {
+        elementHierarchy.add(event.asStartElement().getName().getLocalPart());
+        if (bodyFound) {
+          // Next element after Body should be the Service we looking for
+          //    and the namespace is the servicecontract namespace.
+          // Since we should have found everything we should break the loop
+          String namespace = event.asStartElement().getName().getNamespaceURI();
+          payloadInfo.setServiceContractNamespace(namespace);
+          break;
         }
+        if (elementHierarchy.peek().equalsIgnoreCase("Body")) {
+          bodyFound = true;
+        }
+      } else if (event.isCharacters()) {
+        parseForReceiver(elementHierarchy.peek(), payloadInfo, event);
+      } else if (event.isEndElement()) {
+        elementHierarchy.pop();
+      }
     }
+    return payloadInfo;
+  }
+
+  private void parseForReceiver(String localPart, PayloadInfo payloadInfo, XMLEvent event) {
+    if (localPart.equalsIgnoreCase("LogicalAddress")) {
+      payloadInfo.setReceiverId(event.asCharacters().getData());
+      payloadInfo.setRivVersion(RIVTABP_21);
+    } else if (localPart.equalsIgnoreCase("To")) {
+      payloadInfo.setReceiverId(event.asCharacters().getData());
+      payloadInfo.setRivVersion(RIVTABP_20);
+    }
+  }
+
+  @Data
+  public class PayloadInfo{
+    String receiverId;
+    String rivVersion;
+    String serviceContractNamespace;
+  }
+
 }
