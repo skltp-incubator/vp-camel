@@ -30,6 +30,8 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.httpheader.HeaderConfigurationProcessorImpl;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
+import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 
 @RunWith(CamelSpringBootRunner.class)
@@ -61,6 +63,8 @@ public class HttpsHeadersIT extends CamelTestSupport {
 
   private static boolean isContextStarted = false;
 
+  TestLogAppender testLogAppender = TestLogAppender.getInstance();
+
   @Before
   public void setUp() throws Exception {
     if (!isContextStarted) {
@@ -70,6 +74,7 @@ public class HttpsHeadersIT extends CamelTestSupport {
     }
     resultEndpoint.reset();
     oldCorrelation = headerProcessor.getPropagateCorrelationIdForHttps();
+    testLogAppender.clearEvents();
   }
 
   @After
@@ -78,46 +83,59 @@ public class HttpsHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void checkSoapActionTest() {
+  public void checkSoapActionSetTest() {
     // This param is mandatory for the request to pass.
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
     String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(SOAP_ACTION);
     assertFalse(StringUtils.isEmpty(s));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, SOAP_ACTION + "=action");
   }
 
   // CorrelationId...passCorrelationId set to false.
   @Test // with content.
-  public void setCorrelationIdPassCorrelationFalseTest() {
+  public void checkCorrelationIdPropagatedWithIncomingHeaderSetAndPropagateCorrelationSetFalseTest() {
     headerProcessor.setPropagateCorrelationIdForHttps(false);
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
     assertNull(
         resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertFalse(respOutLogMsg.contains(X_SKLTP_CORRELATION_ID));
+
   }
 
   @Test // Without content
-  public void setCorrelationIdNoMembersPassCorrelationFalseTest() {
+  public void checkCorrelationIdPropagatedWithoutIncomingHeaderSetAndPropagateCorrelationSetFalseTest() {
     headerProcessor.setPropagateCorrelationIdForHttps(false);
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
     assertNull(
         resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertFalse(respOutLogMsg.contains(X_SKLTP_CORRELATION_ID));
   }
 
   // CorrelationId...passCorrelationId set to true.
   @Test // With content
-  public void setCorrelationIdPassCorrelationTrueTest() {
+  public void checkCorrelationIdPropagatedWhenIncomingHeaderSetAndPropagateCorrelationSetTrueTest() {
     headerProcessor.setPropagateCorrelationIdForHttps(true);
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
     assertEquals(
         TEST_CORRELATION_ID,
         resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(X_SKLTP_CORRELATION_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, X_SKLTP_CORRELATION_ID + "=" + TEST_CORRELATION_ID);
   }
 
   @Test // Without content
-  public void setCorrelationIdNoMembersPassCorrelationTrueTest() {
+  public void checkCorrelationIdPropagatedWhenNoIncomingHeaderSetAndPropagateCorrelationSetTrueTest() {
     headerProcessor.setPropagateCorrelationIdForHttps(true);
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
@@ -125,11 +143,14 @@ public class HttpsHeadersIT extends CamelTestSupport {
     assertNotNull(s);
     assertNotEquals(TEST_CORRELATION_ID, s);
     assertTrue(s.length() > 20);
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, X_SKLTP_CORRELATION_ID + "=" + s);
   }
 
   // OriginalConsumerId
   @Test // With content.
-  public void setConsumerIdTest() {
+  public void checkXrivtaOriginalConsumerIdPropagatedWhenIncomingHeaderSet() {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithMembers());
     assertEquals(
@@ -140,10 +161,14 @@ public class HttpsHeadersIT extends CamelTestSupport {
             .getIn()
             .getHeaders()
             .get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + "=" + TEST_CONSUMER);
+
   }
 
   @Test // Without content.
-  public void setConsumerIdNoMembersTest() {
+  public void checkXrivtaConsumerIdPropagatedWhenNoIncomingHeaderTest() {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
     assertEquals(
@@ -154,6 +179,9 @@ public class HttpsHeadersIT extends CamelTestSupport {
             .getIn()
             .getHeaders()
             .get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + "=" +TEST_SENDER);
   }
 
   @Test
@@ -167,15 +195,20 @@ public class HttpsHeadersIT extends CamelTestSupport {
                     .getIn()
                     .getHeaders()
                     .get(HttpHeaders.X_VP_INSTANCE_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertFalse(respOutLogMsg.contains(HttpHeaders.X_VP_INSTANCE_ID));
   }
 
   @Test
   public void checkUserAgentGetPropagated() {
-    // This param is mandatory.
     template.sendBodyAndHeaders(
             TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
     String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HEADER_USER_AGENT);
     assertEquals(s, vpHeaderUserAgent);
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, HEADER_USER_AGENT + "=" + vpHeaderUserAgent);
   }
 
   private void addConsumerRoute(CamelContext camelContext) throws Exception {
