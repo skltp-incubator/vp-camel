@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import se.skl.tp.vp.TestBeanConfiguration;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.httpheader.HeaderConfigurationProcessorImpl;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
@@ -149,6 +150,19 @@ public class HttpsHeadersIT extends CamelTestSupport {
             .getIn()
             .getHeaders()
             .get(X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+  }
+
+  @Test
+  public void testInstanceIdDontGetPropagatedForHttps () {
+    template.sendBodyAndHeaders(
+            TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    assertNull(
+            resultEndpoint
+                    .getExchanges()
+                    .get(0)
+                    .getIn()
+                    .getHeaders()
+                    .get(HttpHeaders.X_VP_INSTANCE_ID));
   }
 
   private void addConsumerRoute(CamelContext camelContext) throws Exception {
