@@ -6,6 +6,7 @@ import io.netty.handler.timeout.ReadTimeoutException;
 import java.net.SocketException;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
@@ -153,12 +154,12 @@ public class VPRouter extends RouteBuilder {
                     .retryAttemptedLogLevel(LoggingLevel.ERROR)
                     .logRetryStackTrace(false)
                 .log(LoggingLevel.ERROR, "Catched in test route: ${exception}")
-            .process(handleProducerExceptionProcessor)
+                .process(handleProducerExceptionProcessor)
                 .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
                 .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
                 .handled(true)
             .end()
-            .onException(ReadTimeoutException.class)
+            .onException(ReadTimeoutException.class, NettyHttpOperationFailedException.class)
                 .log(LoggingLevel.ERROR, "Catched exception when calling producer: ${exception}")
                 .process(handleProducerExceptionProcessor)
                 .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
