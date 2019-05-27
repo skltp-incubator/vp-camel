@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.PropertyConstants;
-import se.skl.tp.vp.constants.VPConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
@@ -22,8 +21,8 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
 
   @Autowired
   public CertificateExtractorProcessorImpl(
-      @Value("${" + PropertyConstants.CERTIFICATE_SENDERID_SUBJECT + "}") String certificateSenderidSubject) {
-    certificateSenderIDPattern = Pattern.compile(certificateSenderidSubject + VPConstants.CERT_SENDERID_PATTERN);
+      @Value("${" + PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN + "}") String certificateSenderidSubject) {
+    certificateSenderIDPattern = Pattern.compile(certificateSenderidSubject);
   }
 
   @Override

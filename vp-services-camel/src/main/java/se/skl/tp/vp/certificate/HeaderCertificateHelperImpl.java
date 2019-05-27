@@ -7,7 +7,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.HttpHeaders;
-import se.skl.tp.vp.constants.VPConstants;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 
@@ -25,7 +24,7 @@ public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
 
     @Autowired
     public HeaderCertificateHelperImpl(Environment env) {
-        certificateSenderIDPattern = Pattern.compile(env.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT)+VPConstants.CERT_SENDERID_PATTERN);
+        certificateSenderIDPattern = Pattern.compile(env.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN));
     }
 
     public String getSenderIDFromHeaderCertificate(Object certificate) {
@@ -99,7 +98,7 @@ public class HeaderCertificateHelperImpl implements HeaderCertificateHelper {
             final String senderId = matcher.group(1);
 
             LOGGER.debug("Found sender id: {}", senderId);
-            return senderId.startsWith("#") ? this.convertFromHexToString(senderId.substring(5)) : senderId;
+                return senderId.startsWith("#") ? this.convertFromHexToString(senderId.substring(5)) : senderId;
         } else {
             throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " No senderId found in Certificate: " + principalName,
                     VpSemanticErrorCodeEnum.VP002);
