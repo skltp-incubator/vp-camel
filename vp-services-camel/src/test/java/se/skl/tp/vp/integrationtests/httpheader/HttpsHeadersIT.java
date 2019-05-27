@@ -6,6 +6,7 @@ import static se.skl.tp.vp.constants.HttpHeaders.X_SKLTP_CORRELATION_ID;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
+import static se.skl.tp.vp.constants.HttpHeaders.HEADER_USER_AGENT;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
@@ -42,6 +43,9 @@ public class HttpsHeadersIT extends CamelTestSupport {
 
   @Value("${" + PropertyConstants.VP_HTTPS_ROUTE_URL + "}")
   private String httpsRoute;
+
+  @Value("${" + PropertyConstants.VP_HEADER_USER_AGENT + "}")
+  private String vpHeaderUserAgent;
 
   @EndpointInject(uri = "mock:result")
   protected MockEndpoint resultEndpoint;
@@ -163,6 +167,15 @@ public class HttpsHeadersIT extends CamelTestSupport {
                     .getIn()
                     .getHeaders()
                     .get(HttpHeaders.X_VP_INSTANCE_ID));
+  }
+
+  @Test
+  public void checkUserAgentGetPropagated() {
+    // This param is mandatory.
+    template.sendBodyAndHeaders(
+            TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HEADER_USER_AGENT);
+    assertEquals(s, vpHeaderUserAgent);
   }
 
   private void addConsumerRoute(CamelContext camelContext) throws Exception {
