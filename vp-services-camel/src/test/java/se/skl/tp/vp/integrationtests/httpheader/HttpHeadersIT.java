@@ -66,7 +66,7 @@ public class HttpHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void checkSoapActionTest() {
+  public void checkSoapActionSetTest() {
     // This param is mandatory for the request to pass.
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
@@ -77,7 +77,7 @@ public class HttpHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void setConfiguredHeadersTest() {
+  public void checkHeadersSetByConfigTest() {
     // These params are partly set by configuration in HeaderProcessorImpl.java
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
@@ -111,7 +111,7 @@ public class HttpHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void setCorrelationIdTest() {
+  public void checkCorrelationIdPropagatedWhenIncomingHeaderSetTest() {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
     assertEquals(
@@ -125,7 +125,7 @@ public class HttpHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void setConsumerIdTest() {
+  public void checkXrivtaOriginalConsumerIdPropagatedWhenIncomingHeaderSetTest() {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
     assertEquals(
@@ -139,7 +139,7 @@ public class HttpHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void setCorrelationIdTestWithoutMembers() {
+  public void checkCorrelationIdPropagatedWithoutIncomingHeaderSetTest() {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
     String s =
@@ -156,7 +156,7 @@ public class HttpHeadersIT extends CamelTestSupport {
   }
 
   @Test
-  public void setConsumerIdTestWithoutMembers() {
+  public void checkXrivtaOriginalConsumerIdPropagatedWithoutIncomingHeaderSetTest() {
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
     assertEquals(
