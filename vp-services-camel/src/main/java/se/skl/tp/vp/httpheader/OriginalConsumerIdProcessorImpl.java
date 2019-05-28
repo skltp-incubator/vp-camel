@@ -19,7 +19,7 @@ public class OriginalConsumerIdProcessorImpl implements OriginalConsumerIdProces
 
   @Autowired private CheckSenderAllowedToUseHeader checkSenderIdAgainstList;
 
-  @Value("${" + PropertyConstants.APPROVE_TO_USE_HEADER_ORIGINAL_CONSUMER + ":#{true}}")
+  @Value("${" + PropertyConstants.APPROVE_THE_USE_OF_HEADER_ORIGINAL_CONSUMER + ":#{true}}")
   private boolean enforceSenderIdCheck;
 
   public void process(Exchange exchange) throws Exception {
