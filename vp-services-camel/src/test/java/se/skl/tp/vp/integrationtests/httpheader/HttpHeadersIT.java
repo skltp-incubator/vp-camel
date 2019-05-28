@@ -67,89 +67,40 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkSoapActionSetTest() {
-    // This param is mandatory for the request to pass.
-    template.sendBodyAndHeaders(
-        TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
-    String s =
-        (String)
-            resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.SOAP_ACTION);
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.SOAP_ACTION);
     assertEquals("action", s);
   }
 
+  /**
+   * These params are set (partly by configuration) in OutHeaderProcessorImpl.java
+   */
   @Test
   public void checkHeadersSetByConfigTest() {
-    // These params are partly set by configuration in HeaderProcessorImpl.java
     template.sendBodyAndHeaders(
         TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
-    assertEquals(
-        vpInstanceId,
-        resultEndpoint
-            .getExchanges()
-            .get(0)
-            .getIn()
-            .getHeaders()
-            .get(HttpHeaders.X_VP_INSTANCE_ID));
-    assertEquals(
-        headerContentType,
-        resultEndpoint
-            .getExchanges()
-            .get(0)
-            .getIn()
-            .getHeaders()
-            .get(HttpHeaders.HEADER_CONTENT_TYPE));
-    assertEquals(
-        vpHeaderUserAgent,
-        resultEndpoint
-            .getExchanges()
-            .get(0)
-            .getIn()
-            .getHeaders()
-            .get(HttpHeaders.HEADER_USER_AGENT));
-    assertEquals(
-        TEST_SENDER,
-        resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_VP_SENDER_ID));
+    assertEquals(vpInstanceId, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_VP_INSTANCE_ID));
+    assertEquals(headerContentType, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.HEADER_CONTENT_TYPE));
+    assertEquals(vpHeaderUserAgent, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.HEADER_USER_AGENT));
+    assertEquals(TEST_SENDER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_VP_SENDER_ID));
   }
 
   @Test
   public void checkCorrelationIdPropagatedWhenIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(
-        TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
-    assertEquals(
-        TEST_CORRELATION_ID,
-        resultEndpoint
-            .getExchanges()
-            .get(0)
-            .getIn()
-            .getHeaders()
-            .get(HttpHeaders.X_SKLTP_CORRELATION_ID));
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
+    assertEquals(TEST_CORRELATION_ID, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID));
   }
 
   @Test
   public void checkXrivtaOriginalConsumerIdPropagatedWhenIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(
-        TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
-    assertEquals(
-        TEST_CONSUMER,
-        resultEndpoint
-            .getExchanges()
-            .get(0)
-            .getIn()
-            .getHeaders()
-            .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
+    assertEquals(TEST_CONSUMER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
   }
 
   @Test
   public void checkCorrelationIdPropagatedWithoutIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(
-        TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
-    String s =
-        (String)
-            resultEndpoint
-                .getExchanges()
-                .get(0)
-                .getIn()
-                .getHeaders()
-                .get(HttpHeaders.X_SKLTP_CORRELATION_ID);
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_SKLTP_CORRELATION_ID);
     assertNotNull(s);
     assertNotEquals(TEST_CORRELATION_ID, s);
     assertTrue(s.length() > 20);
@@ -157,16 +108,8 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkXrivtaOriginalConsumerIdPropagatedWithoutIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(
-        TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
-    assertEquals(
-        TEST_SENDER,
-        resultEndpoint
-            .getExchanges()
-            .get(0)
-            .getIn()
-            .getHeaders()
-            .get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    assertEquals(TEST_SENDER, resultEndpoint.getExchanges().get(0).getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
   }
 
   private void addConsumerRoute(CamelContext camelContext) throws Exception {
