@@ -38,6 +38,12 @@ import se.skltp.takcache.TakCache;
 public class ErrorInResponseTest {
 
   public static final String REMOTE_EXCEPTION_MESSAGE = "Fel fel fel";
+  public static final String REMOTE_SOAP_FEL =
+          "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+          "  <soapenv:Header/>  <soapenv:Body>    <soap:Fault xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+          "      <faultcode>soap:Server</faultcode>\n" +
+          "      <faultstring>VP011 Caller was not on the white list of accepted IP-addresses. IP-address: 84.17.194.105. HTTP header that caused checking: x-vp-sender-id (se.skl.tp.vp.exceptions.VpSemanticException). Message payload is of type: ReversibleXMLStreamReader</faultstring>\n" +
+          "    </soap:Fault>  </soapenv:Body></soapenv:Envelope>";
   public static final String VP_ADDRESS = "http://localhost:12312/vp";
   public static final String NO_EXISTING_PRODUCER = "http://localhost:12100/vp";
   public static final String MOCK_PRODUCER_ADDRESS = "http://localhost:12126/vp";
@@ -135,6 +141,22 @@ public class ErrorInResponseTest {
     assertStringContains(resultBody, "java.lang.NullPointerException");
     resultEndpoint.assertIsSatisfied();
   }
+
+  @Test // Om producent skickar soap fel ska vi skicka den fel vidare
+  public void felIResponceTest() throws InterruptedException {
+    mockProducer.setResponseHttpStatus(500);
+    mockProducer.setResponseBody(SoapFaultHelper.generateSoap11FaultWithCause(REMOTE_SOAP_FEL));
+
+    List<RoutingInfo> list = new ArrayList<>();
+    list.add(createRoutingInfo(MOCK_PRODUCER_ADDRESS, RIV20));
+    setTakCacheMockResult(list);
+    template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
+    String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
+
+    assertStringContains(resultBody, "VP011 Caller was not on the white list of accepted IP-addresses");
+    resultEndpoint.assertIsSatisfied();
+  }
+
 
   private void setTakCacheMockResult(List<RoutingInfo> list) {
     Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest"))

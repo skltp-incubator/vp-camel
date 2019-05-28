@@ -27,7 +27,7 @@ public class TestBeanConfiguration {
   @Bean(name = "certificateExtractorProcessor")
   public CertificateExtractorProcessor certificateExtractorProcessor() {
     return new CertificateExtractorProcessorImpl(
-        environment.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT));
+        environment.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN));
   }
 
   @Bean
