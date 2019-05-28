@@ -31,8 +31,8 @@ public class TestBeanConfiguration {
   }
 
   @Bean
-  public HeaderConfigurationProcessor headerProcessor() {
-    return new HeaderConfigurationProcessorImpl();
+  public OutHeaderProcessor headerProcessor() {
+    return new OutHeaderProcessorImpl();
   }
 
   @Bean
@@ -46,14 +46,14 @@ public class TestBeanConfiguration {
   }
 
   @Bean
-  public IPConsumerListHandler ipConsumerListHandler() {
-    return new IPConsumerListHandlerImpl(
-        environment.getProperty(PropertyConstants.IP_CONSUMER_LIST));
+  public CheckSenderAllowedToUseHeader checkSenderIdAgainstList() {
+    return new CheckSenderAllowedToUseHeaderImpl(
+        environment.getProperty(PropertyConstants.SENDER_ID_ALLOWED_LIST));
   }
 
   @Bean
-  public IPConsumerListHandler emptyIpConsumerListHandler() {
-    return new IPConsumerListHandlerImpl(null);
+  public CheckSenderAllowedToUseHeader emptyCheckSenderIdAgainstList() {
+    return new CheckSenderAllowedToUseHeaderImpl(null);
   }
 
   @Bean
