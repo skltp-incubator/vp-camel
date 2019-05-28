@@ -4,7 +4,7 @@ public class PropertyConstants {
 
     public static final String CERTIFICATE_SENDERID_SUBJECT = "certificate.senderid.subject";
     public static final String IP_WHITELIST = "ip.whitelist";
-    public static final String IP_CONSUMER_LIST = "ip.consumer.list";
+    public static final String SENDER_ID_ALLOWED_LIST = "sender.id.allowed.list";
     public static final String VP_INSTANCE_ID = "vp.instance.id";
 
     public static final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = "http.forwarded.header.for";
@@ -16,7 +16,7 @@ public class PropertyConstants {
     public static final String WSDL_JSON_FILE = "wsdl.json.file";
     public static final String WSDLFILES_DIRECTORY = "wsdlfiles.directory";
 
-    public static final String ENFORCE_CONSUMER_LIST = "ip.consumer.list.enforce";
+    public static final String APPROVE_THE_USE_HEADER_ORIGINAL_CONSUMER = "approve.the.use.of.header.original.consumer";
     public static final String PROPAGATE_CORRELATION_ID_FOR_HTTPS = "propagate.correlation.id.for.https";
     public static final String VP_HEADER_USER_AGENT = "vp.header.user.agent";
     public static final String VP_HEADER_CONTENT_TYPE = "vp.header.content.type";
