@@ -12,7 +12,7 @@ import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
 @Slf4j
-public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProcessor {
+public class OutHeaderProcessorImpl implements OutHeaderProcessor {
 
   @Value("${" + PropertyConstants.PROPAGATE_CORRELATION_ID_FOR_HTTPS + "}")
   private boolean propagateCorrelationIdForHttps;
@@ -44,8 +44,8 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
   }
 
   /*
-   * Propagate x-vp-sender-id and x-vp-instance-id from this VP instance as an outbound http property as they are both needed
-   * together for another VP to determine if x-vp-sender-id is valid to use.
+   * If http, propagate x-vp-sender-id and x-vp-instance-id from this VP instance as an outbound http header as they are
+   * both needed together for another VP to determine if x-vp-sender-id is valid.
    */
   private void propagateSenderIdAndVpInstanceIdToProducer(Exchange exchange) {
     if (isHttpRequest(exchange)) {
@@ -55,8 +55,11 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     }
   }
 
+  /**
+   * If correlationId wasn't set in incoming request, it has been creeated and set in CorrelationIdProcessorImpl..
+   * @param exchange
+   */
   private void propagateCorrelationIdToProducer(Exchange exchange) {
-    // If correlationId wasn't sent with request, it has been set in InitialHeaderCheckProcessorImpl
     String correlationId = (String) exchange.getProperty(VPExchangeProperties.SKLTP_CORRELATION_ID);
     if (isHttpRequest(exchange)) {
       exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
@@ -69,19 +72,21 @@ public class HeaderConfigurationProcessorImpl implements HeaderConfigurationProc
     }
   }
 
-  private void setOriginalConsumerId(Exchange exchange) throws VpSemanticException {
+  /**
+   * If exchange.getProperty(IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID) NOT is null/empty, then
+   * HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID has already been set on this exchange,
+   * checked in OriginalConsumerIdProcessorImpl.
+   * @param exchange
+   */
+  private void setOriginalConsumerId(Exchange exchange) {
     String originalServiceConsumerHsaId =
         (String) exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
 
-    // If NOT empty, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID has already been set,
-    // checked in InitialHeaderCheckProcessorImpl
     if (StringUtils.isEmpty(originalServiceConsumerHsaId)) {
-      originalServiceConsumerHsaId =
-          exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
+      originalServiceConsumerHsaId = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
       exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceConsumerHsaId);
     }
-    exchange.setProperty(
-        VPExchangeProperties.OUT_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceConsumerHsaId);
+    exchange.setProperty(VPExchangeProperties.OUT_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalServiceConsumerHsaId);
   }
 
   private boolean isHttpRequest(Exchange exchange) {
