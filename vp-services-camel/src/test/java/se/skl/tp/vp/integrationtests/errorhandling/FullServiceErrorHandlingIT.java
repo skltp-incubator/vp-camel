@@ -28,6 +28,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
+import se.skl.tp.vp.httpheader.OriginalConsumerIdProcessorImpl;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
@@ -45,6 +46,8 @@ public class FullServiceErrorHandlingIT {
   TestConsumer testConsumer;
 
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
+
+  private String vp13errorString = "VP013" + OriginalConsumerIdProcessorImpl.MESSAGE;
 
   @Before
   public void beforeTest(){
@@ -246,6 +249,48 @@ public class FullServiceErrorHandlingIT {
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, "-errorCode=VP011");
     assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
+  }
+
+  @Test
+  public void shouldGetVP013WhenIllegalSender() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "1.2.3.4"); //Not on list ip.consumer.list
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
+    assertStringContains(soapBody.getFault().getFaultString(), vp13errorString + "1.2.3.4");
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, "-errorCode=VP013");
+    assertStringContains(errorLogMsg, vp13errorString + "1.2.3.4");
+  }
+
+  @Test
+  public void shouldGetVP013WhenEmptySender() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, ""); //Not on list ip.consumer.list
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+
+    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
+    assertEquals(soapBody.getFault().getFaultString(), vp13errorString);
+
+    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, VP013.getCode());
+    assertStringContains(errorLogMsg, vp13errorString);
   }
 
   private void assertMessageLogsExists() {
