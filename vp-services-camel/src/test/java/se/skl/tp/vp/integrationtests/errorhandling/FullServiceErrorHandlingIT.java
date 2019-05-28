@@ -248,7 +248,6 @@ public class FullServiceErrorHandlingIT {
     assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
   }
 
-
   private void assertMessageLogsExists() {
     assertEquals(0, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_IN));
@@ -269,47 +268,5 @@ public class FullServiceErrorHandlingIT {
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertStringContains(respOutLogMsg, "-rivversion=rivtabp20");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=" + expectedReceiverId);
-  }
-
-  @Test
-  public void shouldGetVP013WhenIllegalSender() throws Exception {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_SENDER_ID, "1.2.3.4"); //Not on list ip.consumer.list
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
-    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
-    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
-
-    SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertNotNull("Expected a SOAP message", soapBody);
-    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
-
-    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), "VP013 Sender NOT on ConsumerList. Sender was:1.2.3.4");
-
-    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
-    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
-    assertStringContains(errorLogMsg, "-errorCode=VP013");
-    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList. Sender was:1.2.3.4");
-  }
-
-  @Test
-  public void shouldGetVP013WhenEmptySender() throws Exception {
-    Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_SENDER_ID, ""); //Not on list ip.consumer.list
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
-    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
-    String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
-
-    SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertNotNull("Expected a SOAP message", soapBody);
-    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
-
-    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
-    assertEquals(soapBody.getFault().getFaultString(), "VP013 Sender NOT on ConsumerList. Sender was:");
-
-    assertEquals(1,testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
-    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
-    assertStringContains(errorLogMsg, VP013.getCode());
-    assertStringContains(errorLogMsg, "VP013 Sender NOT on ConsumerList. Sender was:");
   }
 }
