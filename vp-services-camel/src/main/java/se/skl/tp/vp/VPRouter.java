@@ -15,9 +15,10 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
 import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
-import se.skl.tp.vp.httpheader.HeaderConfigurationProcessor;
+import se.skl.tp.vp.httpheader.CorrelationIdProcessor;
+import se.skl.tp.vp.httpheader.OutHeaderProcessor;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
-import se.skl.tp.vp.httpheader.InitialHeaderCheckProcessor;
+import se.skl.tp.vp.httpheader.OriginalConsumerIdProcessor;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
@@ -50,10 +51,13 @@ public class VPRouter extends RouteBuilder {
     public static final String LOG_RESP_IN_METHOD = "logRespIn(*)";
 
     @Autowired
-    InitialHeaderCheckProcessor initialHeaderProcessor;
+    CorrelationIdProcessor correlationIdProcessor;
 
     @Autowired
-    HeaderConfigurationProcessor headerProcessor;
+    OriginalConsumerIdProcessor orginialConsumerIdProcessor;
+
+    @Autowired
+    OutHeaderProcessor headerProcessor;
 
     @Autowired
     VagvalProcessor vagvalProcessor;
@@ -129,7 +133,8 @@ public class VPRouter extends RouteBuilder {
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
             .process(requestReaderProcessor)
-            .process(initialHeaderProcessor)
+            .process(correlationIdProcessor)
+            .process(orginialConsumerIdProcessor)
             .bean(MessageInfoLogger.class, LOG_REQ_IN_METHOD)
             .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
             .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
