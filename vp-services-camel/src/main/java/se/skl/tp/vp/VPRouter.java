@@ -55,7 +55,7 @@ public class VPRouter extends RouteBuilder {
     CorrelationIdProcessor correlationIdProcessor;
 
     @Autowired
-    OriginalConsumerIdProcessor orginialConsumerIdProcessor;
+    OriginalConsumerIdProcessor originalConsumerIdProcessor;
 
     @Autowired
     OutHeaderProcessor headerProcessor;
@@ -135,7 +135,7 @@ public class VPRouter extends RouteBuilder {
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
             .process(requestReaderProcessor)
             .process(correlationIdProcessor)
-            .process(orginialConsumerIdProcessor)
+            .process(originalConsumerIdProcessor)
             .bean(MessageInfoLogger.class, LOG_REQ_IN_METHOD)
             .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
             .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)

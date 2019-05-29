@@ -15,6 +15,14 @@ import se.skl.tp.vp.exceptions.VpSemanticException;
 @Slf4j
 public class OriginalConsumerIdProcessorImpl implements OriginalConsumerIdProcessor {
 
+  public boolean isEnforceSenderIdCheck() {
+    return enforceSenderIdCheck;
+  }
+
+  public void setEnforceSenderIdCheck(boolean enforceSenderIdCheck) {
+    this.enforceSenderIdCheck = enforceSenderIdCheck;
+  }
+
   public static String MESSAGE = " Property approve.to.use.header.original.consumerId was configured true and senderId was NOT on property list sender.id.allowed.list. Sender was:";
 
   @Autowired
