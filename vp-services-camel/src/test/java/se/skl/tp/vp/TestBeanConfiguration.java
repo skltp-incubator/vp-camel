@@ -47,13 +47,17 @@ public class TestBeanConfiguration {
 
   @Bean
   public CheckSenderAllowedToUseHeader checkSenderIdAgainstList() {
-    return new CheckSenderAllowedToUseHeaderImpl(
-        environment.getProperty(PropertyConstants.SENDER_ID_ALLOWED_LIST));
+    return new CheckSenderAllowedToUseHeaderImpl(environment.getProperty(PropertyConstants.SENDER_ID_ALLOWED_LIST));
   }
 
   @Bean
   public CheckSenderAllowedToUseHeader emptyCheckSenderIdAgainstList() {
     return new CheckSenderAllowedToUseHeaderImpl(null);
+  }
+
+  @Bean
+  public OriginalConsumerIdProcessorImpl originalConsumerIdProcessor() {
+    return new OriginalConsumerIdProcessorImpl();
   }
 
   @Bean

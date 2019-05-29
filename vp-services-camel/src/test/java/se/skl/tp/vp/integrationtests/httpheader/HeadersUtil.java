@@ -12,7 +12,6 @@ public class HeadersUtil {
   public static String TEST_CONSUMER = "aTestConsumer";
   public static String TEST_CORRELATION_ID = "aTestCorrelationId";
   public static String TEST_SENDER = "tp";
-  public static String TEST_BODY = "aTestBody";
 
   public static Map getHttpsHeadersWithoutMembers() {
     Map<String, Object> headers = new HashMap<>();
@@ -23,11 +22,9 @@ public class HeadersUtil {
   public static Map getHttpHeadersWithoutMembers() {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_SENDER_ID, TEST_SENDER);
-    // This param is set by config, but is needed by HttpSenderIdExtractorProcessor.java before
-    // that.
+    // This param is set by config, but is needed by HttpSenderIdExtractorProcessor.java before that.
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
-    // This header is used as alias for the incoming address, when processing access to vp
-    // (whitelist)
+    // This header is used as alias for the incoming address, when processing access to vp (whitelist)
     headers.put("X-Forwarded-For", constant("1.2.3.4"));
     headers.put(HttpHeaders.SOAP_ACTION, "action");
     return headers;

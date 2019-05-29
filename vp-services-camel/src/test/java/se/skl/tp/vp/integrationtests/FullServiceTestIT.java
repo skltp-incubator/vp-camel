@@ -83,7 +83,7 @@ public class FullServiceTestIT {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID,"originalid");
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, "originalid");
     String response = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_HTTP), headers);
     assertEquals("<mocked answer/>", response);
 
@@ -97,8 +97,6 @@ public class FullServiceTestIT {
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTP, HTTP_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid_in=originalid");
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=originalid");
-
-
   }
 
   @Test
