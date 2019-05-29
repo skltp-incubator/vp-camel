@@ -47,14 +47,14 @@ public class CheckSenderAllowedToUseHeaderTest {
   }
 
   @Test
-  public void ipNotInWhitelistTest() {
+  public void senderIdNotInListTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("1.2.3.4"));
     testLogMessage(1, "SenderId was not on the list " + SENDER_ID_ALLOWED_LIST + ". SenderId: 1.2.3.4, accepted senderId's in "
             + SENDER_ID_ALLOWED_LIST + ": <" + allowedUsers + ">");
   }
 
   @Test
-  public void whitelistMissingTest() {
+  public void listMissingTest() {
     Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("127.0.0.2"));
     testLogMessage(1, "sender.id.allowed.list was NULL, so nothing to compare sender 127.0.0.2 against. " +
             "HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
