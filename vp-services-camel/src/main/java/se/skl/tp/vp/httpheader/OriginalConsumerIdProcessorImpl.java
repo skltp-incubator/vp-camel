@@ -17,7 +17,8 @@ public class OriginalConsumerIdProcessorImpl implements OriginalConsumerIdProces
 
   public static String MESSAGE = " Property approve.to.use.header.original.consumerId was configured true and senderId was NOT on property list sender.id.allowed.list. Sender was:";
 
-  @Autowired private CheckSenderAllowedToUseHeader checkSenderIdAgainstList;
+  @Autowired
+  private CheckSenderAllowedToUseHeader checkSenderIdAgainstList;
 
   @Value("${" + PropertyConstants.APPROVE_THE_USE_OF_HEADER_ORIGINAL_CONSUMER + ":#{true}}")
   private boolean enforceSenderIdCheck;
@@ -31,13 +32,12 @@ public class OriginalConsumerIdProcessorImpl implements OriginalConsumerIdProces
         boolean ok = checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(senderId);
         if (!ok) {
           throw new VpSemanticException(
-              VpSemanticErrorCodeEnum.VP013 + MESSAGE + senderId,
-              VpSemanticErrorCodeEnum.VP013);
+              VpSemanticErrorCodeEnum.VP013 + MESSAGE + senderId, VpSemanticErrorCodeEnum.VP013);
         }
       }
       originalConsumer = "" + exchange.getIn().getHeaders().get(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     }
-    exchange.setProperty(
-        VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalConsumer);
+    exchange.setProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID, originalConsumer);
   }
+
 }

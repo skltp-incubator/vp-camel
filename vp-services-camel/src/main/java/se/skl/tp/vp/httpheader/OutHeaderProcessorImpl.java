@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @Service
 @Slf4j
@@ -36,17 +35,13 @@ public class OutHeaderProcessorImpl implements OutHeaderProcessor {
 
   @Override
   public void process(Exchange exchange) throws Exception {
-    setOriginalConsumerId(exchange);
+    propagateOriginalConsumerId(exchange);
     propagateCorrelationIdToProducer(exchange);
     propagateSenderIdAndVpInstanceIdToProducer(exchange);
     exchange.getIn().getHeaders().put(HttpHeaders.HEADER_USER_AGENT, vpHeaderUserAgent);
     exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, headerContentType);
   }
 
-  /*
-   * If http, propagate x-vp-sender-id and x-vp-instance-id from this VP instance as an outbound http header as they are
-   * both needed together for another VP to determine if x-vp-sender-id is valid.
-   */
   private void propagateSenderIdAndVpInstanceIdToProducer(Exchange exchange) {
     if (isHttpRequest(exchange)) {
       String senderId = (String) exchange.getProperties().get(VPExchangeProperties.SENDER_ID);
@@ -55,10 +50,6 @@ public class OutHeaderProcessorImpl implements OutHeaderProcessor {
     }
   }
 
-  /**
-   * If correlationId wasn't set in incoming request, it has been creeated and set in CorrelationIdProcessorImpl..
-   * @param exchange
-   */
   private void propagateCorrelationIdToProducer(Exchange exchange) {
     String correlationId = (String) exchange.getProperty(VPExchangeProperties.SKLTP_CORRELATION_ID);
     if (isHttpRequest(exchange)) {
@@ -67,20 +58,13 @@ public class OutHeaderProcessorImpl implements OutHeaderProcessor {
       if (propagateCorrelationIdForHttps) {
         exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, correlationId);
       } else {
-        exchange.getIn().setHeader(HttpHeaders.X_SKLTP_CORRELATION_ID, null);
+        exchange.getIn().removeHeader(HttpHeaders.X_SKLTP_CORRELATION_ID);
       }
     }
   }
 
-  /**
-   * If exchange.getProperty(IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID) NOT is null/empty, then
-   * HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID has already been set on this exchange,
-   * checked in OriginalConsumerIdProcessorImpl.
-   * @param exchange
-   */
-  private void setOriginalConsumerId(Exchange exchange) {
-    String originalServiceConsumerHsaId =
-        (String) exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+  private void propagateOriginalConsumerId(Exchange exchange) {
+    String originalServiceConsumerHsaId = (String) exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
 
     if (StringUtils.isEmpty(originalServiceConsumerHsaId)) {
       originalServiceConsumerHsaId = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);

@@ -38,10 +38,6 @@ public class CheckSenderAllowedToUseHeaderImpl implements CheckSenderAllowedToUs
     }
   }
 
-  /**
-   * This method check's whether the caller has the right to use the header
-   * X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID.
-   */
   public boolean isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(String senderId) {
 
     if (senderId == null || senderId.trim().isEmpty()) {
@@ -59,8 +55,8 @@ public class CheckSenderAllowedToUseHeaderImpl implements CheckSenderAllowedToUs
       return false;
     }
 
-    for (String ipAddress : senderIdArray) {
-      if (senderId.trim().startsWith(ipAddress.trim())) {
+    for (String id : senderIdArray) {
+      if (senderId.trim().startsWith(id.trim())) {
         LOGGER.info(senderIdOnList, senderId, PropertyConstants.SENDER_ID_ALLOWED_LIST);
         return true;
       }
