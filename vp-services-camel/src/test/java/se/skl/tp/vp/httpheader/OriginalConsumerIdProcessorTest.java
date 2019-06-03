@@ -7,7 +7,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
-import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -17,12 +16,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import se.skl.tp.vp.TestBeanConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
+import se.skl.tp.vp.errorhandling.ExceptionUtil;
+import se.skl.tp.vp.errorhandling.VpCodeMessages;
 
-@RunWith( CamelSpringBootRunner.class )
-@ContextConfiguration(classes = TestBeanConfiguration.class)
+@RunWith( SpringRunner.class )
+@ContextConfiguration(classes = {OriginalConsumerIdProcessorImpl.class, ExceptionUtil.class, VpCodeMessages.class, CheckSenderAllowedToUseHeaderImpl.class})
 @TestPropertySource("classpath:application.properties")
 public class OriginalConsumerIdProcessorTest {
 

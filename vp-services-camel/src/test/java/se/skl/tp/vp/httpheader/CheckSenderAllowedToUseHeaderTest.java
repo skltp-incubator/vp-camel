@@ -3,23 +3,19 @@ package se.skl.tp.vp.httpheader;
 
 import static se.skl.tp.vp.constants.PropertyConstants.SENDER_ID_ALLOWED_LIST;
 
-import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import se.skl.tp.vp.TestBeanConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.util.TestLogAppender;
 
 
-@RunWith( CamelSpringBootRunner.class )
-@ContextConfiguration(classes = TestBeanConfiguration.class)
-@TestPropertySource("classpath:application.properties")
+@RunWith(SpringRunner.class)
+@TestPropertySource("classpath:Application.properties")
 public class CheckSenderAllowedToUseHeaderTest {
 
   @Value("${" + SENDER_ID_ALLOWED_LIST + "}")
@@ -29,14 +25,14 @@ public class CheckSenderAllowedToUseHeaderTest {
 
   private static final String LOG_CLASS = "se.skl.tp.vp.httpheader.CheckSenderAllowedToUseHeaderImpl";
 
-  @Autowired
   CheckSenderAllowedToUseHeader checkSenderIdAgainstList;
 
-  @Autowired
-  CheckSenderAllowedToUseHeader emptyCheckSenderIdAgainstList;
 
   @Before
-  public void beforeTest(){
+  public void beforeTest() {
+    if(checkSenderIdAgainstList==null) {
+      checkSenderIdAgainstList = new CheckSenderAllowedToUseHeaderImpl(allowedUsers);
+    }
     testLogAppender.clearEvents();
   }
 
@@ -44,18 +40,19 @@ public class CheckSenderAllowedToUseHeaderTest {
   public void senderIdInListTest() {
     Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER1"));
     Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
-    testLogMessage(2, "Sender 'SENDER1' allowed to set "+HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+    testLogMessage(2, "Sender 'SENDER1' allowed to set " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
   }
 
   @Test
   public void senderIdNotInListTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER3"));
     testLogMessage(1, "Sender 'SENDER3' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '"
-            + SENDER_ID_ALLOWED_LIST + "': [" + allowedUsers + "]");
+        + SENDER_ID_ALLOWED_LIST + "': [" + allowedUsers + "]");
   }
 
   @Test
   public void listMissingTest() {
+    CheckSenderAllowedToUseHeader emptyCheckSenderIdAgainstList = new CheckSenderAllowedToUseHeaderImpl(null);
     Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
     testLogMessage(1, "Sender 'SENDER2' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '"
         + SENDER_ID_ALLOWED_LIST + "': [null]");
@@ -65,14 +62,14 @@ public class CheckSenderAllowedToUseHeaderTest {
   public void senderIDNullTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(null));
     testLogMessage(1, "The sender was null/empty. Could not check address in list " + SENDER_ID_ALLOWED_LIST +
-            ". HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
+        ". HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
   }
 
   @Test
   public void senderIDEmptyTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(""));
     testLogMessage(1, "The sender was null/empty. Could not check address in list " + SENDER_ID_ALLOWED_LIST +
-            ". HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
+        ". HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
   }
 
   private void testLogMessage(int num, String message) {

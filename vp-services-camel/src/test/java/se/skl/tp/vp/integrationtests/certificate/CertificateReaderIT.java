@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
-import se.skl.tp.vp.TestBeanConfiguration;
 
 @RunWith( CamelSpringBootRunner.class )
 @ContextConfiguration(classes = TestBeanConfiguration.class)

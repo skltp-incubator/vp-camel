@@ -2,12 +2,12 @@ package se.skl.tp.vp.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 @Data
 @Configuration
-//@PropertySource("classpath:application-security.properties")
+@EnableConfigurationProperties
 @ConfigurationProperties(prefix = "tp.tls")
 public class SecurityProperties {
 
