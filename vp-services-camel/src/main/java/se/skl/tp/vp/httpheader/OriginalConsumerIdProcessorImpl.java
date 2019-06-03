@@ -37,12 +37,10 @@ public class OriginalConsumerIdProcessorImpl implements OriginalConsumerIdProces
     String originalConsumer = null;
 
     if (exchange.getIn().getHeaders().containsKey(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID)) {
-      if (enforceSenderIdCheck) {
-        String senderId = (String) exchange.getProperty(VPExchangeProperties.SENDER_ID);
-        boolean ok = checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(senderId);
-        if (!ok) {
+      String senderId = exchange.getProperty(VPExchangeProperties.SENDER_ID, String.class);
+      boolean isSenderAllowed = checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(senderId);
+      if (enforceSenderIdCheck && !isSenderAllowed) {
           throw exceptionUtil.createVpSemanticException(VP013);
-        }
       }
       originalConsumer = exchange.getIn().getHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, String.class);
     }

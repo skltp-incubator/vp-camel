@@ -44,21 +44,21 @@ public class CheckSenderAllowedToUseHeaderTest {
   public void senderIdInListTest() {
     Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER1"));
     Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
-    testLogMessage(2, "Sender SENDER1 allowed to set "+HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+    testLogMessage(2, "Sender 'SENDER1' allowed to set "+HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
   }
 
   @Test
   public void senderIdNotInListTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER3"));
-    testLogMessage(1, "Sender SENDER3 not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in "
-            + SENDER_ID_ALLOWED_LIST + ": [" + allowedUsers + "]");
+    testLogMessage(1, "Sender 'SENDER3' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '"
+            + SENDER_ID_ALLOWED_LIST + "': [" + allowedUsers + "]");
   }
 
   @Test
   public void listMissingTest() {
     Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
-    testLogMessage(1, "sender.id.allowed.list was NULL, so nothing to compare sender SENDER2 against. " +
-            "HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
+    testLogMessage(1, "Sender 'SENDER2' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '"
+        + SENDER_ID_ALLOWED_LIST + "': [null]");
   }
 
   @Test

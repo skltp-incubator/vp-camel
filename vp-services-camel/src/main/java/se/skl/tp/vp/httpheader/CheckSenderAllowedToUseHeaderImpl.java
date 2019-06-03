@@ -21,12 +21,8 @@ public class CheckSenderAllowedToUseHeaderImpl implements CheckSenderAllowedToUs
   private String senderIdString;
 
   private static final String MSG_SENDERID_MISSING = "The sender was null/empty. Could not check address in list {}. HTTP header that caused checking: {}.";
-  private static final String MSG_CONFIGURATION_MISSING = "{} was NULL, so nothing to compare sender {} against. HTTP header that caused checking: {}.";
-  private static final String MSG_CONFIGURATION_EMPTY = "A check for sender {} against the ip address in {} was requested, but the list is configured empty.\n"
-          + "Update the list OR set flag sender.id.check.enforce to false.\n" +
-          "HTTP header that caused checking: {}.";
-  private static final String MSG_SENDER_ALLOWED_SET_HEADER = "Sender {} allowed to set x-rivta-original-serviceconsumer-hsaid";
-  private static final String MSG_SENDER_NOT_ALLOWED_SET_HEADER = "Sender {} not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in {}: [{}]";
+  private static final String MSG_SENDER_ALLOWED_SET_HEADER = "Sender '{}' allowed to set x-rivta-original-serviceconsumer-hsaid";
+  private static final String MSG_SENDER_NOT_ALLOWED_SET_HEADER = "Sender '{}' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '{}': [{}]";
 
   @Autowired
   public CheckSenderAllowedToUseHeaderImpl(@Value("${" + PropertyConstants.SENDER_ID_ALLOWED_LIST + ":#{null}}") String senderAllowedList) {
@@ -44,13 +40,8 @@ public class CheckSenderAllowedToUseHeaderImpl implements CheckSenderAllowedToUs
       return false;
     }
 
-    if (senderIdArray == null) {
-      log.warn(MSG_CONFIGURATION_MISSING, PropertyConstants.SENDER_ID_ALLOWED_LIST, senderId, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
-      return false;
-    }
-
-    if (senderIdArray.length == 0) {
-      log.warn(MSG_CONFIGURATION_EMPTY, senderId, PropertyConstants.SENDER_ID_ALLOWED_LIST, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+    if (senderIdArray == null || senderIdArray.length == 0) {
+      log.warn(MSG_SENDER_NOT_ALLOWED_SET_HEADER, senderId, PropertyConstants.SENDER_ID_ALLOWED_LIST, senderIdString);
       return false;
     }
 
