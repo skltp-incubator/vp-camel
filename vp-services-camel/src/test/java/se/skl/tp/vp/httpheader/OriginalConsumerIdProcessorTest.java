@@ -1,12 +1,17 @@
 package se.skl.tp.vp.httpheader;
 
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +21,15 @@ import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith( CamelSpringBootRunner.class )
 @ContextConfiguration(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 public class OriginalConsumerIdProcessorTest {
 
-  private String xRivtaOriginalConsumerId = "aTestConsumerId";
-  private String approvedSenderId = "127.0.0.1";
-  private String notApprovedSenderId = "1.2.3.4";
+  private static final String A_TEST_CONSUMER_ID = "aTestConsumerId";
+  private static final String APPROVED_SENDER_ID = "SENDER1";
+  private static final String NOT_APPROVED_SENDER_ID = "SENDER3";
+
   private boolean configuredValue;
 
   @Rule
@@ -48,21 +52,21 @@ public class OriginalConsumerIdProcessorTest {
   public void senderTestedForUseOfXrivtaOriginalConsumerId() throws Exception {
     Exchange exchange = createExchange();
 
-    exchange.setProperty(VPExchangeProperties.SENDER_ID, approvedSenderId);
-    exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, xRivtaOriginalConsumerId);
+    exchange.setProperty(VPExchangeProperties.SENDER_ID, APPROVED_SENDER_ID);
+    exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, A_TEST_CONSUMER_ID);
     originalConsumerIdProcessor.setEnforceSenderIdCheck(true);
     originalConsumerIdProcessor.process(exchange);
-    assertEquals(xRivtaOriginalConsumerId, exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+    assertEquals(A_TEST_CONSUMER_ID, exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
   }
 
   @Test
   public void senderNotTestedForUseOfXrivtaOriginalConsumerId() throws Exception {
     Exchange exchange = createExchange();
-    exchange.setProperty(VPExchangeProperties.SENDER_ID, notApprovedSenderId);
-    exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, xRivtaOriginalConsumerId);
+    exchange.setProperty(VPExchangeProperties.SENDER_ID, NOT_APPROVED_SENDER_ID);
+    exchange.getIn().setHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, A_TEST_CONSUMER_ID);
     originalConsumerIdProcessor.setEnforceSenderIdCheck(false);
     originalConsumerIdProcessor.process(exchange);
-    assertEquals(xRivtaOriginalConsumerId, exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
+    assertEquals(A_TEST_CONSUMER_ID, exchange.getProperty(VPExchangeProperties.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
   }
 
 

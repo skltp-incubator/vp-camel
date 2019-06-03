@@ -1,6 +1,8 @@
 package se.skl.tp.vp.httpheader;
 
 
+import static se.skl.tp.vp.constants.PropertyConstants.SENDER_ID_ALLOWED_LIST;
+
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,9 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
+import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.util.TestLogAppender;
-
-import static se.skl.tp.vp.constants.PropertyConstants.SENDER_ID_ALLOWED_LIST;
 
 
 @RunWith( CamelSpringBootRunner.class )
@@ -26,7 +27,7 @@ public class CheckSenderAllowedToUseHeaderTest {
 
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
-  private static String LOG_CLASS = "se.skl.tp.vp.httpheader.CheckSenderAllowedToUseHeaderImpl";
+  private static final String LOG_CLASS = "se.skl.tp.vp.httpheader.CheckSenderAllowedToUseHeaderImpl";
 
   @Autowired
   CheckSenderAllowedToUseHeader checkSenderIdAgainstList;
@@ -41,22 +42,22 @@ public class CheckSenderAllowedToUseHeaderTest {
 
   @Test
   public void senderIdInListTest() {
-    Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("127.0.0.1"));
-    Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("127.0.0.2"));
-    testLogMessage(2, "Caller 127.0.0.1 matches ip address/subdomain in " + SENDER_ID_ALLOWED_LIST);
+    Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER1"));
+    Assert.assertTrue(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
+    testLogMessage(2, "Sender SENDER1 allowed to set "+HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
   }
 
   @Test
   public void senderIdNotInListTest() {
-    Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("1.2.3.4"));
-    testLogMessage(1, "SenderId was not on the list " + SENDER_ID_ALLOWED_LIST + ". SenderId: 1.2.3.4, accepted senderId's in "
-            + SENDER_ID_ALLOWED_LIST + ": <" + allowedUsers + ">");
+    Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER3"));
+    testLogMessage(1, "Sender SENDER3 not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in "
+            + SENDER_ID_ALLOWED_LIST + ": [" + allowedUsers + "]");
   }
 
   @Test
   public void listMissingTest() {
-    Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("127.0.0.2"));
-    testLogMessage(1, "sender.id.allowed.list was NULL, so nothing to compare sender 127.0.0.2 against. " +
+    Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
+    testLogMessage(1, "sender.id.allowed.list was NULL, so nothing to compare sender SENDER2 against. " +
             "HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
   }
 
