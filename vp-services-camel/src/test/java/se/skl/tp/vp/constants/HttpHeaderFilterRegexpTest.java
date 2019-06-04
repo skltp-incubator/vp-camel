@@ -1,19 +1,17 @@
 package se.skl.tp.vp.constants;
+
 import static junit.framework.TestCase.assertTrue;
-import org.apache.camel.test.spring.CamelSpringBootRunner;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import se.skl.tp.vp.TestBeanConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
 
-@RunWith(CamelSpringBootRunner.class)
-@SpringBootTest(classes = TestBeanConfiguration.class)
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
+@RunWith( SpringRunner.class )
+@SpringBootTest(classes = HttpHeaderFilterRegexp.class)
 public class HttpHeaderFilterRegexpTest {
 
   @Autowired
@@ -25,6 +23,7 @@ public class HttpHeaderFilterRegexpTest {
   public void init() {
     testData = new HeadersTestData();
  }
+
   @Test
   public void testDefaultRemoveRegExp() {
     String regExp = reg.getRemoveRegExp();
@@ -40,6 +39,5 @@ public class HttpHeaderFilterRegexpTest {
       assertTrue(header.matches(regExp));
     }
   }
-
 
 }
