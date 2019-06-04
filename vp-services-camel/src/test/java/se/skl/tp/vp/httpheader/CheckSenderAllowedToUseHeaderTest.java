@@ -15,7 +15,7 @@ import se.skl.tp.vp.util.TestLogAppender;
 
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("classpath:Application.properties")
+@TestPropertySource("classpath:application.properties")
 public class CheckSenderAllowedToUseHeaderTest {
 
   @Value("${" + SENDER_ID_ALLOWED_LIST + "}")
@@ -26,7 +26,6 @@ public class CheckSenderAllowedToUseHeaderTest {
   private static final String LOG_CLASS = "se.skl.tp.vp.httpheader.CheckSenderAllowedToUseHeaderImpl";
 
   CheckSenderAllowedToUseHeader checkSenderIdAgainstList;
-
 
   @Before
   public void beforeTest() {
