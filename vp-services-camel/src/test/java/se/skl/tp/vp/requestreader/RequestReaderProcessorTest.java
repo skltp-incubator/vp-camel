@@ -70,6 +70,52 @@ public class RequestReaderProcessorTest extends CamelTestSupport {
     resultEndpoint.assertIsSatisfied();
   }
 
+  @Test
+  public void testExtractInfoFromMessageWhereReceiverIsEmpty() throws Exception {
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE,
+        "urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1");
+
+    template.sendBody(createGetActivitiesRiv20Request(""));
+    resultEndpoint.assertIsSatisfied();
+    assertNull(resultEndpoint.getExchanges().get(0).getProperty(VPExchangeProperties.RECEIVER_ID));
+  }
+
+
+  @Test
+  public void testExtractInfoFromMessageWhereReceiverIsJustSpaces() throws Exception {
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE,
+        "urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1");
+
+    template.sendBody(createGetActivitiesRiv20Request("   "));
+    resultEndpoint.assertIsSatisfied();
+    assertNull(resultEndpoint.getExchanges().get(0).getProperty(VPExchangeProperties.RECEIVER_ID));
+  }
+
+  @Test
+  public void testExtractInfoFromMessageWhereReceiverStartsWithSpace() throws Exception {
+    resultEndpoint.expectedBodiesReceived(createGetActivitiesRiv20Request(" UnitTest"));
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RECEIVER_ID, " UnitTest");
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RIV_VERSION, RequestReaderProcessorXMLEventReader.RIVTABP_20);
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE,
+        "urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1");
+
+    template.sendBody(createGetActivitiesRiv20Request(" UnitTest"));
+    resultEndpoint.assertIsSatisfied();
+  }
+
+  @Test
+  public void testExtractInfoFromMessageWhereReceiverEndsWithSpace() throws Exception {
+    resultEndpoint.expectedBodiesReceived(createGetActivitiesRiv20Request("UnitTest "));
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RECEIVER_ID, "UnitTest ");
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.RIV_VERSION, RequestReaderProcessorXMLEventReader.RIVTABP_20);
+    resultEndpoint.expectedPropertyReceived(VPExchangeProperties.SERVICECONTRACT_NAMESPACE,
+        "urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1");
+
+    template.sendBody(createGetActivitiesRiv20Request("UnitTest "));
+    resultEndpoint.assertIsSatisfied();
+  }
+
+
   @Override
   protected RouteBuilder createRouteBuilder() {
     return new RouteBuilder() {
