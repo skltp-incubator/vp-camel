@@ -12,16 +12,16 @@ import java.net.InetSocketAddress;
 @Service
 public class SenderIpExtractorFromHeader implements SenderIpExtractor {
 
-    private final String VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER;
+    private final String forwardProxyRemoteIpHeaderName;
 
     @Autowired
-    public SenderIpExtractorFromHeader(@Value("${" + PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}") String vagvalrouter_sender_ip_adress_http_header) {
-        VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER = vagvalrouter_sender_ip_adress_http_header;
+    public SenderIpExtractorFromHeader(@Value("${" + PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}") String forwardProxyRemoteIpHeaderName) {
+        this.forwardProxyRemoteIpHeaderName = forwardProxyRemoteIpHeaderName;
     }
 
     @Override
     public String extractSenderIpAdress(Message message) {
-        String senderIpAdress  = message.getHeader(VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER, String.class);
+        String senderIpAdress  = message.getHeader(forwardProxyRemoteIpHeaderName, String.class);
         
         if(senderIpAdress == null){
             InetSocketAddress inetSocketAddress = message.getHeader(NettyConstants.NETTY_REMOTE_ADDRESS, InetSocketAddress.class);

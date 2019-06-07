@@ -1,7 +1,5 @@
 package se.skl.tp.vp.certificate;
 
-import se.skl.tp.vp.constants.HttpHeaders;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -9,97 +7,74 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import lombok.extern.log4j.Log4j2;
+import se.skl.tp.vp.constants.HttpHeaders;
 
 /**
- * 
  * Generated a X509Certificate from e pem-string
- * 
  */
+@Log4j2
 public class PemConverter {
 
-	private static final String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
-	private static final String END_HEADER = "-----END CERTIFICATE-----";
+  private static final String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
+  private static final String END_HEADER = "-----END CERTIFICATE-----";
 
-	private static Logger LOGGER = LogManager.getLogger(PemConverter.class);
+  private PemConverter() {
+    // Static utility class
+  }
 
-	/*
-	 * PEM - (Privacy Enhanced Mail) Base64 encoded DER certificate, enclosed
-	 * between "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
-	 */
-	public static X509Certificate buildCertificate(Object pemCert) throws CertificateException {
+  /*
+   * PEM - (Privacy Enhanced Mail) Base64 encoded DER certificate, enclosed
+   * between "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
+   */
+  public static X509Certificate buildCertificate(Object pemCert) throws CertificateException {
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Got possible PEM-encoded certificate");
-			LOGGER.debug((String) pemCert);
-		}
+    String pemCertString = (String) pemCert;
+    log.debug("Pem certificate in: {}", pemCertString);
 
-		String pemCertString = (String) pemCert;
+    InputStream certificateInfo = extractCerticate(pemCertString);
+    Certificate certificate = generateX509Certificate(certificateInfo);
 
-		if (containsCorrectPemHeaders(pemCertString)) {
+    log.debug("Certificate converted to X509Certificate!");
+    log.debug("Certificate principalname: {}", ((X509Certificate) certificate).getSubjectX500Principal().getName());
+    return (X509Certificate) certificate;
+  }
 
-			InputStream certificateInfo = extractCerticate(pemCertString);
-			Certificate certificate = generateCertificate(certificateInfo);
+  private static Certificate generateX509Certificate(InputStream is) throws CertificateException {
+    CertificateFactory factory = CertificateFactory.getInstance("X.509");
+    return factory.generateCertificate(is);
+  }
 
-			if (certificate instanceof X509Certificate) {
-				LOGGER.debug("Certificate converted to X509Certificate!");
-				LOGGER.debug("Certificate principalname: "
-						+ ((X509Certificate) certificate).getSubjectX500Principal().getName());
-				return (X509Certificate) certificate;
-			} else {
-				throw new CertificateException("Unkown certificate type");
-			}
-		} else {
-			throw new CertificateException("Unkown start/end headers in certificate!");
-		}
-	}
+  private static BufferedInputStream extractCerticate(String pemCertString) {
 
-	private static Certificate generateCertificate(InputStream is) throws CertificateException {
-		CertificateFactory factory = CertificateFactory.getInstance("X.509");
-		Certificate certificate = factory.generateCertificate(is);
-		return certificate;
-	}
+    int beginHeader = pemCertString.indexOf(BEGIN_HEADER) + BEGIN_HEADER.length();
+    int endHeader = pemCertString.indexOf(END_HEADER);
 
-	private static BufferedInputStream extractCerticate(String pemCertString) {
+    StringBuilder formattedCert = new StringBuilder();
+    formattedCert.append(BEGIN_HEADER);
+    formattedCert.append("\n");
+    formattedCert.append(pemCertString.substring(beginHeader, endHeader).replaceAll("\\s+", ""));
+    formattedCert.append("\n");
+    formattedCert.append(END_HEADER);
 
-		int beginHeader = pemCertString.indexOf(BEGIN_HEADER) + BEGIN_HEADER.length();
-		int endHeader = pemCertString.indexOf(END_HEADER);
+    pemCertString = formattedCert.toString();
 
-		StringBuffer formattedCert = new StringBuffer();
-		formattedCert.append(BEGIN_HEADER);
-		formattedCert.append("\n");
-		formattedCert.append(pemCertString.substring(beginHeader, endHeader).replaceAll("\\s+", ""));
-		formattedCert.append("\n");
-		formattedCert.append(END_HEADER);
+    InputStream is = new ByteArrayInputStream((pemCertString).getBytes());
+    return new BufferedInputStream(is);
+  }
 
-		pemCertString = formattedCert.toString();
+  public static boolean isPEMCertificate(Object certificate) {
+    if (certificate instanceof String && containsCorrectPemHeaders((String) certificate)) {
+      log.debug("Found possible PEM-encoded certificate in httpheader {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
+      return true;
+    }
+    return false;
+  }
 
-		InputStream is = new ByteArrayInputStream(((String) pemCertString).getBytes());
-		BufferedInputStream bis = new BufferedInputStream(is);
-		return bis;
-	}
-
-	public static boolean isPEMCertificate(Object certificate) {
-		if (certificate != null && certificate instanceof String && containsCorrectPemHeaders((String) certificate)) {
-			LOGGER.debug("Found possible PEM-encoded certificate in httpheader {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean containsCorrectPemHeaders(String pemCertString) {
-		int beginHeader = pemCertString.indexOf(BEGIN_HEADER);
-		int endHeader = pemCertString.indexOf(END_HEADER);
-		return beginHeader != -1 && endHeader != -1;
-	}
-
-	/*static boolean isX509Certificate(Object certificate) {
-		if (certificate instanceof X509Certificate) {
-			LOGGER.debug("Found X509Certificate in httpheader: {}", HttpHeaders.REVERSE_PROXY_HEADER_NAME);
-			return true;
-		}
-		return false;
-	}*/
+  private static boolean containsCorrectPemHeaders(String pemCertString) {
+    int beginHeader = pemCertString.indexOf(BEGIN_HEADER);
+    int endHeader = pemCertString.indexOf(END_HEADER);
+    return beginHeader != -1 && endHeader != -1;
+  }
 
 }

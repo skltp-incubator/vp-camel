@@ -1,6 +1,7 @@
 package se.skl.tp.vp.requestreader;
 
-import java.util.Stack;
+import java.util.Deque;
+import java.util.LinkedList;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -40,7 +41,7 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
       throws XMLStreamException {
 
     boolean bodyFound = false;
-    Stack<String> elementHierarchy = new Stack<>();
+    Deque<String> elementHierarchy = new LinkedList<>();
     PayloadInfo payloadInfo = new PayloadInfo();
 
     while (eventReader.hasNext()) {
@@ -56,13 +57,13 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
           payloadInfo.setServiceContractNamespace(namespace);
           break;
         }
-        if (elementHierarchy.peek().equalsIgnoreCase("Body")) {
+        if (elementHierarchy.peekLast().equalsIgnoreCase("Body")) {
           bodyFound = true;
         }
       } else if (event.isCharacters()) {
-        parseForReceiver(elementHierarchy.peek(), payloadInfo, event);
+        parseForReceiver(elementHierarchy.peekLast(), payloadInfo, event);
       } else if (event.isEndElement()) {
-        elementHierarchy.pop();
+        elementHierarchy.removeLast();
       }
     }
     return payloadInfo;
@@ -73,7 +74,10 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
       payloadInfo.setReceiverId(event.asCharacters().getData());
       payloadInfo.setRivVersion(RIVTABP_21);
     } else if (localPart.equalsIgnoreCase("To")) {
-      payloadInfo.setReceiverId(event.asCharacters().getData());
+      String receiver = event.asCharacters().getData();
+      if(!receiver.trim().isEmpty()) {
+        payloadInfo.setReceiverId(event.asCharacters().getData());
+      }
       payloadInfo.setRivVersion(RIVTABP_20);
     }
   }
