@@ -47,6 +47,9 @@ public class OutHeaderProcessorImpl implements OutHeaderProcessor {
       String senderId = (String) exchange.getProperties().get(VPExchangeProperties.SENDER_ID);
       exchange.getIn().getHeaders().put(HttpHeaders.X_VP_SENDER_ID, senderId);
       exchange.getIn().getHeaders().put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    } else {
+      exchange.getIn().getHeaders().remove(HttpHeaders.X_VP_SENDER_ID);
+      exchange.getIn().getHeaders().remove(HttpHeaders.X_VP_INSTANCE_ID);
     }
   }
 

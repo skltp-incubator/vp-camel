@@ -190,11 +190,20 @@ public class HttpsHeadersIT extends CamelTestSupport {
 
   @Test
   public void testInstanceIdDontGetPropagatedForHttps () {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpsHeadersWithoutMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
     assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeader(X_VP_INSTANCE_ID));
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertFalse(respOutLogMsg.contains(X_VP_INSTANCE_ID));
+  }
+
+  @Test
+  public void testXvPSenderIdDontGetPropagatedForHttps () {
+    template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    assertNull(resultEndpoint.getExchanges().get(0).getIn().getHeader(X_VP_SENDER_ID));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertFalse(respOutLogMsg.contains(X_VP_SENDER_ID));
   }
 
   @Test
