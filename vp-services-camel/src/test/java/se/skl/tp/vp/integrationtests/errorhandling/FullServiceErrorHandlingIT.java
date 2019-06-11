@@ -70,16 +70,12 @@ public class FullServiceErrorHandlingIT {
 
     String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_UNIT_TEST), headers);
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
-    assertStringContains(soapBody.getFault().getFaultString(), VP002.getCode());
+    assertSoapFault(soapBody, VP002.getCode(), "");
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP002");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP002");
-
+    assertErrorLog(VP002.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP002");
   }
 
   @Test
@@ -88,16 +84,12 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(""), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP003.getCode(), "");
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP003.getCode());
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP003");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP003");
-
+    assertErrorLog(VP003.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP003");
   }
 
   @Test
@@ -106,18 +98,12 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_WITH_NO_VAGVAL), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP004.getCode(), " No receiverId (logical address) found for",
+            RECEIVER_WITH_NO_VAGVAL, TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP004.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(),
-        " No receiverId (logical address) found for");
-    assertStringContains(soapBody.getFault().getFaultString(), RECEIVER_WITH_NO_VAGVAL);
-    assertStringContains(soapBody.getFault().getFaultString(), TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP004");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP004");
+    assertErrorLog(VP004.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP004");
   }
 
   @Test
@@ -125,16 +111,12 @@ public class FullServiceErrorHandlingIT {
     Map<String, Object> headers = new HashMap<>();
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_UNKNOWN_RIVVERSION), headers);
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP005.getCode(), "rivtabp20");
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP005.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), "rivtabp20");
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP005");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP005");
+    assertErrorLog(VP005.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP005");
   }
 
   @Test
@@ -143,16 +125,12 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_MULTIPLE_VAGVAL), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP006.getCode(), "RecevierMultipleVagval");
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP006.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), "RecevierMultipleVagval");
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP006");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP006");
+    assertErrorLog(VP006.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP006");
   }
 
   @Test
@@ -161,22 +139,12 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NOT_AUHORIZED), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP007.getCode(), "Authorization missing for", RECEIVER_NOT_AUHORIZED, TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP007.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(),
-        "Authorization missing for");
-    assertStringContains(soapBody.getFault().getFaultString(),
-        RECEIVER_NOT_AUHORIZED);
-    assertStringContains(soapBody.getFault().getFaultString(),
-        TJANSTEKONTRAKT_GET_CERTIFICATE_KEY);
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP007");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP007");
-
+    assertErrorLog(VP007.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP007");
   }
 
   @Test
@@ -185,15 +153,12 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP009.getCode(), "");
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP009.getCode());
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP009");
-    assertStringContains(errorLogMsg, "Stacktrace=java.net.ConnectException: Cannot connect to");
+    assertErrorLog(VP009.getCode(), "Stacktrace=java.net.ConnectException: Cannot connect to");
 
     String respOutLogMsg = getAndAssertRespOutLog();
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
@@ -207,16 +172,12 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_NO_PHYSICAL_ADDRESS), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
+    assertSoapFault(soapBody, VP010.getCode(), "RecevierNoPhysicalAddress");
+    assertErrorLog(VP010.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP010");
 
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
-    assertStringContains(soapBody.getFault().getFaultString(), VP010.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), "RecevierNoPhysicalAddress");
 
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP010");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP010");
   }
 
   @Test
@@ -228,14 +189,8 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
-
-    assertStringContains(soapBody.getFault().getFaultString(), VP011.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), "10.20.30.40");
-
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP011");
-    assertStringContains(errorLogMsg, "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
+    assertSoapFault(soapBody, VP011.getCode(), "10.20.30.40");
+    assertErrorLog(VP011.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
   }
 
   @Test
@@ -247,13 +202,8 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
-    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), msgVP013);
-
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, "-errorCode=VP013");
-    assertStringContains(errorLogMsg, msgVP013);
+    assertSoapFault(soapBody,VP013.getCode(), msgVP013);
+    assertErrorLog(VP013.getCode(), msgVP013);
   }
 
   @Test
@@ -265,23 +215,31 @@ public class FullServiceErrorHandlingIT {
     String result = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_NO_PRODUCER_AVAILABLE), headers);
 
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
-    assertSoapFault(soapBody);
-    assertStringContains(soapBody.getFault().getFaultString(), VP013.getCode());
-    assertStringContains(soapBody.getFault().getFaultString(), msgVP013);
-
-    String errorLogMsg = getAndAssertErrorLog();
-    assertStringContains(errorLogMsg, VP013.getCode());
-    assertStringContains(errorLogMsg, msgVP013);
+    assertSoapFault(soapBody,VP013.getCode(),msgVP013);
+    assertErrorLog(VP013.getCode(), msgVP013);
   }
 
-  private void assertSoapFault(SOAPBody soapBody) {
+  private void assertSoapFault(SOAPBody soapBody, String code, String message) {
     assertNotNull("Expected a SOAP message", soapBody);
     assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+    assertStringContains(soapBody.getFault().getFaultString(), code);
+    assertStringContains(soapBody.getFault().getFaultString(), message);
   }
 
-  private String getAndAssertErrorLog() {
+  private void assertSoapFault(SOAPBody soapBody, String code, String mess1, String mess2, String mess3) {
+    assertNotNull("Expected a SOAP message", soapBody);
+    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
+    assertStringContains(soapBody.getFault().getFaultString(), code);
+    assertStringContains(soapBody.getFault().getFaultString(), mess1);
+    assertStringContains(soapBody.getFault().getFaultString(), mess2);
+    assertStringContains(soapBody.getFault().getFaultString(), mess3);
+  }
+
+  private void assertErrorLog(String code, String message) {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
-    return testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(errorLogMsg, code);
+    assertStringContains(errorLogMsg, message);
   }
 
   private String getAndAssertRespOutLog() {
