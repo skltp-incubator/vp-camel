@@ -12,26 +12,25 @@ import se.skl.tp.vp.constants.PropertyConstants;
 public class IPWhitelistHandlerImpl implements IPWhitelistHandler {
 
   private String[] whiteListArray;
+  private String whitelist;
 
   @Autowired
-  public IPWhitelistHandlerImpl(
-      @Value("${" + PropertyConstants.IP_WHITELIST + "}") String whitelistString) {
+  public IPWhitelistHandlerImpl(@Value("${" + PropertyConstants.IP_WHITELIST + "}") String whitelistString) {
     if (whitelistString != null && !whitelistString.isEmpty()) {
       whiteListArray = whitelistString.split(",");
+      whitelist = whitelistString;
     }
   }
 
   @Override
   public boolean isCallerOnWhiteList(String senderIpAdress) {
-    log.debug(
-        "Check if caller {} is in white list before using HTTP header {}...",
+    log.debug("Check if caller {} is in white list before using HTTP header {}...",
         senderIpAdress,
         NettyConstants.NETTY_REMOTE_ADDRESS);
 
     // When no ip address exist we can not validate against whitelist
     if (senderIpAdress == null || senderIpAdress.trim().isEmpty()) {
-      log.warn(
-          "A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ",
+      log.warn("A potential empty ip address from the caller, ip adress is: {}. HTTP header that caused checking: {} ",
           senderIpAdress,
           NettyConstants.NETTY_REMOTE_ADDRESS);
       return false;
@@ -52,9 +51,9 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler {
     }
 
     log.warn(
-        "Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST: {}",
+        "Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST:[{}]",
         senderIpAdress,
-        this.toString());
+        whitelist);
     return false;
   }
 }

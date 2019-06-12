@@ -63,6 +63,11 @@
             <AppenderRef ref="Console"/>
         </Logger>
 
+        <Logger name="se.skl.tp.vp.httpheader.IPWhitelistHandlerImpl" level="WARN" additivity="false">
+            <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
         <Root level="WARN">
             <!--<AppenderRef ref="RollingRandomAccessFile"/>-->
             <AppenderRef ref="Console"/>
