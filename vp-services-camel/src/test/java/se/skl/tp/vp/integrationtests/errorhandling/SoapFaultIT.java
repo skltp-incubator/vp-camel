@@ -1,6 +1,7 @@
 package se.skl.tp.vp.integrationtests.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.VPRouter.VAGVAL_PROCESSOR_ID;
 import static se.skl.tp.vp.VPRouter.VAGVAL_ROUTE;
@@ -25,6 +26,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
+import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
 
 @RunWith(CamelSpringBootRunner.class)
@@ -42,6 +45,7 @@ public class SoapFaultIT {
   @Autowired
   private CamelContext camelContext;
 
+  TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
   @Before
   public void mockVagvalProcessor() throws Exception {
@@ -61,6 +65,26 @@ public class SoapFaultIT {
     assertNotNull("Expected a SOAPFault", soapBody.hasFault());
 
     assertStringContains(soapBody.getFault().getFaultString(), TEST_EXCEPTION_MESSAGE);
+    assertNumLogMessages();
+    assertCorrelationId();
+  }
+
+  private void assertNumLogMessages() {
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_IN));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+  }
+
+  private void assertCorrelationId() {
+    // This check is done in old VP, VpFullServiceTest.testWhenErrorOneInfoEventAndOneErrorEventIsCreated(). Needed??
+    String errMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR, 0);
+    String reqInMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_IN, 0);
+    String respOutMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    String corr1 = errMsg.substring(errMsg.indexOf("BusinessCorrelationId"), errMsg.indexOf("ExtraInfo")).trim();
+    String corr2 = reqInMsg.substring(reqInMsg.indexOf("BusinessCorrelationId"), reqInMsg.indexOf("ExtraInfo")).trim();
+    String corr3 = respOutMsg.substring(respOutMsg.indexOf("BusinessCorrelationId"), respOutMsg.indexOf("ExtraInfo")).trim();
+    assertEquals(corr1, corr2);
+    assertEquals(corr2, corr3);
   }
 
   private void replaceVagvalProcessor() throws Exception {
