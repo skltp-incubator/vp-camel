@@ -22,7 +22,7 @@ public class DefaultRoutingProperties implements DefaultRoutingConfiguration {
   private String delimiter = "#";
 
   /**
-   * Servicecontracts allowed to be used wit old style default routing
+   * Servicecontracts allowed to be used with old style default routing
    */
   private List<String> allowedContracts = Collections.emptyList();
 

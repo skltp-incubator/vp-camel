@@ -172,11 +172,10 @@ public class FullServiceTestIT {
 
   private void assertExtraInfoLog(String respOutLogMsg, String expectedReceiverId, String expectedProducerUrl) {
     assertStringContains(respOutLogMsg, "-senderIpAdress=");
-    assertStringContains(respOutLogMsg,
-        "-servicecontract_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
+    assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
     assertStringContains(respOutLogMsg, "-senderid=tp");
     assertStringContains(respOutLogMsg, "-receiverid=" + expectedReceiverId);
-    assertStringContains(respOutLogMsg, "-endpoint_url="+expectedProducerUrl);
+    assertStringContains(respOutLogMsg, "-endpoint_url=" + expectedProducerUrl);
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=" + expectedReceiverId);
     assertStringContains(respOutLogMsg, "-wsdl_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificate:1:rivtabp20");
     assertStringContains(respOutLogMsg, "-rivversion=rivtabp20");
