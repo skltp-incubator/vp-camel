@@ -172,12 +172,14 @@ public class HttpsHeadersIT extends CamelTestSupport {
 
   @Test
   public void testInstanceIdDontGetPropagatedForHttps () {
+    //Using http-headers for this one, where X_VP_INSTANCE_ID is set.
     template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
     negativeHeaderAndLogTest(X_VP_INSTANCE_ID);
   }
 
   @Test
   public void testXvPSenderIdDontGetPropagatedForHttps () {
+    //Using http-headers for this one, where X_VP_SENDER_ID is set.
     template.sendBodyAndHeaders(TestSoapRequests.GET_CERT_HTTPS_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
     negativeHeaderAndLogTest(X_VP_SENDER_ID);
   }
