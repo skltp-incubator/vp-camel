@@ -13,13 +13,13 @@ public class HeadersUtil {
   public static String TEST_CORRELATION_ID = "aTestCorrelationId";
   public static String TEST_SENDER = "tp";
 
-  public static Map getHttpsHeadersWithoutMembers() {
+  public static Map<String, Object> getHttpsHeadersWithoutMembers() {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.SOAP_ACTION, "action");
     return headers;
   }
 
-  public static Map getHttpHeadersWithoutMembers() {
+  public static Map<String, Object> getHttpHeadersWithoutMembers() {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_SENDER_ID, TEST_SENDER);
     // This param is set by config, but is needed by HttpSenderIdExtractorProcessor.java before that.
@@ -30,14 +30,14 @@ public class HeadersUtil {
     return headers;
   }
 
-  public static Map getHttpsHeadersWithMembers() {
+  public static Map<String, Object> getHttpsHeadersWithMembers() {
     Map<String, Object> headers = getHttpsHeadersWithoutMembers();
     headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
     headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, TEST_CORRELATION_ID);
     return headers;
   }
 
-  public static Map getHttpHeadersWithMembers() {
+  public static Map<String, Object> getHttpHeadersWithMembers() {
     Map<String, Object> headers = getHttpHeadersWithoutMembers();
     headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
     headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, TEST_CORRELATION_ID);
