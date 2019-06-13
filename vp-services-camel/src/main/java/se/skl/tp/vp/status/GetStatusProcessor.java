@@ -132,7 +132,7 @@ public class GetStatusProcessor implements Processor {
         takCacheLog.getNumberBehorigheter());
   }
 
-  private String getFormattedDate(Date date) {
+  private String getFormattedDate(Date date){
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
     return date == null ? "" : dateFormat.format(date);
   }
