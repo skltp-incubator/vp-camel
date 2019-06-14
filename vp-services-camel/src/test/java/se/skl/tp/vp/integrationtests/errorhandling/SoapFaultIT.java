@@ -66,7 +66,7 @@ public class SoapFaultIT {
 
     assertStringContains(soapBody.getFault().getFaultString(), TEST_EXCEPTION_MESSAGE);
     assertNumLogMessages();
-    assertCorrelationId();
+    assertCorrelationIdIsSameInAllLogs();
   }
 
   private void assertNumLogMessages() {
@@ -75,7 +75,7 @@ public class SoapFaultIT {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
   }
 
-  private void assertCorrelationId() {
+  private void assertCorrelationIdIsSameInAllLogs() {
     // This check is done in old VP, VpFullServiceTest.testWhenErrorOneInfoEventAndOneErrorEventIsCreated(). Needed??
     String errMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR, 0);
     String reqInMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_IN, 0);
