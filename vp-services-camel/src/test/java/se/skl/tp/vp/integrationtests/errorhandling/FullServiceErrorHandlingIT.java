@@ -259,6 +259,7 @@ public class FullServiceErrorHandlingIT {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
     assertStringContains(respOutLogMsg, msg);
+    assertStringContains(respOutLogMsg,"-Headers={CamelHttpResponseCode=500}");
   }
 
   private String getAndAssertRespOutLog() {
