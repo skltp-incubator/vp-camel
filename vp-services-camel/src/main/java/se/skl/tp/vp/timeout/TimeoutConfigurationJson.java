@@ -24,6 +24,11 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
     private List<TimeoutConfig> wsdlConfigs;
     private HashMap<String, TimeoutConfig> mapOnTjanstekontrakt;
 
+    public void setMapOnTjansteKontrakt(HashMap<String, TimeoutConfig> map) {
+        //Used in tests
+        mapOnTjanstekontrakt = map;
+    }
+
     public TimeoutConfigurationJson(@Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeout_json_file,
                                     @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String timeout_json_file_default_tjanstekontrakt_name) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
