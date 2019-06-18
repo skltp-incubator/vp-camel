@@ -107,17 +107,12 @@ public class CheckCode500InResponseIT {
     camelContext.addRoutes(
             new RouteBuilder() {
               @Override
-              public void configure() {
-                from("direct:start")
-                        .routeId("start")
-                        .to(
-                                "netty4-http:"
-                                        + httpsRoute
-                                        + "?sslContextParameters=#incomingSSLContextParameters&ssl=true&"
-                                        + "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
+              public void configure() {from("direct:start").routeId("start")
+                .to("netty4-http:" + httpsRoute + "?sslContextParameters=#incomingSSLContextParameters&ssl=true&"
+                  + "sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true");
                 // Address below from tak-vagval-test.xml
                 from("netty4-http:https://localhost:19001/vardgivare-b/tjanst2?sslContextParameters=#outgoingSSLContextParameters&ssl=true")
-                        .to("mock:result");
+                .to("mock:result");
               }
             });
   }
@@ -127,15 +122,11 @@ public class CheckCode500InResponseIT {
             new RouteBuilder() {
               @Override
               public void configure() {
-                from("direct:start")
-                        .routeId("start")
-                        .routeDescription("consumer")
-                        .to("netty4-http:" + httpRoute);
+                from("direct:start").routeId("start").routeDescription("consumer")
+                .to("netty4-http:" + httpRoute);
                 // Address below from tak-vagval-test.xml
-                from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2")
-                        .routeDescription("producer")
-                        .to(DIRECT_PRODUCER_ROUTE)
-                        .to("mock:result");
+                from("netty4-http:http://localhost:19000/vardgivare-b/tjanst2").routeDescription("producer").to(DIRECT_PRODUCER_ROUTE)
+                .to("mock:result");
               }
             });
   }
