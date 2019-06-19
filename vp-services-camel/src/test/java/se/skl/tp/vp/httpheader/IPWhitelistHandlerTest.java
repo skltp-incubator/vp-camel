@@ -4,38 +4,25 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.util.TestLogAppender;
 
-import static se.skl.tp.vp.constants.PropertyConstants.IP_WHITELIST;
-
 @RunWith(SpringRunner.class)
-@TestPropertySource("classpath:application.properties")
 public class IPWhitelistHandlerTest {
-
-  @Autowired
-  Environment environment;
-
-  @Value("${" + IP_WHITELIST + "}")
-  private String whitelist;
-
-  private String[] whiteListArray;
 
   IPWhitelistHandler ipWhitelistHandler;
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
   private static final String LOG_CLASS = "se.skl.tp.vp.httpheader.IPWhitelistHandlerImpl";
 
+  private static final String whitelist = "127.0.0.1,1.2.3.4,5.6.7.8";
+
   @Before
   public void beforeTest(){
     if(ipWhitelistHandler==null){
-      ipWhitelistHandler = new IPWhitelistHandlerImpl(environment.getProperty(IP_WHITELIST));
+      ipWhitelistHandler = new IPWhitelistHandlerImpl(whitelist);
     }
-    whiteListArray = whitelist.split(",");
+
     testLogAppender.clearEvents();
   }
 
@@ -60,20 +47,65 @@ public class IPWhitelistHandlerTest {
   }
 
   @Test
-  public void senderIDNullTest() {
+  public void whitelistEmptyTest() {
+    IPWhitelistHandler emptyIpWhitelistHandler = new IPWhitelistHandlerImpl("");
+    Assert.assertFalse(emptyIpWhitelistHandler.isCallerOnWhiteList("1.2.3.4"));
+    testLogMessage(1, "A check against the ip address whitelist was requested, but the whitelist is configured empty");
+  }
+
+  @Test
+  public void senderIpAndWhitelistNullShouldReturnFalseTest() {
+    IPWhitelistHandler emptyIpWhitelistHandler = new IPWhitelistHandlerImpl(null);
+    Assert.assertFalse(emptyIpWhitelistHandler.isCallerOnWhiteList(null));
+  }
+
+  @Test
+  public void senderIpAndWhitelistEmptyShouldReturnFalseTest() {
+    IPWhitelistHandler emptyIpWhitelistHandler = new IPWhitelistHandlerImpl("");
+    Assert.assertFalse(emptyIpWhitelistHandler.isCallerOnWhiteList(""));
+  }
+
+  @Test
+  public void senderIpNullTest() {
     Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList(null));
     testLogMessage(1, "A potential empty ip address from the caller, ip adress is: null.");
   }
 
   @Test
-  public void senderIDEmptyTest() {
+  public void senderIpEmptyTest() {
     Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList(""));
     testLogMessage(1, "A potential empty ip address from the caller, ip adress is: .");
   }
 
+
+  @Test
+  public void isCallerOnWhiteListMatchesSubdomain(){
+
+    String whiteListOfSubDomains = "127.0.0,127.0.1.0";
+    IPWhitelistHandlerImpl ipWhitelistHandler = new IPWhitelistHandlerImpl(whiteListOfSubDomains);
+    Assert.assertTrue(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.1"));
+  }
+
+  @Test
+  public void isCallerOnWhiteListDoesNotMatchSubdomain(){
+
+    String whiteListOfSubDomains = "127.0.0,127.0.1";
+    IPWhitelistHandlerImpl ipWhitelistHandler = new IPWhitelistHandlerImpl(whiteListOfSubDomains);
+    Assert.assertFalse(ipWhitelistHandler.isCallerOnWhiteList("127.0.2.1"));
+  }
+
+  @Test
+  public void isCallerOnWhiteListOkWhenWhiteListContainsLeadingWhiteSpaces(){
+
+    final String whiteListWithWhiteSpaces ="127.0.0.1, 127.0.0.2";
+    IPWhitelistHandlerImpl ipWhitelistHandler = new IPWhitelistHandlerImpl(whiteListWithWhiteSpaces);
+    Assert.assertTrue(ipWhitelistHandler.isCallerOnWhiteList("127.0.0.2"));
+  }
+
+
   private void testLogMessage(int num, String message) {
-    int i = testLogAppender.getNumEvents(LOG_CLASS);
-    Assert.assertEquals(num, testLogAppender.getNumEvents(LOG_CLASS));
-    Assert.assertTrue(testLogAppender.getEventMessage(LOG_CLASS, 0).contains(message));
+    String logClass = IPWhitelistHandlerImpl.class.getName();
+    Assert.assertEquals(num, testLogAppender.getNumEvents(logClass));
+    Assert.assertTrue(testLogAppender.getEventMessage(logClass, 0).contains(message));
   }
 }
