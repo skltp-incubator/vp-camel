@@ -10,7 +10,8 @@ public class GetStatusRouter extends RouteBuilder {
 
     public static final String HTTP_GET = "get-status";
 
-    public static final String NETTY4_HTTP_GET = "netty4-http:{{vp.status.url}}";
+    public static final String NETTY4_HTTP_GET = "netty4-http:{{vp.status.url}}"
+        + "?chunkedMaxContentLength={{vp.max.receive.length}}";
 
     @Autowired
     GetStatusProcessor getStatusProcessor;

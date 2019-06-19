@@ -36,15 +36,29 @@ public class VPRouter extends RouteBuilder {
     public static final String VP_HTTPS_ROUTE = "vp-https-route";
     public static final String VAGVAL_ROUTE = "vagval-route";
     public static final String TO_PRODUCER_ROUTE = "to-producer-route";
-    public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?matchOnUriPrefix=true";
-    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}?" +
-            "useRelativePath=true&chunkedMaxContentLength={{vp.max.response.length}}&connectTimeout={{vp.connection.timeout}}";
     public static final String DIRECT_VP = "direct:vp";
     public static final String DIRECT_PRODUCER_ROUTE = "direct:to-producer";
-    public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?sslContextParameters=#incomingSSLContextParameters&ssl=true&sslClientCertHeaders=true&needClientAuth=true&matchOnUriPrefix=true";
-    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?" +
-            "sslContextParameters=#outgoingSSLContextParameters&ssl=true&" +
-            "useRelativePath=true&chunkedMaxContentLength={{vp.max.response.length}}&connectTimeout={{vp.connection.timeout}}";
+
+    public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?"
+        + "sslContextParameters=#incomingSSLContextParameters&ssl=true&"
+        + "sslClientCertHeaders=true&"
+        + "needClientAuth=true&"
+        + "matchOnUriPrefix=true&"
+        + "chunkedMaxContentLength={{vp.max.receive.length}}";
+    public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?"
+        + "matchOnUriPrefix=true&"
+        + "chunkedMaxContentLength={{vp.max.receive.length}}";
+    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}?"
+        + "useRelativePath=true&"
+        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+        + "connectTimeout={{vp.connection.timeout}}";
+    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?"
+        + "sslContextParameters=#outgoingSSLContextParameters&"
+        + "ssl=true&"
+        + "useRelativePath=true&"
+        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+        + "connectTimeout={{vp.connection.timeout}}";
+
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
     public static final String LOG_ERROR_METHOD = "logError(*)";
@@ -185,9 +199,6 @@ public class VPRouter extends RouteBuilder {
             .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
             .bean(MessageInfoLogger.class, LOG_RESP_IN_METHOD)
             .end();
-
-
-
 
     }
 }

@@ -76,6 +76,7 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
 
     assertErrorLog(VP002.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP002");
+    assertRespOutLog("VP002 No certificate found in httpheader x-vp-auth-cert");
   }
 
   @Test
@@ -90,6 +91,7 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
 
     assertErrorLog(VP003.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP003");
+    assertRespOutLog("VP003 No receiverId (logical address) found in message header. null");
   }
 
   @Test
@@ -104,6 +106,8 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
 
     assertErrorLog(VP004.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP004");
+    assertRespOutLog("VP004 No receiverId (logical address) found for serviceNamespace: " +
+            "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1, receiverId: NoVagvalReceiver");
   }
 
   @Test
@@ -117,6 +121,7 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
 
     assertErrorLog(VP005.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP005");
+    assertRespOutLog("VP005 No receiverId (logical address) with matching Riv-version found for rivtabp20");
   }
 
   @Test
@@ -131,6 +136,8 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
 
     assertErrorLog(VP006.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP006");
+    assertRespOutLog("VP006 More than one receiverId (logical address) with matching Riv-version found for serviceNamespace: " +
+            "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
   }
 
   @Test
@@ -145,6 +152,7 @@ public class FullServiceErrorHandlingIT {
         soapBody.getFault().getFaultString());
 
     assertErrorLog(VP007.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP007");
+    assertRespOutLog("VP007 Authorization missing for serviceNamespace: urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
   }
 
   @Test
@@ -174,7 +182,8 @@ public class FullServiceErrorHandlingIT {
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertSoapFault(soapBody, VP010.getCode(), "RecevierNoPhysicalAddress");
     assertErrorLog(VP010.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP010");
-
+    assertRespOutLog("VP010 Physical Address field is empty in Service Producer for serviceNamespace: " +
+            "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1, receiverId: RecevierNoPhysicalAddress");
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
 
@@ -191,6 +200,8 @@ public class FullServiceErrorHandlingIT {
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertSoapFault(soapBody, VP011.getCode(), "10.20.30.40");
     assertErrorLog(VP011.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
+    assertRespOutLog("VP011 Caller was not on the white list of accepted IP-addresses.  IP-address: 10.20.30.40. " +
+            "HTTP header that caused checking: CamelNettyRemoteAddress");
   }
 
   @Test
@@ -204,6 +215,7 @@ public class FullServiceErrorHandlingIT {
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertSoapFault(soapBody,VP013.getCode(), msgVP013);
     assertErrorLog(VP013.getCode(), msgVP013);
+    assertRespOutLog("VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid.");
   }
 
   @Test
@@ -217,6 +229,7 @@ public class FullServiceErrorHandlingIT {
     SOAPBody soapBody = SoapUtils.getSoapBody(result);
     assertSoapFault(soapBody,VP013.getCode(),msgVP013);
     assertErrorLog(VP013.getCode(), msgVP013);
+    assertRespOutLog("VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid.");
   }
 
   private void assertSoapFault(SOAPBody soapBody, String code, String message) {
@@ -240,6 +253,13 @@ public class FullServiceErrorHandlingIT {
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
     assertStringContains(errorLogMsg, code);
     assertStringContains(errorLogMsg, message);
+  }
+
+  private void assertRespOutLog(String msg) {
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
+    assertStringContains(respOutLogMsg, msg);
+    assertStringContains(respOutLogMsg,"-Headers={CamelHttpResponseCode=500}");
   }
 
   private String getAndAssertRespOutLog() {

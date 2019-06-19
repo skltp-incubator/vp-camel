@@ -82,6 +82,9 @@ public class TestSoapRequests {
           "</soapenv:Envelope>";
 
   public static final String GET_NO_CERT_HTTP_SOAP_REQUEST =  createGetCertificateRequest(RECEIVER_HTTP);
+
+  public static final String GET_NO_CERT_HTTP_SOAP_REQUEST_NO_VAGVAL_RECEIVER =  createGetCertificateRequest(RECEIVER_WITH_NO_VAGVAL);
+
   public static final String GET_CERT_HTTPS_REQUEST = createGetCertificateRequest(RECEIVER_HTTPS);
 
   public static String createGetCertificateRequest(String receiver){

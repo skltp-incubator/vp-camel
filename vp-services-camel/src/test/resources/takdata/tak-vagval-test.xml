@@ -130,6 +130,17 @@
   </virtualiseringsInfo>
 
 
+  <!--Virtualiseringar för ProcessNotificationResponder-->
+
+  <virtualiseringsInfo xmlns:ns2="urn:skl:tp:vagvalsinfo:v2">
+    <ns2:virtualiseringsInfoId>1</ns2:virtualiseringsInfoId>
+    <ns2:receiverId>5565594230</ns2:receiverId>
+    <ns2:rivProfil>RIVTABP21</ns2:rivProfil>
+    <ns2:tjansteKontrakt>urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.260+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.260+02:00</ns2:tomTidpunkt>
+    <ns2:adress>http://localhost:19000/vardgivare-b/tjanst2</ns2:adress>
+  </virtualiseringsInfo>
 
 </persistentCache>
 

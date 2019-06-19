@@ -39,7 +39,7 @@ public class OutHeaderProcessorImpl implements OutHeaderProcessor {
     propagateCorrelationIdToProducer(exchange);
     propagateSenderIdAndVpInstanceIdToProducer(exchange);
     exchange.getIn().getHeaders().put(HttpHeaders.HEADER_USER_AGENT, vpHeaderUserAgent);
-    exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, headerContentType);
+    exchange.getIn().getHeaders().put( Exchange.CONTENT_TYPE, headerContentType);
   }
 
   private void propagateSenderIdAndVpInstanceIdToProducer(Exchange exchange) {
