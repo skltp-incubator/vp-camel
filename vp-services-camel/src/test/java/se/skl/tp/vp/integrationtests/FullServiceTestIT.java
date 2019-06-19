@@ -7,6 +7,7 @@ import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTP;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTPS;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
 
+import io.undertow.util.FileUtils;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
@@ -119,6 +120,46 @@ public class FullServiceTestIT {
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
+
+  @Test
+  public void callHttpVPLargePayloadHappyDays() {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    String largeRequest = FileUtils.readFile(getClass().getClassLoader().getResource("testfiles/ProcessNotificationLargePayload.xml"));
+    String response = testConsumer.sendHttpRequestToVP(largeRequest, headers);
+
+    assertEquals("<mocked answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
+  }
+
+  @Test
+  public void callHttpsVPLargePayloadHappyDays() {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    String largeRequest = FileUtils.readFile(getClass().getClassLoader().getResource("testfiles/ProcessNotificationLargePayload.xml"));
+    String response = testConsumer.sendHttpsRequestToVP(largeRequest, headers);
+
+    assertEquals("<mocked answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpsUrl);
+    assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
   }
 
   /**

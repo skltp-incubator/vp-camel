@@ -108,7 +108,16 @@
     <ns2:tomTidpunkt>2023-08-09T14:25:24.294+02:00</ns2:tomTidpunkt>
   </anropsBehorighetsInfo>
 
+  <!--Behorigheter for ProcessNotificationResponder-->
 
+  <anropsBehorighetsInfo>
+    <ns2:anropsBehorighetsInfoId>75</ns2:anropsBehorighetsInfoId>
+    <ns2:receiverId>5565594230</ns2:receiverId>
+    <ns2:senderId>tp</ns2:senderId>
+    <ns2:tjansteKontrakt>urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1</ns2:tjansteKontrakt>
+    <ns2:fromTidpunkt>2013-08-09T13:25:24.293+02:00</ns2:fromTidpunkt>
+    <ns2:tomTidpunkt>2023-08-09T14:25:24.294+02:00</ns2:tomTidpunkt>
+  </anropsBehorighetsInfo>
 
 
 </persistentCache>
