@@ -11,12 +11,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class VPRouterIT {
   @Autowired private CamelContext camelContext;
 

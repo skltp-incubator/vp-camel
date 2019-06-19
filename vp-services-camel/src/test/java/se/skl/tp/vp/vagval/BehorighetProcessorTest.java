@@ -1,6 +1,7 @@
 package se.skl.tp.vp.vagval;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -72,7 +73,8 @@ public class BehorighetProcessorTest  {
         Mockito.when(takCache.isAuthorized(anyString(),anyString(),anyString())).thenReturn(true);
 
         Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, RECEIVER_1);
-        behorighetProcessor.process(ex);
+
+        assertFalse("testAuthorizonIsOk behorighetProcessor.process should not throw exception",isVpSemanticExceptionThrownWhenProcessed(ex));
     }
 
     @Test
@@ -82,7 +84,9 @@ public class BehorighetProcessorTest  {
         Mockito.when(takCache.isAuthorized(anyString(), anyString(), AdditionalMatchers.not(eq(AUTHORIZED_RECEIVER_IN_HSA_TREE)) )).thenReturn(false);
 
         Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, CHILD_OF_AUTHORIZED_RECEIVER_IN_HSA_TREE);
-        behorighetProcessor.process(ex);
+        assertFalse("testAuthorizonByClimbingHsaTree behorighetProcessor.process should not throw exception",
+            isVpSemanticExceptionThrownWhenProcessed(ex));
+
     }
 
     @Test
@@ -92,7 +96,19 @@ public class BehorighetProcessorTest  {
         Mockito.when(takCache.isAuthorized(anyString(), anyString(),  AdditionalMatchers.not(eq(RECEIVER_2)) )).thenReturn(false);
 
         Exchange ex = createExchangeWithProperties(SENDER_1, NAMNRYMD_1, RECEIVER_1_DEFAULT_RECEIVER_2);
-        behorighetProcessor.process(ex);
+
+        assertFalse("testAuthorizonByDefaultRouting behorighetProcessor.process should not throw exception",
+            isVpSemanticExceptionThrownWhenProcessed(ex));
+    }
+
+    private boolean isVpSemanticExceptionThrownWhenProcessed(Exchange ex) throws Exception {
+        boolean vpSemanticExceptionThrown = false;
+        try {
+            behorighetProcessor.process(ex);
+        } catch (VpSemanticException e) {
+            vpSemanticExceptionThrown = true;
+        }
+        return vpSemanticExceptionThrown;
     }
 
     @Test
