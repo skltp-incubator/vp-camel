@@ -2,9 +2,12 @@ package se.skl.tp.vp.httpheader;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
+import javax.validation.constraints.AssertTrue;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -26,8 +29,15 @@ import se.skl.tp.vp.errorhandling.VpCodeMessages;
 import se.skl.tp.vp.exceptions.VpSemanticException;
 
 @RunWith(CamelSpringBootRunner.class)
-@SpringBootTest(classes={SenderIpExtractorFromHeader.class, HeaderCertificateHelperImpl.class, IPWhitelistHandlerImpl.class,
-    HttpSenderIdExtractorProcessorImpl.class, VpCodeMessages.class, ExceptionUtil.class})
+@SpringBootTest(
+    classes = {
+      SenderIpExtractorFromHeader.class,
+      HeaderCertificateHelperImpl.class,
+      IPWhitelistHandlerImpl.class,
+      HttpSenderIdExtractorProcessorImpl.class,
+      VpCodeMessages.class,
+      ExceptionUtil.class
+    })
 public class HttpSenderIdExtractorProcessorImplTest {
 
   public static final String VP_INSTANCE_ID = "dev_env";
@@ -36,11 +46,9 @@ public class HttpSenderIdExtractorProcessorImplTest {
   public static final String NOT_WHITELISTED_IP_ADDRESS = "10.20.30.40";
   public static final String HEADER_SENDER_ID = "Sender1";
 
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-  @Autowired
-  HttpSenderIdExtractorProcessorImpl httpHeaderExtractorProcessor;
+  @Autowired HttpSenderIdExtractorProcessorImpl httpHeaderExtractorProcessor;
 
   @Test
   public void ifWhitelistedShouldSetSenderIdFromInHeader() throws Exception {
@@ -86,9 +94,25 @@ public class HttpSenderIdExtractorProcessorImplTest {
     assertEquals("urken", exchange.getProperty(VPExchangeProperties.SENDER_ID));
   }
 
+  @Test(expected = VpSemanticException.class)
+  public void testExtractUnkownCertificateTypeFromHeader() throws Exception {
+    final Certificate wrongTypecert = Mockito.mock(Certificate.class);
+    Exchange exchange = createExchange();
+    exchange.getIn().setHeader(HttpHeaders.X_VP_SENDER_ID, HEADER_SENDER_ID);
+    exchange.getIn().setHeader(HttpHeaders.X_VP_INSTANCE_ID, RTP_INSTANCE_ID);
+    exchange.getIn().setHeader("X-Forwarded-For", NOT_WHITELISTED_IP_ADDRESS);
+    exchange.getIn().setHeader(HttpHeaders.REVERSE_PROXY_HEADER_NAME, wrongTypecert);
+
+    try {
+      httpHeaderExtractorProcessor.process(exchange);
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("Exception, unkown certificate type found in httpheader"));
+      throw e;
+    }
+  }
+
   private Exchange createExchange() {
     CamelContext ctx = new DefaultCamelContext();
     return new DefaultExchange(ctx);
   }
-
 }
