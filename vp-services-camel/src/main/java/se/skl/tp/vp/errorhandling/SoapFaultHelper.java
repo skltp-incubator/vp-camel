@@ -56,6 +56,7 @@ public class SoapFaultHelper {
 
 
   public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
+
     String soapFault = SoapFaultHelper.generateSoap11FaultWithCause(cause);
     exchange.getOut().setBody(soapFault);
     exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
