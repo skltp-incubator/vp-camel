@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
-import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
 import se.skl.tp.vp.integrationtests.httpheader.HeadersUtil;
