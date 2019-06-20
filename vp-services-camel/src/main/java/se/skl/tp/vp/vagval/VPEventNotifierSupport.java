@@ -16,10 +16,10 @@ public class VPEventNotifierSupport extends EventNotifierSupport {
         return true;
     }
 
+    @Override
     protected void doStart() throws Exception {
         // filter out unwanted events
         setIgnoreExchangeSentEvents(false);
-
         setIgnoreExchangeCompletedEvent(true);
         setIgnoreExchangeFailedEvents(true);
         setIgnoreCamelContextEvents(true);
@@ -35,7 +35,8 @@ public class VPEventNotifierSupport extends EventNotifierSupport {
             ExchangeSentEvent sent = (ExchangeSentEvent) event;
             Exchange exchange = sent.getExchange();
             exchange.setProperty(LAST_ENDPOINT_RESPONSE_TIME, sent.getTimeTaken());
-            log.info(exchange + " SEND >>> Took " + sent.getTimeTaken() + " millis to send to external system : " + sent.getEndpoint().getEndpointKey());
+            log.info(String.format("%s SEND >>> Took %s millis to send to external system : %s",
+                    exchange, sent.getTimeTaken(), sent.getEndpoint().getEndpointKey()));
         }
     }
 }
