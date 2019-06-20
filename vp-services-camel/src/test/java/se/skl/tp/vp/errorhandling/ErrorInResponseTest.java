@@ -145,7 +145,7 @@ public class ErrorInResponseTest {
   }
 
   @Test // Om producent skickar soap fel ska vi skicka den fel vidare
-  public void error500InResponseTest() throws InterruptedException {
+  public void soapFaultPropagatedToCustomerTest() throws InterruptedException {
     mockProducer.setResponseHttpStatus(500);
     mockProducer.setResponseBody(SoapFaultHelper.generateSoap11FaultWithCause(REMOTE_SOAP_FAULT));
 
@@ -154,7 +154,7 @@ public class ErrorInResponseTest {
     setTakCacheMockResult(list);
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
-
+    assertStringContains(resultBody, "soap:Fault");
     assertStringContains(resultBody, "VP011 Caller was not on the white list of accepted IP-addresses");
     resultEndpoint.assertIsSatisfied();
   }
