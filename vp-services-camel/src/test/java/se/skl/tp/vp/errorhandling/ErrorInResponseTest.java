@@ -1,6 +1,7 @@
 package se.skl.tp.vp.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
@@ -157,6 +158,9 @@ public class ErrorInResponseTest {
     assertStringContains(resultBody, "soap:Fault");
     assertStringContains(resultBody, "VP011 Caller was not on the white list of accepted IP-addresses");
     resultEndpoint.assertIsSatisfied();
+    String header = (String) resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME);
+    assertNotNull(header);
+
   }
 
   private void setTakCacheMockResult(List<RoutingInfo> list) {

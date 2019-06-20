@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
-import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
@@ -25,7 +24,6 @@ import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
 import se.skl.tp.vp.vagval.BehorighetProcessor;
 import se.skl.tp.vp.vagval.RivTaProfilProcessor;
-import se.skl.tp.vp.vagval.VPEventNotifierSupport;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 import se.skl.tp.vp.wsdl.WsdlProcessor;
 
@@ -196,7 +194,6 @@ public class VPRouter extends RouteBuilder {
                     .recipientList(simple(NETTY4_HTTP_TOD))
                     .endChoice()
             .end()
-            .setHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME, exchangeProperty(VPEventNotifierSupport.LAST_ENDPOINT_RESPONSE_TIME))
             .bean(MessageInfoLogger.class, LOG_RESP_IN_METHOD)
             .end();
 
