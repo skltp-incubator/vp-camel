@@ -97,7 +97,7 @@ public class CheckCode500InResponseIT {
       content = n.getContentAsString();
       code = n.getStatusCode();
     }
-    assertEquals(code, 500);
+    assertEquals(500, code);
     assertTrue(content.contains("VP004 No receiverId (logical address) found for serviceNamespace: " +
             "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1, receiverId: NoVagvalReceiver"));
   }
