@@ -22,7 +22,9 @@ package se.skl.tp.vp.constants;
 
 public class HttpHeaders {
 
-
+	private HttpHeaders() {
+		//To hide implicit public constructor. Sonar suggestion.
+	}
 
 	/**
 	 * HTTP Header holding producer response time, forwarded to consumer.

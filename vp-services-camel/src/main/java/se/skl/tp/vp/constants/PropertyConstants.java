@@ -2,6 +2,10 @@ package se.skl.tp.vp.constants;
 
 public class PropertyConstants {
 
+    private PropertyConstants() {
+        //To hide implicit public constructor. Sonar suggestion.
+    }
+
     public static final String CERTIFICATE_SENDERID_SUBJECT_PATTERN = "certificate.senderid.subject.pattern";
     public static final String IP_WHITELIST = "ip.whitelist";
     public static final String SENDER_ID_ALLOWED_LIST = "sender.id.allowed.list";
