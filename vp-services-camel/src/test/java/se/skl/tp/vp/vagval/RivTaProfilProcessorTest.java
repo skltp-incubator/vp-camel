@@ -100,7 +100,7 @@ public class RivTaProfilProcessorTest {
     final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
     XMLStreamReader resultBody = exchange.getIn().getBody(XMLStreamReader.class);
     this.executeComparison(toXMLEventReader(resultBody), expected);
-    assertEquals(exchange.getProperty(VPExchangeProperties.RIV_VERSION), RIV20);
+    assertEquals(RIV20, exchange.getProperty(VPExchangeProperties.RIV_VERSION));
   }
 
   @Test
@@ -114,7 +114,7 @@ public class RivTaProfilProcessorTest {
     final XMLEventReader expected = XMLInputFactory.newInstance().createXMLEventReader(resultFile.openStream());
     XMLStreamReader resultBody = (XMLStreamReader)exchange.getIn().getBody();
     this.executeComparison(toXMLEventReader(resultBody), expected);
-    assertEquals(exchange.getProperty(VPExchangeProperties.RIV_VERSION), RIV21);
+    assertEquals(RIV21, exchange.getProperty(VPExchangeProperties.RIV_VERSION));
   }
 
   @Test
