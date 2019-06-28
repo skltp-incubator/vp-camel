@@ -1,7 +1,11 @@
 package se.skl.tp.vp.logging;
 
+import static se.skl.tp.vp.constants.HttpHeaders.REVERSE_PROXY_HEADER_NAME;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.camel.Exchange;
@@ -29,6 +33,10 @@ public class LogExtraInfoBuilder {
   public static final String VP_X_FORWARDED_PROTO = VPExchangeProperties.VP_X_FORWARDED_PROTO;
   public static final String VP_X_FORWARDED_PORT = VPExchangeProperties.VP_X_FORWARDED_PORT;
 
+  public static final List<String> HEADERS_TO_FILTER = Arrays.asList(REVERSE_PROXY_HEADER_NAME);
+  public static final String FILTERED_TEXT = "<filtered>";
+
+
   private LogExtraInfoBuilder() {
     // Static utility class
   }
@@ -50,7 +58,7 @@ public class LogExtraInfoBuilder {
     extraInfo.put(RIV_VERSION, rivVersion);
     extraInfo.put(WSDL_NAMESPACE, createWsdlNamespace(serviceContractNS, rivVersion));
 
-    extraInfo.put(HEADERS, mapAsString(exchange.getIn().getHeaders()));
+    extraInfo.put(HEADERS, getHeadersAsString(exchange.getIn().getHeaders()));
 
     extraInfo.put(TIME_ELAPSED, getElapsedTime(exchange).toString());
 
@@ -127,10 +135,14 @@ public class LogExtraInfoBuilder {
     return (s == null) ? "" : s;
   }
 
-  private static String mapAsString(Map<String, ?> map) {
-    return map.keySet().stream()
-        .map(key -> key + "=" + map.get(key))
+  private static String getHeadersAsString(Map<String, ?> headersMap) {
+    return headersMap.keySet().stream()
+        .map(key -> key + "=" + filterHeaderValue(key , headersMap))
         .collect(Collectors.joining(", ", "{", "}"));
+  }
+
+  private static String filterHeaderValue(String key,  Map<String, ?> headersMap) {
+     return HEADERS_TO_FILTER.contains(key) ? FILTERED_TEXT : ""+headersMap.get(key);
   }
 
   private static class ExtraInfoMap<K, V> extends HashMap<K, V> {
