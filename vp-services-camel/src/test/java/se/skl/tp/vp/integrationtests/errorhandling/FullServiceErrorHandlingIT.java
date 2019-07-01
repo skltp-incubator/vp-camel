@@ -190,7 +190,7 @@ public class FullServiceErrorHandlingIT {
   }
 
   @Test
-  public void shouldGetVP011ifIpAddressIsNotWhitelisted() throws Exception {
+  public void   shouldGetVP011ifIpAddressIsNotWhitelisted() throws Exception {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_SENDER_ID, "Urken");
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
@@ -201,7 +201,7 @@ public class FullServiceErrorHandlingIT {
     assertSoapFault(soapBody, VP011.getCode(), "10.20.30.40");
     assertErrorLog(VP011.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP011");
     assertRespOutLog("VP011 Caller was not on the white list of accepted IP-addresses.  IP-address: 10.20.30.40. " +
-            "HTTP header that caused checking: CamelNettyRemoteAddress");
+            "HTTP header that caused checking: X-Forwarded-For");
   }
 
   @Test

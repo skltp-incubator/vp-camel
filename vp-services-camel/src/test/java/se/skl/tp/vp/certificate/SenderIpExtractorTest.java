@@ -19,7 +19,7 @@ public class SenderIpExtractorTest {
     SenderIpExtractor senderIpExtractor = new SenderIpExtractorFromHeader("X-Forwarded-For");
 
     Message message = createMessage();
-    String SenderIpAddess = senderIpExtractor.extractSenderIpAdress(message);
+    String SenderIpAddess = senderIpExtractor.getSenderIpAdress(message);
     Assert.assertEquals("10.11.12.13", SenderIpAddess);
   }
 
@@ -29,7 +29,7 @@ public class SenderIpExtractorTest {
 
     Message message = createMessage();
     message.setHeader("X-Forwarded-For", "13.12.10.11");
-    String SenderIpAddess = senderIpExtractor.extractSenderIpAdress(message);
+    String SenderIpAddess = senderIpExtractor.getSenderIpAdress(message);
     Assert.assertEquals("13.12.10.11", SenderIpAddess);
   }
 

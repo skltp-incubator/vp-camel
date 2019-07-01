@@ -68,7 +68,7 @@ public class HttpHeaders {
 	 *
 	 * @since VP-1.3
 	 */
-	public static final String REVERSE_PROXY_HEADER_NAME = "x-vp-auth-cert";
+	public static final String CERTIFICATE_FROM_REVERSE_PROXY 	= "x-vp-auth-cert";
 
 	public static final String HEADER_USER_AGENT = "User-Agent";
 

@@ -67,7 +67,7 @@ public class  CertificateReaderIT  extends CamelTestSupport {
 
         from("netty4-http:http://localhost:12123/vp")
             .process((Exchange exchange) -> {
-              String senderIpAdress = senderIpExtractor.extractSenderIpAdress(exchange.getIn());
+              String senderIpAdress = senderIpExtractor.getSenderIpAdress(exchange.getIn());
               exchange.setProperty(VPExchangeProperties.SENDER_IP_ADRESS, senderIpAdress);
             })
             .to("mock:result");

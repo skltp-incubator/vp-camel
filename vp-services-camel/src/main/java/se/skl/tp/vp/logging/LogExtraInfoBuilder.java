@@ -1,6 +1,6 @@
 package se.skl.tp.vp.logging;
 
-import static se.skl.tp.vp.constants.HttpHeaders.REVERSE_PROXY_HEADER_NAME;
+import static se.skl.tp.vp.constants.HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -33,8 +33,8 @@ public class LogExtraInfoBuilder {
   public static final String VP_X_FORWARDED_PROTO = VPExchangeProperties.VP_X_FORWARDED_PROTO;
   public static final String VP_X_FORWARDED_PORT = VPExchangeProperties.VP_X_FORWARDED_PORT;
 
-  public static final List<String> HEADERS_TO_FILTER = Arrays.asList(REVERSE_PROXY_HEADER_NAME);
-  public static final String FILTERED_TEXT = "<filtered>";
+  protected static final List<String> HEADERS_TO_FILTER = Arrays.asList(CERTIFICATE_FROM_REVERSE_PROXY);
+  protected static final String FILTERED_TEXT = "<filtered>";
 
 
   private LogExtraInfoBuilder() {
