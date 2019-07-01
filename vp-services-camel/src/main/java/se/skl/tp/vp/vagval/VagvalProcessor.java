@@ -42,7 +42,11 @@ public class VagvalProcessor implements Processor {
     public RoutingInfo validateResponse(List<RoutingInfo> routingInfos, String tjanstegranssnitt, String receiverAddress){
 
         if(routingInfos.isEmpty()){
-            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress));
+            String whitespaceDetectedHintString="";
+            if (receiverAddress.contains(" ")) {
+                whitespaceDetectedHintString = ". Whitespace detected in incoming request!";
+            }
+            throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP004, getRequestSummaryString(tjanstegranssnitt, receiverAddress)+whitespaceDetectedHintString);
         }
 
         if(routingInfos.size()>1){

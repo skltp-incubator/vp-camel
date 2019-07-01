@@ -9,6 +9,8 @@ public class TestSoapRequests {
   public static final String RECEIVER_UNIT_TEST = "UnitTest";
   public static final String RECEIVER_HTTP = "HttpProducer";
   public static final String RECEIVER_HTTPS = "HttpsProducer";
+  public static final String RECEIVER_TRAILING_WHITESPACE = "HttpsProducer ";
+  public static final String RECEIVER_LEADING_WHITESPACE = " HttpsProducer";
   public static final String RECEIVER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
   public static final String RECEIVER_WITH_NO_VAGVAL = "NoVagvalReceiver";
   public static final String RECEIVER_NOT_AUHORIZED = "NotAuhorizedReceiver";

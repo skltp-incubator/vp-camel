@@ -14,10 +14,12 @@ import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP013;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_LEADING_WHITESPACE;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_MULTIPLE_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PHYSICAL_ADDRESS;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NO_PRODUCER_AVAILABLE;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_TRAILING_WHITESPACE;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNKNOWN_RIVVERSION;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
@@ -108,6 +110,34 @@ public class FullServiceErrorHandlingIT {
     assertErrorLog(VP004.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP004");
     assertRespOutLog("VP004 No receiverId (logical address) found for serviceNamespace: " +
             "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1, receiverId: NoVagvalReceiver");
+  }
+
+  @Test
+  public void shouldGetVP004WhenRecieverEndsWithWhitespace() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_TRAILING_WHITESPACE), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertSoapFault(soapBody, VP004.getCode(), " No receiverId (logical address) found for",
+        RECEIVER_TRAILING_WHITESPACE,
+        TJANSTEKONTRAKT_GET_CERTIFICATE_KEY,
+        "Whitespace detected in incoming request!");
+    System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
+        soapBody.getFault().getFaultString());
+  }
+
+  @Test
+  public void shouldGetVP004WhenRecieverStartsWithWhitespace() throws Exception {
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_LEADING_WHITESPACE), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertSoapFault(soapBody, VP004.getCode(), " No receiverId (logical address) found for",
+        RECEIVER_LEADING_WHITESPACE,
+        TJANSTEKONTRAKT_GET_CERTIFICATE_KEY,
+        "Whitespace detected in incoming request!");
+    System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
+        soapBody.getFault().getFaultString());
   }
 
   @Test
@@ -232,20 +262,13 @@ public class FullServiceErrorHandlingIT {
     assertRespOutLog("VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid.");
   }
 
-  private void assertSoapFault(SOAPBody soapBody, String code, String message) {
+  private void assertSoapFault(SOAPBody soapBody, String code, String ...messages) {
     assertNotNull("Expected a SOAP message", soapBody);
     assertNotNull("Expected a SOAPFault", soapBody.hasFault());
     assertStringContains(soapBody.getFault().getFaultString(), code);
-    assertStringContains(soapBody.getFault().getFaultString(), message);
-  }
-
-  private void assertSoapFault(SOAPBody soapBody, String code, String mess1, String mess2, String mess3) {
-    assertNotNull("Expected a SOAP message", soapBody);
-    assertNotNull("Expected a SOAPFault", soapBody.hasFault());
-    assertStringContains(soapBody.getFault().getFaultString(), code);
-    assertStringContains(soapBody.getFault().getFaultString(), mess1);
-    assertStringContains(soapBody.getFault().getFaultString(), mess2);
-    assertStringContains(soapBody.getFault().getFaultString(), mess3);
+    for(String message : messages){
+      assertStringContains(soapBody.getFault().getFaultString(), message);
+    }
   }
 
   private void assertErrorLog(String code, String message) {
