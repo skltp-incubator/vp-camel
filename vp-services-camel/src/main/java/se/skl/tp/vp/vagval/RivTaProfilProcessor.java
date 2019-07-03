@@ -161,6 +161,31 @@ public class RivTaProfilProcessor implements Processor {
         }
 
         // Write out the element name
+        writeOutElementName(writer, uri, local, prefix);
+
+        // Write out the namespaces
+        writeElementNS = writeOutNameSpaces(reader, writer, fromAddressingNs, toAddressingNs,
+            toAddressingElement, uri,
+            local, prefix, writeElementNS);
+
+        // Check if the namespace still needs to be written.
+        // We need this check because namespace writing works
+        // different on Woodstox and the RI.
+        if (writeElementNS) {
+            if (prefix.length() == 0) {
+                writer.writeDefaultNamespace(uri);
+            } else {
+                writer.writeNamespace(prefix, uri);
+            }
+        }
+
+        // Write out attributes
+        writeOutAttributes(reader, writer, fromAddressingNs, toAddressingNs, toAddressingElement,
+            local);
+    }
+
+    private static void writeOutElementName(XMLStreamWriter writer, String uri, String local,
+        String prefix) throws XMLStreamException {
         if (uri != null) {
             if (prefix.length() == 0 && StringUtils.isEmpty(uri)) {
                 writer.writeStartElement(local);
@@ -173,8 +198,11 @@ public class RivTaProfilProcessor implements Processor {
         } else {
             writer.writeStartElement(local);
         }
+    }
 
-        // Write out the namespaces
+    private static boolean writeOutNameSpaces(XMLStreamReader reader, XMLStreamWriter writer,
+        String fromAddressingNs, String toAddressingNs, String toAddressingElement, String uri,
+        String local, String prefix, boolean writeElementNS) throws XMLStreamException {
         for (int i = 0; i < reader.getNamespaceCount(); i++) {
             String nsURI = reader.getNamespaceURI(i);
             if (fromAddressingNs.equals(nsURI) && ("Envelope".equals(local) || "Header".equals(local)
@@ -197,19 +225,12 @@ public class RivTaProfilProcessor implements Processor {
                 writeElementNS = false;
             }
         }
+        return writeElementNS;
+    }
 
-        // Check if the namespace still needs to be written.
-        // We need this check because namespace writing works
-        // different on Woodstox and the RI.
-        if (writeElementNS) {
-            if (prefix.length() == 0) {
-                writer.writeDefaultNamespace(uri);
-            } else {
-                writer.writeNamespace(prefix, uri);
-            }
-        }
-
-        // Write out attributes
+    private static void writeOutAttributes(XMLStreamReader reader, XMLStreamWriter writer,
+        String fromAddressingNs, String toAddressingNs, String toAddressingElement, String local)
+        throws XMLStreamException {
         for (int i = 0; i < reader.getAttributeCount(); i++) {
             String ns = reader.getAttributeNamespace(i);
 

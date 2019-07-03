@@ -1,0 +1,13 @@
+[
+  {
+    "tjanstekontrakt": "urn:riv:clinicalprocess:activity:actions:DeleteActivityResponder:1",
+    "wsdlfilepath": "classpath:testfiles/wsdl/local.clinicalprocess.activity.actions/schemas/interactions/DeleteActivityInteraction/DeleteActivityInteraction_1.0_RIVTABP21.wsdl",
+    "wsdlurl": "vp/SomWeirdUrlNotFollowingNamingConventions"
+  },
+
+  {
+    "tjanstekontrakt": "urn:riv:clinicalprocess:activity:actions:GetActivitiesResponder:1",
+    "wsdlfilepath": "classpath:testfiles/wsdl/local.clinicalprocess.activity.actions/schemas/interactions/GetActivitiesInteraction/GetActivitiesInteraction_1.0_RIVTABP21.wsdl",
+    "wsdlurl": "vp/SomOtherWeirdUrlNotFollowingNamingConventions"
+  }
+]

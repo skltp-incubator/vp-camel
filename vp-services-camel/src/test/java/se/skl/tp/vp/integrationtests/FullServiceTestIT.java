@@ -53,7 +53,7 @@ public class FullServiceTestIT {
   @Value("${vp.instance.id}")
   String vpInstanceId;
 
-  @Value("${http.forwarded.header.for}")
+  @Value("${http.forwarded.header.xfor}")
   String forwardedHeaderFor;
 
   @Value("${http.forwarded.header.host}")
