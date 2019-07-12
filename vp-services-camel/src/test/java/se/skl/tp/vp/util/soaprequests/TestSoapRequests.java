@@ -9,6 +9,8 @@ public class TestSoapRequests {
   public static final String RECEIVER_UNIT_TEST = "UnitTest";
   public static final String RECEIVER_HTTP = "HttpProducer";
   public static final String RECEIVER_HTTPS = "HttpsProducer";
+  public static final String RECEIVER_TRAILING_WHITESPACE = "HttpsProducer ";
+  public static final String RECEIVER_LEADING_WHITESPACE = " HttpsProducer";
   public static final String RECEIVER_NO_PRODUCER_AVAILABLE = "RecevierNoProducerAvailable";
   public static final String RECEIVER_WITH_NO_VAGVAL = "NoVagvalReceiver";
   public static final String RECEIVER_NOT_AUHORIZED = "NotAuhorizedReceiver";
@@ -36,6 +38,21 @@ public class TestSoapRequests {
           "   </soapenv:Body>\n" +
           "</soapenv:Envelope>";
 
+  public static final String GET_CERTIFICATE_REQUEST_RIV20_UTF16 =
+      "<?xml version=\"1.0\" encoding=\"UTF-16\"?>" +
+      "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:add=\"http://www.w3.org/2005/08/addressing\" xmlns:urn=\"urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1\">\n"
+          +
+          "   <soapenv:Header>\n" +
+          "      <add:To>%s</add:To>\n" +
+          "   </soapenv:Header>\n" +
+          "   <soapenv:Body>\n" +
+          "      <urn:GetCertificateRequest>\n" +
+          "         <urn:certificateId>?</urn:certificateId>\n" +
+          "         <urn:nationalIdentityNumber>?</urn:nationalIdentityNumber>\n" +
+          "         <!--You may enter ANY elements at this point-->\n" +
+          "      </urn:GetCertificateRequest>\n" +
+          "   </soapenv:Body>\n" +
+          "</soapenv:Envelope>";
 
   public static final String GET_ACTIVITIES_REQUEST_RIV21 =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -98,4 +115,9 @@ public class TestSoapRequests {
   public static String createGetActivitiesRiv20Request(String receiver){
     return String.format(GET_ACTIVITIES_REQUEST_RIV20, receiver);
   }
+
+  public static String createGetCertificateRiv20UTF16Request(String receiver){
+    return String.format(GET_CERTIFICATE_REQUEST_RIV20_UTF16, receiver);
+  }
+
 }

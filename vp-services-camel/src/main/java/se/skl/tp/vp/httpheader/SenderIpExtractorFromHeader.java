@@ -12,21 +12,43 @@ import java.net.InetSocketAddress;
 @Service
 public class SenderIpExtractorFromHeader implements SenderIpExtractor {
 
-    private final String forwardProxyRemoteIpHeaderName;
+  private final String forwardProxyRemoteIpHeaderName;
 
-    @Autowired
-    public SenderIpExtractorFromHeader(@Value("${" + PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}") String forwardProxyRemoteIpHeaderName) {
-        this.forwardProxyRemoteIpHeaderName = forwardProxyRemoteIpHeaderName;
-    }
+  @Autowired
+  public SenderIpExtractorFromHeader(
+      @Value("${" + PropertyConstants.VAGVALROUTER_SENDER_IP_ADRESS_HTTP_HEADER + "}") String forwardProxyRemoteIpHeaderName) {
+    this.forwardProxyRemoteIpHeaderName = forwardProxyRemoteIpHeaderName;
+  }
 
-    @Override
-    public String extractSenderIpAdress(Message message) {
-        String senderIpAdress  = message.getHeader(forwardProxyRemoteIpHeaderName, String.class);
-        
-        if(senderIpAdress == null){
-            InetSocketAddress inetSocketAddress = message.getHeader(NettyConstants.NETTY_REMOTE_ADDRESS, InetSocketAddress.class);
-            senderIpAdress = inetSocketAddress.getAddress().getHostAddress();
-        }
-        return senderIpAdress;
-    }
+  @Override
+  public String getSenderIpAdress(Message message) {
+    return isProxyUsed(message) ? getForwardedForAddress(message) : getCallerRemoteAddress(message);
+  }
+
+  @Override
+  public String getForwardedForAddress(Message message) {
+    return message.getHeader(forwardProxyRemoteIpHeaderName, String.class);
+  }
+
+  @Override
+  public String getCallerRemoteAddress(Message message) {
+    InetSocketAddress inetSocketAddress = message.getHeader(NettyConstants.NETTY_REMOTE_ADDRESS, InetSocketAddress.class);
+    return inetSocketAddress==null ? null : inetSocketAddress.getAddress().getHostAddress();
+  }
+
+  @Override
+  public String getForwardForHeaderName() {
+    return forwardProxyRemoteIpHeaderName;
+  }
+
+  @Override
+  public String getCallerRemoteAddressHeaderName() {
+    return NettyConstants.NETTY_REMOTE_ADDRESS;
+  }
+
+  @Override
+  public Boolean isProxyUsed(Message message) {
+    return message.getHeaders().containsKey(forwardProxyRemoteIpHeaderName);
+  }
+
 }

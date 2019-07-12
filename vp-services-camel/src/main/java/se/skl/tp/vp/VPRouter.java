@@ -4,21 +4,24 @@ import static org.apache.camel.builder.PredicateBuilder.or;
 
 import io.netty.handler.timeout.ReadTimeoutException;
 import java.net.SocketException;
+import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
+import se.skl.tp.vp.charset.ConvertRequestCharset;
+import se.skl.tp.vp.charset.ConvertResponseCharset;
 import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
 import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
 import se.skl.tp.vp.httpheader.CorrelationIdProcessor;
-import se.skl.tp.vp.httpheader.OutHeaderProcessor;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.httpheader.OriginalConsumerIdProcessor;
+import se.skl.tp.vp.httpheader.OutHeaderProcessor;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.requestreader.RequestReaderProcessor;
 import se.skl.tp.vp.timeout.RequestTimoutProcessor;
@@ -36,6 +39,7 @@ public class VPRouter extends RouteBuilder {
     public static final String TO_PRODUCER_ROUTE = "to-producer-route";
     public static final String DIRECT_VP = "direct:vp";
     public static final String DIRECT_PRODUCER_ROUTE = "direct:to-producer";
+    public static final String DIRECT_PRODUCER_ERROR = "direct:producer-error";
 
     public static final String NETTY4_HTTPS_INCOMING_FROM = "netty4-http:{{vp.https.route.url}}?"
         + "sslContextParameters=#incomingSSLContextParameters&ssl=true&"
@@ -72,7 +76,7 @@ public class VPRouter extends RouteBuilder {
     OriginalConsumerIdProcessor originalConsumerIdProcessor;
 
     @Autowired
-    OutHeaderProcessor headerProcessor;
+    OutHeaderProcessor setOutHeadersProcessor;
 
     @Autowired
     VagvalProcessor vagvalProcessor;
@@ -110,6 +114,12 @@ public class VPRouter extends RouteBuilder {
     @Autowired
     private HttpHeaderFilterRegexp reg;
 
+    @Autowired
+    private ConvertRequestCharset convertRequestCharset;
+
+    @Autowired
+    private ConvertResponseCharset convertResponseCharset;
+
     @Override
     public void configure() throws Exception {
 
@@ -143,7 +153,7 @@ public class VPRouter extends RouteBuilder {
 
         from(DIRECT_VP).routeId(VAGVAL_ROUTE)
             .streamCaching()
-            .setProperty(VPExchangeProperties.HTTP_URL_IN,  header("CamelHttpUrl"))
+            .setProperty(VPExchangeProperties.HTTP_URL_IN,  header(Exchange.HTTP_URL))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
@@ -153,9 +163,9 @@ public class VPRouter extends RouteBuilder {
             .bean(MessageInfoLogger.class, LOG_REQ_IN_METHOD)
             .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
             .process(behorighetProcessor).id(BEHORIGHET_PROCESSOR_ID)
-            .process(headerProcessor)
             .process(requestTimoutProcessor)
             .process(rivTaProfilProcessor)
+            .process(setOutHeadersProcessor)
             .to(DIRECT_PRODUCER_ROUTE)
             .choice().when(or(body().isNull(), body().isEqualTo("")))
                 .log(LoggingLevel.ERROR, "Response from producer is empty")
@@ -165,6 +175,7 @@ public class VPRouter extends RouteBuilder {
 
         from(DIRECT_PRODUCER_ROUTE)
             .routeId(TO_PRODUCER_ROUTE)
+
             .onException(SocketException.class)
                 .log(LoggingLevel.ERROR, "OnBefore Redelivery Global")
                 .redeliveryDelay("{{vp.producer.retry.delay}}")
@@ -172,19 +183,15 @@ public class VPRouter extends RouteBuilder {
                     .logRetryAttempted(true)
                     .retryAttemptedLogLevel(LoggingLevel.ERROR)
                     .logRetryStackTrace(false)
-                .log(LoggingLevel.ERROR, "Catched in test route: ${exception}")
-                .process(handleProducerExceptionProcessor)
-                .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
-                .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
+                .to(DIRECT_PRODUCER_ERROR)
                 .handled(true)
             .end()
             .onException(ReadTimeoutException.class, NettyHttpOperationFailedException.class)
-                .log(LoggingLevel.ERROR, "Catched exception when calling producer: ${exception}")
-                .process(handleProducerExceptionProcessor)
-                .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
-                .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
+                .to(DIRECT_PRODUCER_ERROR)
                 .handled(true)
             .end()
+
+            .process(convertRequestCharset)
             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
             .bean(MessageInfoLogger.class, LOG_REQ_OUT_METHOD)
             .choice().when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
@@ -195,6 +202,15 @@ public class VPRouter extends RouteBuilder {
                     .endChoice()
             .end()
             .bean(MessageInfoLogger.class, LOG_RESP_IN_METHOD)
+            .process(convertResponseCharset)
+            .end();
+
+        from(DIRECT_PRODUCER_ERROR)
+            .log(LoggingLevel.ERROR, "Catched when calling producer: ${exception}")
+            .process(handleProducerExceptionProcessor)
+            .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+            .process(convertResponseCharset)
+            .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .end();
 
     }

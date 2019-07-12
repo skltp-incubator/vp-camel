@@ -3,7 +3,6 @@ package se.skl.tp.vp.httpheader;
 import lombok.extern.log4j.Log4j2;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.component.netty4.NettyConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -40,35 +39,36 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   @Override
   public void process(Exchange exchange) throws Exception {
     Message message = exchange.getIn();
-    String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
-    String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
 
-    /*
-     * Extract sender ip address to session scope to be able to log in EventLogger.
-     */
-    String senderIpAdress = senderIpExtractor.extractSenderIpAdress(message);
+    String callerRemoteAddress = senderIpExtractor.getCallerRemoteAddress(message);
+    checkCallerOnWhitelist(callerRemoteAddress, senderIpExtractor.getCallerRemoteAddressHeaderName());
+
+    String forwardedForIpAdress = senderIpExtractor.getForwardedForAddress(message);
+    String senderIpAdress = forwardedForIpAdress != null ? forwardedForIpAdress : callerRemoteAddress;
     exchange.setProperty(VPExchangeProperties.SENDER_IP_ADRESS, senderIpAdress);
 
+    String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
+    String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
     if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
-      log.debug("Yes, sender id extracted from inbound property {}: {}, check whitelist!", HttpHeaders.X_VP_SENDER_ID, senderId);
-      /*
-       * x-vp-sender-id exist as inbound property and x-vp-instance-id matches this VP instance, a mandatory check against the whitelist of
-       * ip addresses is needed. VPUtil.checkCallerOnWhiteList throws VpSemanticException in case ip address is not in whitelist.
-       */
-      if (!ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress)) {
-        throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP011,
-            " IP-address: " + senderIpAdress
-                + ". HTTP header that caused checking: " + NettyConstants.NETTY_REMOTE_ADDRESS);
-      }
-
-      // Make sure the sender id is set in session scoped property for authorization and logging
+      log.debug("Internal plattform call, setting senderId from property {}:{}", HttpHeaders.X_VP_SENDER_ID, senderId);
+      checkCallerOnWhitelist(forwardedForIpAdress, senderIpExtractor.getForwardForHeaderName());
       exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
-
     } else {
-      Object certificate = message.getHeader(HttpHeaders.REVERSE_PROXY_HEADER_NAME);
+      log.debug("Try extract senderId from provided certificate");
+      exchange.setProperty(VPExchangeProperties.SENDER_ID, getSenderIdFromCertificate(message));
+    }
+  }
 
-      String senderIdFromHeaderCertificate = headerCertificateHelper.getSenderIDFromHeaderCertificate(certificate);
-      exchange.setProperty(VPExchangeProperties.SENDER_ID, senderIdFromHeaderCertificate);
+  private String getSenderIdFromCertificate(Message message) {
+    Object certificate = message.getHeader(HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY);
+    return headerCertificateHelper.getSenderIDFromHeaderCertificate(certificate);
+  }
+
+  private void checkCallerOnWhitelist(String senderIpAdress, String header) {
+    if (senderIpAdress != null && !ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress)) {
+      throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP011,
+          " IP-address: " + senderIpAdress
+              + ". HTTP header that caused checking: " + header);
     }
   }
 

@@ -2,6 +2,7 @@ package se.skl.tp.vp.integrationtests.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.stream.XMLStreamReader;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.camel.CamelContext;
@@ -24,6 +25,7 @@ public class MockProducer {
   private CamelContext camelContext;
 
   String inBody;
+  XMLStreamReader inBodyXmlReader;
   Map<String, Object> inHeaders = new HashMap<>();
 
   @Autowired
@@ -54,12 +56,17 @@ public class MockProducer {
             .process((Exchange exchange) -> {
               inHeaders.putAll(exchange.getIn().getHeaders());
               inBody = exchange.getIn().getBody(String.class);
+              inBodyXmlReader = exchange.getIn().getBody(XMLStreamReader.class);
               exchange.getOut().setBody(responseBody);
               exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, responseHttpStatus);
               Thread.sleep(timeout);
             });
       }
     });
+  }
+
+  public String getInHeader(String header){
+    return (String)inHeaders.get(header);
   }
 
 }

@@ -3,5 +3,16 @@ package se.skl.tp.vp.httpheader;
 import org.apache.camel.Message;
 
 public interface SenderIpExtractor {
-    String extractSenderIpAdress(Message message);
+
+  String getSenderIpAdress(Message message);
+
+  String getForwardedForAddress(Message message);
+
+  String getCallerRemoteAddress(Message message);
+
+  String getForwardForHeaderName();
+
+  String getCallerRemoteAddressHeaderName();
+
+  Boolean isProxyUsed(Message message);
 }

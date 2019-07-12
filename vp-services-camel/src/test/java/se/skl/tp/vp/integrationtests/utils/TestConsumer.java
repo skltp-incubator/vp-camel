@@ -38,11 +38,27 @@ public class TestConsumer {
     );
   }
 
+  public byte[] sendHttpRequestToVP(byte[] message, Map<String, Object> headers){
+    return template.requestBodyAndHeaders(
+        DIRECT_START_HTTP,
+        message,
+        headers, byte[].class
+    );
+  }
+
   public String sendHttpsRequestToVP(String message, Map<String, Object> headers){
     return template.requestBodyAndHeaders(
             DIRECT_START_HTTPS,
             message,
             headers, String.class
+    );
+  }
+
+  public byte[] sendHttpsRequestToVP(byte[] message, Map<String, Object> headers){
+    return template.requestBodyAndHeaders(
+        DIRECT_START_HTTPS,
+        message,
+        headers, byte[].class
     );
   }
 

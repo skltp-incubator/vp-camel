@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTP;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_HTTPS;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRiv20UTF16Request;
 
 import io.undertow.util.FileUtils;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
@@ -88,6 +90,8 @@ public class FullServiceTestIT {
     String response = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_HTTP), headers);
     assertEquals("<mocked answer/>", response);
 
+    Map<String, Object> producerheaders = mockProducer.getInHeaders();
+
     assertMessageLogsExists();
 
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
@@ -120,6 +124,124 @@ public class FullServiceTestIT {
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
+
+
+  // TODO should we handle this case??
+//  @Test
+//  public void callHttpVPEndpointDeclaredUTF16ButIsUTF8() {
+//    mockProducer.setResponseBody("<mocked answer/>");
+//
+//    Map<String, Object> headers = new HashMap<>();
+//    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+//    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+//    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS), headers);
+//
+//    assertEquals("<mocked answer/>", response);
+//
+//    assertMessageLogsExists();
+//
+//    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+//    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+//    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+//    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+//    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+//    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+//    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+//  }
+
+  @Test
+  public void callHttpVPEndpointDeclaredUTF16ButIsUTF8WithContentTypeSet() {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.HEADER_CONTENT_TYPE, "text/xml;charset=UTF-8");
+    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS), headers);
+
+    assertEquals("<mocked answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
+
+  @Test
+  public void callHttpVPEndpointUTF16() throws UnsupportedEncodingException {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.HEADER_CONTENT_TYPE, "text/xml;charset=UTF-16");
+    String payload = createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS);
+    byte[] byteResponse = testConsumer.sendHttpRequestToVP(payload.getBytes("UTF-16"), headers);
+    String response = new String(byteResponse, "UTF-16");
+
+    assertEquals("<mocked answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
+
+  @Test
+  public void callHttpVPEndpointUTF16NoContentTypeSet() throws UnsupportedEncodingException {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    String payload = createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS);
+    byte[] byteResponse = testConsumer.sendHttpRequestToVP(payload.getBytes("UTF-16"), headers);
+    String response = new String(byteResponse, "UTF-16");
+
+    assertEquals("<mocked answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
+
+  @Test
+  public void callWithUTF16ShouldGenerateUTF8CallToProducer() throws UnsupportedEncodingException {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.HEADER_CONTENT_TYPE, "text/xml;charset=UTF-16");
+    String payload = createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS);
+    byte[] byteResponse = testConsumer.sendHttpRequestToVP(payload.getBytes("UTF-16"), headers);
+    String response = new String(byteResponse, "UTF-16");
+
+    assertEquals("<mocked answer/>", response);
+
+    String inContentType = mockProducer.getInHeader("Content-Type");
+    assertStringContains(inContentType, "UTF-8");
+
+    String xmlEncoding = mockProducer.getInBodyXmlReader().getEncoding();;
+    assertEquals("UTF-8", xmlEncoding );
+
   }
 
   @Test

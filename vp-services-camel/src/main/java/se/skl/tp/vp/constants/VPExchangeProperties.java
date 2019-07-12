@@ -16,6 +16,8 @@ public class VPExchangeProperties {
   public static final String RIV_VERSION = "rivversion";
   public static final String RIV_VERSION_OUT = "rivversion_out";
   public static final String SERVICECONTRACT_NAMESPACE = "servicecontract_namespace";
+  public static final String XML_REQUEST_ENCODING = "XmlRequestEncoding";
+  public static final String ORIGINAL_REQUEST_ENCODING = "OriginalRequestEncoding";
 
   public static final String SESSION_ERROR = "sessionStatus";
   public static final String SESSION_ERROR_DESCRIPTION = "sessionErrorDescription";
