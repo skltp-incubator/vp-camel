@@ -244,7 +244,7 @@ public class FullServiceTestIT {
 
   }
 
-  @Test
+//  @Test
   public void callHttpVPLargePayloadHappyDays() {
     mockProducer.setResponseBody("<mocked answer/>");
 
@@ -265,7 +265,7 @@ public class FullServiceTestIT {
     assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
   }
 
-  @Test
+ // @Test
   public void callHttpsVPLargePayloadHappyDays() {
     mockProducer.setResponseBody("<mocked answer/>");
 
