@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1:ext:1"
+           targetNamespace="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1:ext:1"
+           version="1.0">
+
+    <xs:element name="fodelsedatum" type="xs:string" nillable="false">
+        <xs:annotation>
+            <xs:documentation>
+                Födelsedatum. Anges på formen yyyymmdd.
+                Används vid framtagning av förmånskod när varan är preventivmedel med förmånskod R. Om personen är under 21 år blir förmånskoden F för dessa varor.
+                Gäller när lagen om gratis preventivmedel för personer under 21 år trätt i kraft.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="extension1" type="ExtensionType"/>
+
+    <xs:complexType name="ExtensionType">
+        <xs:sequence>
+            <xs:any namespace="##any"
+                    processContents="lax"
+                    minOccurs="0"
+                    maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

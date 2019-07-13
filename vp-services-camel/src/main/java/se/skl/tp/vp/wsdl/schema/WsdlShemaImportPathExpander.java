@@ -1,7 +1,7 @@
 package se.skl.tp.vp.wsdl.schema;
 
-import static se.skl.tp.vp.wsdl.XmlHelper.applyHandlingToNodes;
-import static se.skl.tp.vp.wsdl.XmlHelper.createXPath;
+import static xmlutil.XmlHelper.applyHandlingToNodes;
+import static xmlutil.XmlHelper.createXPath;
 
 import java.net.URL;
 import org.dom4j.Document;

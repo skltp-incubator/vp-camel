@@ -7,14 +7,12 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 
 public class SoapFaultHelper {
 
-  private SoapFaultHelper(){
-    // Static utility class
-  }
+  private SoapFaultHelper(){}
 
   /*
    * Generic soap fault template, just use String.format(SOAP_FAULT, message);
    */
-  private final static String SOAP_FAULT =
+  private static final String SOAP_FAULT =
       "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
           "  <soapenv:Header/>" +
           "  <soapenv:Body>" +

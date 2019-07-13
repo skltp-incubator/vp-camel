@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1"
+           xmlns:pris="urn:riv:se.apotekensservice:pris:1"
+           xmlns:e1="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1:ext:1"
+           targetNamespace="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.1">
+
+        
+    <xs:import namespace="urn:riv:se.apotekensservice:pris:1" schemaLocation="../../core_components/se.apotekensservice_pris_1.0.xsd"/>
+    <xs:import namespace="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1:ext:1" schemaLocation="KontrolleraFormanResponder_1_ext_1.0.xsd"/>
+
+    <!-- Globala element: Metod parametrar -->
+    <xs:element name="KontrolleraForman" type="KontrolleraFormanRequestType"/>
+    <xs:element name="KontrolleraFormanResponse" type="KontrolleraFormanResponseType"/>
+
+    <!-- Fel -->
+    <xs:element name="ApplicationException" type="pris:ApplicationException"/>
+    <xs:element name="SystemException" type="pris:SystemException"/>
+
+            <xs:complexType name="KontrolleraFormanRequestType">
+            <xs:sequence>
+                <xs:element name="artikelIdLista" type="pris:ArtikelIdentiteterRequest" nillable="false" maxOccurs="unbounded">
+                    <xs:annotation>
+                        <xs:documentation>Artikel -
+Endast ett id per artikel</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            
+                <xs:element name="klientinformation" type="pris:KlientinformationRequest" nillable="false">
+                    <xs:annotation>
+                        <xs:documentation>Objekt innehållande information om anropande klientsystem.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element ref="e1:fodelsedatum" minOccurs="0"/>
+                <xs:element ref="e1:extension1" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    
+            <xs:complexType name="KontrolleraFormanResponseType">
+            <xs:sequence>
+                <xs:element name="formansLista" type="pris:FormansInfoResponse" nillable="false" maxOccurs="unbounded">
+                    <xs:annotation>
+                        <xs:documentation>Lista med förmånskoder per artikel.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+
+    </xs:schema>
+

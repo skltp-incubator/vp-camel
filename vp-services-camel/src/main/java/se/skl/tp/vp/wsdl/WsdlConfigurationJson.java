@@ -1,6 +1,6 @@
 package se.skl.tp.vp.wsdl;
 
-import static se.skl.tp.vp.wsdl.WsdlPathHelper.expandIfPrefixedClassPath;
+import static wsdl.PathHelper.expandIfPrefixedClassPath;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,11 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import wsdl.WsdlConfig;
 
 @Service
 public class WsdlConfigurationJson implements WsdlConfiguration {
 
-  private static Logger LOGGER = LogManager.getLogger(WsdlConfigurationJson.class);
+  private static Logger logger = LogManager.getLogger(WsdlConfigurationJson.class);
 
   private List<WsdlConfig> wsdlConfigs;
   private HashMap<String, WsdlConfig> mapOnTjanstekontrakt;
@@ -48,7 +49,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
               new TypeReference<List<WsdlConfig>>() {});
     } catch (FileNotFoundException e) {
       wsdlConfigs = new ArrayList<>();
-      LOGGER.warn(
+      logger.warn(
           "Json file for wsdlconfiguration not found at "
               + wsdl_json_file
               + ", unless wsdl paths are generated from base wsdl directory no wsdls are available.");
@@ -74,7 +75,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
           .filter(f -> f.toString().endsWith(".wsdl"))
           .forEach(file -> createConfigFromWsdlFile(file));
     } catch (IOException e) {
-      LOGGER.warn(
+      logger.warn(
           "Problem when trying to read wsdl files in "
               + wsdlDirectory
               + ". No wsdl paths are automatically genereted. Message: "
@@ -149,7 +150,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
       }
 
     } catch (IOException | SAXException | ParserConfigurationException e) {
-      LOGGER.error("Error when trying to parse wsdl file " + file.toString(), e);
+      logger.error("Error when trying to parse wsdl file " + file.toString(), e);
     }
     return wsdlInfo;
   }

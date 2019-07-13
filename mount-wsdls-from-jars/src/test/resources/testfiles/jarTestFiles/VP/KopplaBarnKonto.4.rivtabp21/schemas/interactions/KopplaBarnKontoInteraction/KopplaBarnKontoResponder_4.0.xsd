@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:riv:se.apotekensservice:pris:KopplaBarnKontoResponder:4"
+           xmlns:pris="urn:riv:se.apotekensservice:pris:4"
+           targetNamespace="urn:riv:se.apotekensservice:pris:KopplaBarnKontoResponder:4"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="4.0">
+
+    <xs:import namespace="urn:riv:se.apotekensservice:pris:4" schemaLocation="../../core_components/se.apotekensservice_pris_4.0.xsd"/>
+
+    <!-- Globala element: Metod parametrar -->
+    <xs:element name="KopplaBarnKonto" type="KopplaBarnKontoRequestType"/>
+    <xs:element name="KopplaBarnKontoResponse" type="KopplaBarnKontoResponseType"/>
+
+    <!-- Fel -->
+    <xs:element name="ApplicationException" type="pris:ApplicationException"/>
+    <xs:element name="SystemException" type="pris:SystemException"/>
+
+            <xs:complexType name="KopplaBarnKontoRequestType">
+            <xs:sequence>
+                <xs:element name="huvudPersNr" type="xs:string" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>Personnummer för huvudperson (Förmånsmottagare).
+Anges ej om barnkontot ska kopplas bort från samlingskontot.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            
+                <xs:element name="klientinformation" type="pris:KlientinformationRequest" nillable="false">
+                    <xs:annotation>
+                        <xs:documentation>Objekt innehållande information om anropande klientsystem.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            
+                <xs:element name="persNr" type="xs:string" nillable="false">
+                    <xs:annotation>
+                        <xs:documentation>Personnummer för den vars konto ska uppdateras.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                            
+                <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    
+            <xs:complexType name="KopplaBarnKontoResponseType">
+            <xs:sequence>
+                <xs:element name="status" type="xs:int" nillable="false">
+                    <xs:annotation>
+                        <xs:documentation>Status för koppling av barnkonto
+Möjliga värden är:
+1 - Anslutning OK.
+2 - Omkoppling OK.
+3 - Frikoppling OK.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                            
+                <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+
+
+	</xs:schema>

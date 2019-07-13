@@ -19,7 +19,7 @@ public class ForwardedHttpHeadersBaseUrlFactory {
     if (baseUrl.scheme != null && !baseUrl.scheme.isEmpty()) {
       baseUrl.host = (String) message.getHeader(proxyHttpForwardedHeaders.getHost());
       baseUrl.port = (String) message.getHeader(proxyHttpForwardedHeaders.getPort());
-      log.debug("Found forwarded HTTP headers for URL parts: {}", baseUrl.toString());
+      log.debug("Found forwarded HTTP headers for URL parts: {}", baseUrl);
     }else{
       baseUrl.scheme  = pHttpUri.toURI().getScheme();
       baseUrl.port = ""+pHttpUri.getPort();
@@ -35,11 +35,7 @@ public class ForwardedHttpHeadersBaseUrlFactory {
     String port;
     public BaseUrlModel() {}
 
-    public BaseUrlModel(String scheme, String host, String port) {
-      this.scheme = scheme;
-      this.host = host;
-      this.port = port;
-    }
+
 
     @Override
     public String toString() {
@@ -54,8 +50,6 @@ public class ForwardedHttpHeadersBaseUrlFactory {
       return sb.toString();
     }
 
-    public boolean isAnyUrlPartSet() {
-      return scheme != null || host != null || port != null;
-    }
+
   }
 }

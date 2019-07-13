@@ -68,10 +68,17 @@
 
   <modules>
     <module>vp-services-camel</module>
+    <module>mount-wsdls-from-jars</module>
+    <module>utility</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
+
+      <dependency>
+        <groupId>se.skltp.vp</groupId>
+        <artifactId>utility</artifactId>
+      </dependency>
       <!-- Spring Boot BOM -->
       <dependency>
         <groupId>org.springframework.boot</groupId>

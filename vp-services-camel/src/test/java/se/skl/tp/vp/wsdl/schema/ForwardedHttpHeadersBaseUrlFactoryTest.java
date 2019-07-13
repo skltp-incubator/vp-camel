@@ -1,26 +1,17 @@
 package se.skl.tp.vp.wsdl.schema;
 
 import static org.junit.Assert.*;
-import static se.skl.tp.vp.wsdl.WsdlPathHelper.expandIfPrefixedClassPath;
-import static se.skl.tp.vp.wsdl.pathinitialize.VirtualiseringsGeneratorValidation.MATCH_END_IN_COLON_SINGEL_DIGIT;
-import static se.skl.tp.vp.wsdl.pathinitialize.VirtualiseringsGeneratorValidation.MATCH_XSD_FILES_NON_EXT;
-import static se.skl.tp.vp.wsdl.pathinitialize.WsdlPathHelper.findFilesInDirectory;
-import static se.skl.tp.vp.wsdl.pathinitialize.WsdlPathHelper.findFoldersInDirectory;
 
 import com.sun.jndi.toolkit.url.Uri;
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.config.ProxyHttpForwardedHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
-import se.skl.tp.vp.wsdl.pathinitialize.VirtualiseringGenerator;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory.BaseUrlModel;
 
 @RunWith(SpringRunner.class)
@@ -131,70 +121,12 @@ public class ForwardedHttpHeadersBaseUrlFactoryTest {
     return ex.getIn();
   }
 
-  @Test
-  public void testVirtualiseringGenerator() throws IOException {
-    VirtualiseringGenerator vtg = new VirtualiseringGenerator();
-    String dir = expandIfPrefixedClassPath(wsdlDir);
-    List<File> core_componentsFolders = findFoldersInDirectory(dir, "core_components");
-    List<File> interactionFolder = findFoldersInDirectory(dir, ".*Interaction");
-    List<File> ext = findFilesInDirectory(dir, ".*_ext.*\\.xsd");
-    assertTrue(ext.size() == 2);
-    assertTrue(core_componentsFolders.size() == 4);
-    assertTrue(interactionFolder.size() == 10);
-    vtg.generate(dir);
-  }
 
-  @Test
-  public void testMATCH_XSD_FILES_NON_EXT() {
-    assertTrue(
-    testRegex(Arrays.asList(
-        "SomeFileName.xsd",
-        "SomeFileNamext.xsd",
-        "ext_SomeFileName.xsd",
-        "ext_SomeFileNameext_.xsd"),
-        Arrays.asList(
-            "SomeFileName_ext.xsd",
-            "SomeFileName.xsdfault",
-            "SomeFileName_ext.xsdfault",
-            "SomeFileName_ext",
-            "SomeFileName",
-            "SomeFileName.xml",
-            "Sext_omeFileName.xml"),
-        MATCH_XSD_FILES_NON_EXT)
-    );
 
-  }
 
-  @Test
-  public void testMATCH_END_IN_COLON_SINGELE_DIGIT() {
-    assertTrue(
-        testRegex(Arrays.asList(
-            "some:nice:version:1",
-            ":7",
-            "version:7",
-            "som nice verion :8"),
-            Arrays.asList(
-                "bad:version:11",
-                "bad:version:1:bad",
-                "bad:version:1bad",
-                ":12",
-                ""),
-            MATCH_END_IN_COLON_SINGEL_DIGIT)
-    );
-  }
 
-  private boolean testRegex(List<String> matching,List<String> notMatchingCandidate,String regex){
-    AtomicBoolean result = new AtomicBoolean(true);
-    matching.forEach(candidate->{
-      if(!candidate.matches(regex))
-        result.set(false);
 
-    });
-    notMatchingCandidate.forEach(candidate->{
-      if(!candidate.matches(regex))
-        result.set(false);
 
-    });
-    return result.get();
-  }
+
+
 }

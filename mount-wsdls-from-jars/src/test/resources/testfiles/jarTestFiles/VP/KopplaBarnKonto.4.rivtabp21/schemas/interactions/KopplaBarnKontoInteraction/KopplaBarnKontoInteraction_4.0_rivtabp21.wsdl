@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:itr="urn:riv:itintegration:registry:1" xmlns:argos="urn:riv:inera.se.apotekensservice:argos:1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns="urn:riv:se.apotekensservice:pris:KopplaBarnKonto:4:rivtabp21" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:spdr="urn:riv:se.apotekensservice:pris:KopplaBarnKontoResponder:4" targetNamespace="urn:riv:se.apotekensservice:pris:KopplaBarnKonto:4:rivtabp21" name="KopplaBarnKontoInteraction">
+  <xs:annotation>
+    <xs:documentation>
+	        Tjänsteinteraktionens namn: KopplaBarnKonto.
+            Beskrivning: Tjänstekontraktet som avser att konkretisera tillämpningen av RIV.
+            Revisioner: 2015-08-18 Version 4.0.1
+						2013-04-24 Version 4.0
+            Tjänstedomän: se.apotekensservice:pris.
+            Tjänsteinteraktionstyp: Fråga-Svar.
+            RIV Teknisk Anvisning: Basic Profile 2.1 anpassad enligt eHälsomyndighetens tekniska riktlinjer
+		    Förvaltning: Kontakta support hos eHälsomyndigheten
+        </xs:documentation>
+  </xs:annotation>
+  <wsdl:types>
+    <xs:schema targetNamespace="urn:riv:se.apotekensservice:pris:KopplaBarnKonto:4:rivtabp21">
+      <xs:import schemaLocation="KopplaBarnKontoResponder_4.0.xsd" namespace="urn:riv:se.apotekensservice:pris:KopplaBarnKontoResponder:4"/>
+      <xs:import schemaLocation="../../core_components/itintegration_registry_1.0.xsd" namespace="urn:riv:itintegration:registry:1"/>
+      <xs:import schemaLocation="../../core_components/ArgosHeader_1.0.xsd" namespace="urn:riv:inera.se.apotekensservice:argos:1"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="KopplaBarnKontoRequest">
+    <wsdl:part name="parameters" element="spdr:KopplaBarnKonto"/>
+    <wsdl:part name="LogicalAddress" element="itr:LogicalAddress">
+      <wsdl:documentation>Orgnr of Apotekens Service AB</wsdl:documentation>
+    </wsdl:part>
+    <wsdl:part name="ArgosHeader" element="argos:ArgosHeader">
+      <wsdl:documentation>Argos header of Apotekens Service AB. Check documentation regarding mandatory fields for this specific service interaction</wsdl:documentation>
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="KopplaBarnKontoResponse">
+    <wsdl:part name="parameters" element="spdr:KopplaBarnKontoResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ApplicationException">
+    <wsdl:part name="parameters" element="spdr:ApplicationException"/>
+  </wsdl:message>
+  <wsdl:message name="SystemException">
+    <wsdl:part name="parameters" element="spdr:SystemException"/>
+  </wsdl:message>
+  <wsdl:portType name="KopplaBarnKontoResponderInterface">
+    <wsdl:operation name="KopplaBarnKonto">
+      <wsdl:input message="KopplaBarnKontoRequest"/>
+      <wsdl:output message="KopplaBarnKontoResponse"/>
+      <wsdl:fault name="ApplicationException" message="ApplicationException"/>
+      <wsdl:fault name="SystemException" message="SystemException"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="KopplaBarnKontoResponderBinding" type="KopplaBarnKontoResponderInterface">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="KopplaBarnKonto">
+      <soap:operation soapAction="urn:riv:se.apotekensservice:pris:KopplaBarnKontoResponder:4:KopplaBarnKonto"/>
+      <wsdl:input>
+        <soap:body use="literal" parts="parameters"/>
+        <soap:header use="literal" message="KopplaBarnKontoRequest" part="LogicalAddress"/>
+        <soap:header use="literal" message="KopplaBarnKontoRequest" part="ArgosHeader"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ApplicationException">
+        <soap:fault use="literal" name="ApplicationException"/>
+      </wsdl:fault>
+      <wsdl:fault name="SystemException">
+        <soap:fault use="literal" name="SystemException"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="KopplaBarnKontoResponderService">
+    <wsdl:port name="KopplaBarnKontoResponderPort" binding="KopplaBarnKontoResponderBinding">
+      <soap:address location="http://temp.uri/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

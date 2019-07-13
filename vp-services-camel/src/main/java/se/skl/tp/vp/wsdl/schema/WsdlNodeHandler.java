@@ -1,12 +1,11 @@
 package se.skl.tp.vp.wsdl.schema;
 
-import com.sun.jndi.toolkit.url.Uri;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.dom4j.Node;
-import se.skl.tp.vp.wsdl.NodeHandler;
+import xmlutil.NodeHandler;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory.BaseUrlModel;
 
 public abstract class WsdlNodeHandler implements NodeHandler {
@@ -40,9 +39,9 @@ public abstract class WsdlNodeHandler implements NodeHandler {
               uriOrig.getFragment());
       return uriNew.toURL().toExternalForm();
     } catch (URISyntaxException e) {
-      throw new RuntimeException("Error transforming url", e);
+      throw new WsdlNodeHandlerException("Error transforming url", e);
     } catch (MalformedURLException e) {
-      throw new RuntimeException("Error transforming url", e);
+      throw new WsdlNodeHandlerException("Error transforming url", e);
     }
   }
 
@@ -52,4 +51,10 @@ public abstract class WsdlNodeHandler implements NodeHandler {
   }
 
   abstract String getQuery(Node node);
+
+  public class WsdlNodeHandlerException extends RuntimeException {
+    WsdlNodeHandlerException(String msg, Exception e) {
+      super(msg, e);
+    }
+  }
 }

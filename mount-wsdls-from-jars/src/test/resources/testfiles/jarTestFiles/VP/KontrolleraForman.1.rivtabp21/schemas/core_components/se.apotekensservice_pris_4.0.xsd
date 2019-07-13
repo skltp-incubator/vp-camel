@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:riv:se.apotekensservice:pris:4"
+           targetNamespace="urn:riv:se.apotekensservice:pris:4"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="4.0">
+
+    <xs:annotation>
+        <xs:documentation>
+            Beskrivning: Meddelandetyper som är gemensamma för pris.
+            Revisioner: 2013-05-08, version 4.0
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType name="ArtikelIdentiteterRequest">
+        <xs:sequence>
+            <xs:element name="gtin" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>GTIN-kod</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="nplPackageId" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Förpackningsid från Nationellt Produktregister för Läkemedel
+                        Unikt id för LM-artikel</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="varunr" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Nordiskt varunummer
+                        Unik för handelsvaror. För läkemedel kan dubletter förekomma vid parallellimport</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="BalansRequest">
+        <xs:sequence>
+            <xs:element name="brutto" type="xs:double" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Bruttobelopp i kronor och ören</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="netto" type="xs:double" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Nettobelopp i kronor och ören</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="BalansResponse">
+        <xs:sequence>
+            <xs:element name="brutto" type="xs:double" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Bruttobelopp i kronor och ören</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="netto" type="xs:double" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Nettobelopp i kronor och ören</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="FormansInfoResponse">
+        <xs:sequence>
+            <xs:element name="formanskod" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Förmånskod R, U, L, eller F</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="id" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Id som representerar det id som var satt i motsvarande ArtikelIdentiteterTo. Det
+                        vill säga antingen GTIN, Förpackningsid eller Varunr beroende på vad som frågats
+                        efter.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PeriodResponse">
+        <xs:sequence>
+            <xs:element name="balans" type="BalansResponse" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Ackumulerad balans</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="start" type="xs:dateTime" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Periodens startdatum.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TransaktionResponse">
+        <xs:sequence>
+            <xs:element name="anvandare" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Användare som registrerat transaktionen.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="apoteksNamn" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Apotek som registrerat transaktionen.  Visas ej vid sekretesskydd.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="apoteksOrt" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Ort för apotek som registrerat transaktionen. Visas ej vid sekretesskydd.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="expeditionsId" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Unikt expeditionsID.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="flags" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Ett flaggfält som anger vilken information som uppdaterats i
+                        transaktionen. Detta fält används enbart internt.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="inBrutto" type="xs:long" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Ingående brutto före transaktionen</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="inEgenavgift" type="xs:long" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Ingående högkostnadssaldo vid transaktionen</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="kommentar" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Eventuell kommentar från korrigeringstransaktion</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="orgAktorId" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>GLN-kod för apotek som registrerat transaktionen. Visas ej vid sekretesskydd.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="persNr" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Personnummer för den som transaktionen gäller.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="sign" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Typ av trans: +,-,ABC, ...
+                        Detta fält används enbart internt.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="transId" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Aktörens expeditions-ID / verifikationsnr.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="transPeriod" type="PeriodResponse" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Transaktionens högkostnadsuppgifter.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="transTid" type="xs:dateTime" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Transaktionstidpunkt.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="transaktionBehandlades" type="xs:dateTime" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Tidpunkt då transaktionen behandlades av HKDB</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="KlientinformationRequest">
+        <xs:sequence>
+            <xs:element name="anvandare" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Unikt användarid i anropande system.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="session" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Sessionens id i anropande system.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="system" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>GLN-kod för anropande system.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PrisfragaRadRequest">
+        <xs:sequence>
+            <xs:element name="antal" type="xs:int" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Antal förpackningar av vara som expedieras.
+
+                        Vid kreditering sätts detta fält till ett negativt värde.
+                        Altenativt kan fälten pris och prisUtbyte sättas till negativa värden.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="formansVal" type="xs:string" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Farmacevtens bedömning om vilken förmån som gäller för receptraden.
+                        Förmånstyp R, U, F, L kan förekomma.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="pris" type="xs:double" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Apoteksaktörs utpris inkl. eventuell moms per förpackning för vara som avses att expedieras.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="prisUtbyte" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Apoteksaktörs utpris inkl. eventuell moms för billigare vara som ej expedieras vid möjligt
+                        byte inom högkostnadsskyddet. Anges om pristillägg skall gälla, dvs när kund motsätter sig
+                        byte och väljer förskriven vara.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="radNr" type="xs:int" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Radnr.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PrisfragaRadResponse">
+        <xs:sequence>
+            <xs:element name="bruttoPris" type="xs:double" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Apoteksaktörs utpris för receptrad inkl. ev. moms.
+
+                        Vid kreditering blir detta värde negativt.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="prisTillagg" type="xs:double" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Radens ev. pristillägg inom läkemdelsförmånen.
+                        Gäller förmånskod = R.
+                        Vid kreditering blir detta värde negativt.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="radNr" type="xs:int" nillable="false">
+                <xs:annotation>
+                    <xs:documentation>Radnr.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SystemException">
+        <xs:annotation>
+            <xs:documentation>Systemfel</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="code" type="xs:string"/>
+
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ApplicationException">
+        <xs:annotation>
+            <xs:documentation>Applikationsfel</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="code" type="xs:string"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="char">
+        <xs:restriction base="xs:string">
+            <xs:length value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

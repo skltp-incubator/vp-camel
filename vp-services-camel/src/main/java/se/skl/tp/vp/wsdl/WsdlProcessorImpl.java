@@ -1,8 +1,7 @@
 package se.skl.tp.vp.wsdl;
 
-import static se.skl.tp.vp.wsdl.WsdlPathHelper.expandIfPrefixedClassPath;
+import static wsdl.PathHelper.expandIfPrefixedClassPath;
 
-import com.sun.jndi.toolkit.url.Uri;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,6 +16,7 @@ import se.skl.tp.vp.config.ProxyHttpForwardedHeaders;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory.BaseUrlModel;
 import se.skl.tp.vp.wsdl.schema.WsdlShemaImportPathExpander;
+import wsdl.WsdlConfig;
 
 @Service
 public class WsdlProcessorImpl implements WsdlProcessor {
@@ -42,7 +42,7 @@ public class WsdlProcessorImpl implements WsdlProcessor {
 
     URL uri = new URL(callURL);
 
-    String path = callURL = uri.getPath();
+    String path = uri.getPath();
 
     if (path.startsWith("/")) {
       path = path.substring(1);

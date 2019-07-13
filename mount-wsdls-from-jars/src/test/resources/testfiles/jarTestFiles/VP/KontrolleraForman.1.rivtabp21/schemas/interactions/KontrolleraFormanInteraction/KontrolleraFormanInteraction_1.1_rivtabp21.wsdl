@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:itr="urn:riv:itintegration:registry:1" xmlns:argos="urn:riv:inera.se.apotekensservice:argos:1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns="urn:riv:se.apotekensservice:pris:KontrolleraForman:1:rivtabp21" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:spdr="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1" targetNamespace="urn:riv:se.apotekensservice:pris:KontrolleraForman:1:rivtabp21" name="KontrolleraFormanInteraction">
+  <xs:annotation>
+    <xs:documentation>
+	        Tjänsteinteraktionens namn: KontrolleraForman.
+            Beskrivning: Tjänstekontraktet som avser att konkretisera tillämpningen av RIV.
+            Revisioner: 2015-08-18 Version 1.0.1
+						2011-04-05 Version 1.0
+                        2016-01-21 Version 1.1
+            Tjänstedomän: se.apotekensservice:pris.
+            Tjänsteinteraktionstyp: Fråga-Svar.
+            RIV Teknisk Anvisning: Basic Profile 2.1 anpassad enligt eHälsomyndighetens tekniska riktlinjer
+		    Förvaltning: Kontakta support hos eHälsomyndigheten
+        </xs:documentation>
+  </xs:annotation>
+  <wsdl:types>
+    <xs:schema targetNamespace="urn:riv:se.apotekensservice:pris:KontrolleraForman:1:rivtabp21">
+      <xs:import schemaLocation="KontrolleraFormanResponder_1.1.xsd" namespace="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1"/>
+      <xs:import schemaLocation="../../core_components/itintegration_registry_1.0.xsd" namespace="urn:riv:itintegration:registry:1"/>
+      <xs:import schemaLocation="../../core_components/ArgosHeader_1.0.xsd" namespace="urn:riv:inera.se.apotekensservice:argos:1"/>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="KontrolleraFormanRequest">
+    <wsdl:part name="parameters" element="spdr:KontrolleraForman"/>
+    <wsdl:part name="LogicalAddress" element="itr:LogicalAddress">
+      <wsdl:documentation>Orgnr of Apotekens Service AB</wsdl:documentation>
+    </wsdl:part>
+    <wsdl:part name="ArgosHeader" element="argos:ArgosHeader">
+      <wsdl:documentation>Argos header of Apotekens Service AB. Check documentation regarding mandatory fields for this specific service interaction</wsdl:documentation>
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="KontrolleraFormanResponse">
+    <wsdl:part name="parameters" element="spdr:KontrolleraFormanResponse"/>
+  </wsdl:message>
+  <wsdl:message name="ApplicationException">
+    <wsdl:part name="parameters" element="spdr:ApplicationException"/>
+  </wsdl:message>
+  <wsdl:message name="SystemException">
+    <wsdl:part name="parameters" element="spdr:SystemException"/>
+  </wsdl:message>
+  <wsdl:portType name="KontrolleraFormanResponderInterface">
+    <wsdl:operation name="KontrolleraForman">
+      <wsdl:input message="KontrolleraFormanRequest"/>
+      <wsdl:output message="KontrolleraFormanResponse"/>
+      <wsdl:fault name="ApplicationException" message="ApplicationException"/>
+      <wsdl:fault name="SystemException" message="SystemException"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="KontrolleraFormanResponderBinding" type="KontrolleraFormanResponderInterface">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="KontrolleraForman">
+      <soap:operation soapAction="urn:riv:se.apotekensservice:pris:KontrolleraFormanResponder:1:KontrolleraForman"/>
+      <wsdl:input>
+        <soap:body use="literal" parts="parameters"/>
+        <soap:header use="literal" message="KontrolleraFormanRequest" part="LogicalAddress"/>
+        <soap:header use="literal" message="KontrolleraFormanRequest" part="ArgosHeader"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ApplicationException">
+        <soap:fault use="literal" name="ApplicationException"/>
+      </wsdl:fault>
+      <wsdl:fault name="SystemException">
+        <soap:fault use="literal" name="SystemException"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="KontrolleraFormanResponderService">
+    <wsdl:port name="KontrolleraFormanResponderPort" binding="KontrolleraFormanResponderBinding">
+      <soap:address location="http://temp.uri/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
