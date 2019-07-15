@@ -1,12 +1,11 @@
 package se.skl.tp.vp.wsdl;
 
-import static se.skl.tp.vp.wsdl.PathHelper.expandIfPrefixedClassPath;
+import static se.skl.tp.vp.wsdl.PathHelper.getPath;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.dom4j.DocumentException;
@@ -85,8 +84,8 @@ public class WsdlProcessorImpl implements WsdlProcessor {
     return expand.allSchemaImports(template, baseUrlModel, uri);
   }
 
-  private String openTemplate(String wsdlTemplateFilePath) throws IOException {
+  private String openTemplate(String wsdlTemplateFilePath) throws IOException, URISyntaxException {
     return new String(
-        Files.readAllBytes(Paths.get(expandIfPrefixedClassPath(wsdlTemplateFilePath))));
+        Files.readAllBytes(getPath(wsdlTemplateFilePath)));
   }
 }

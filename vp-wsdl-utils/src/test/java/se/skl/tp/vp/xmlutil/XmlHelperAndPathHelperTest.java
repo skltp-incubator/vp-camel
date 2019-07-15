@@ -3,12 +3,13 @@ package se.skl.tp.vp.xmlutil;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static se.skl.tp.vp.wsdl.PathHelper.PATH_PREFIX;
-import static se.skl.tp.vp.wsdl.PathHelper.expandIfPrefixedClassPath;
+import static se.skl.tp.vp.wsdl.PathHelper.getPath;
 import static se.skl.tp.vp.wsdl.PathHelper.findFilesInDirectory;
 import static se.skl.tp.vp.wsdl.PathHelper.findFoldersInDirectory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.dom4j.DocumentException;
@@ -23,10 +24,11 @@ public class XmlHelperAndPathHelperTest {
   private File sad = null;
 
   @Before
-  public void createXPath() throws IOException {
+  public void createXPath() throws IOException, URISyntaxException {
+
     List<File> folders =
         findFoldersInDirectory(
-            expandIfPrefixedClassPath(VPStringUtil.concat(PATH_PREFIX, "xmlTests")),
+            getPath(VPStringUtil.concat(PATH_PREFIX, "xmlTests")).toString(),
             "withTestFiles");
 
     assumeTrue(folders.size() == 1);
@@ -42,7 +44,7 @@ public class XmlHelperAndPathHelperTest {
   }
 
   @Test
-  public void openDocSelectXPathStringValue() throws IOException, DocumentException {
+  public void openDocSelectXPathStringValue() throws IOException, DocumentException, URISyntaxException {
     String s =
         XmlHelper.selectXPathStringValue(
             XmlHelper.openDocument(happy.getPath()),
@@ -58,7 +60,7 @@ public class XmlHelperAndPathHelperTest {
   }
 
   @Test
-  public void applyHandlingToNodes() throws IOException, DocumentException {
+  public void applyHandlingToNodes() throws IOException, DocumentException, URISyntaxException {
     AtomicInteger noOfHandlings = new AtomicInteger(0);
     XPath path =
         createTestXPath("wsdl:definitions/wsdl:types/xs:schema/xs:import/@namespace");
@@ -69,7 +71,7 @@ public class XmlHelperAndPathHelperTest {
   }
 
   @Test
-  public void openDocumentHappyXPath() throws IOException, DocumentException {
+  public void openDocumentHappyXPath() throws IOException, DocumentException, URISyntaxException {
     XPath path =
         createTestXPath(
             "wsdl:definitions/wsdl:types/xs:schema/xs:import/@namespace[contains(.,'Responder')]");
@@ -78,7 +80,7 @@ public class XmlHelperAndPathHelperTest {
   }
 
   @Test
-  public void openDocumentSadXPath() throws IOException, DocumentException {
+  public void openDocumentSadXPath() throws IOException, DocumentException, URISyntaxException {
     XPath path =
         createTestXPath(
             "wsdl:definitions/wsdl:types/xs:schema/xs:import/@namespace[contains(.,'Responder')]");

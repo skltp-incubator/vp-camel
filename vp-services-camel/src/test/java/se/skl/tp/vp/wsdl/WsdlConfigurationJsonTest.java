@@ -3,6 +3,7 @@ package se.skl.tp.vp.wsdl;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,7 @@ public class WsdlConfigurationJsonTest {
 
 
   @Test
-  public void testWsdlConfiguration() throws IOException {
+  public void testWsdlConfiguration() throws IOException, URISyntaxException {
 
     WsdlConfiguration config = new WsdlConfigurationJson(wsdlConfigJSonFile,wsdlDir);
     List<String> configs = config.getAllWsdlUrl();

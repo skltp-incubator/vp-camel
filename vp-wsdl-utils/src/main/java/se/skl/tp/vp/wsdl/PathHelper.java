@@ -1,7 +1,9 @@
 package se.skl.tp.vp.wsdl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -13,35 +15,19 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import org.springframework.util.ResourceUtils;
 
 public class PathHelper {
-  private PathHelper(){}
+
+  private PathHelper() {
+  }
 
   public static final String PATH_PREFIX = "classpath:";
 
-  /**
-   * Expands a path that is relative to the resources dir example:
-   * classpath:testfiles/wsdl/wsdlconfig.json expands to a path similar to->
-   * C:/Your/file/path/to/target/testfiles/wsdl/wsdlconfig.json
-   *
-   * <p>but leaves paths without prefix "classpath:" as is
-   *
-   * @param pfilePath candidate
-   * @return either returned as is or classpath: replaced by path to resource
-   */
-  public static String expandIfPrefixedClassPath(String pfilePath) {
 
-    String res=null;
-    if (pfilePath != null && pfilePath.startsWith(PATH_PREFIX)) {
-      URL tmp =
-          Thread.currentThread()
-              .getContextClassLoader()
-              .getResource(pfilePath.substring(PATH_PREFIX.length()));
-      if (tmp != null) {
-        res = tmp.getFile().substring(1);
-      }
-    }
-    return (res!=null)?res:pfilePath;
+  public static Path getPath(String filePath) throws FileNotFoundException, URISyntaxException {
+    URL url = ResourceUtils.getURL(filePath);
+    return Paths.get(url.toURI());
   }
 
   public static List<File> findFoldersInDirectory(String directoryPath, String folderNameRegEx)
@@ -75,7 +61,9 @@ public class PathHelper {
     return subtractDirectoryFromPath(new File(dir), path);
   }
 
-  /** Delete a non empty dir and all files within (From internet) */
+  /**
+   * Delete a non empty dir and all files within (From internet)
+   */
   public static void deleteDirectory(Path path) throws IOException {
     FileVisitor visitor =
         new SimpleFileVisitor<Path>() {

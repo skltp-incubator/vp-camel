@@ -1,8 +1,9 @@
 package se.skl.tp.vp.xmlutil;
 
-import static se.skl.tp.vp.wsdl.PathHelper.expandIfPrefixedClassPath;
+import static se.skl.tp.vp.wsdl.PathHelper.getPath;
 
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import org.dom4j.Document;
@@ -67,8 +68,7 @@ public class XmlHelper {
   /**
    * @param documentPath prefix "classpath:" may be used and expanded to source folder
    */
-  public static Document openDocument(String documentPath) throws DocumentException {
-
-    return  reader.read(new File(expandIfPrefixedClassPath(documentPath)));
+  public static Document openDocument(String documentPath) throws DocumentException, FileNotFoundException, URISyntaxException {
+   return reader.read(getPath(documentPath).toFile());
   }
 }

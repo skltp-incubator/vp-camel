@@ -1,14 +1,14 @@
 package se.skl.tp.vp.wsdl;
 
-import static se.skl.tp.vp.wsdl.PathHelper.expandIfPrefixedClassPath;
+import static se.skl.tp.vp.wsdl.PathHelper.getPath;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,12 +40,12 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
   public WsdlConfigurationJson(
       @Value("${" + PropertyConstants.WSDL_JSON_FILE + "}") String wsdlJsonFile,
       @Value("${" + PropertyConstants.WSDLFILES_DIRECTORY + "}") String wsdlFilesDirectory)
-      throws IOException {
+      throws IOException, URISyntaxException {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       wsdlConfigs =
           objectMapper.readValue(
-              new File(expandIfPrefixedClassPath(wsdlJsonFile)),
+              getPath(wsdlJsonFile).toFile(),
               new TypeReference<List<WsdlConfig>>() {});
     } catch (FileNotFoundException e) {
       wsdlConfigs = new ArrayList<>();
@@ -55,7 +55,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
               + ", unless wsdl paths are generated from base wsdl directory no wsdls are available.");
     }
 
-    createConfigurationFromWsdlFiles(expandIfPrefixedClassPath(wsdlFilesDirectory));
+    createConfigurationFromWsdlFiles(getPath(wsdlFilesDirectory).toString());
 
     initMaps();
   }
