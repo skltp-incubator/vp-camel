@@ -38,11 +38,10 @@ public abstract class WsdlNodeHandler implements NodeHandler {
               pQuery,
               uriOrig.getFragment());
       return uriNew.toURL().toExternalForm();
-    } catch (URISyntaxException e) {
-      throw new WsdlNodeHandlerException("Error transforming url", e);
-    } catch (MalformedURLException e) {
+    } catch (URISyntaxException | MalformedURLException e) {
       throw new WsdlNodeHandlerException("Error transforming url", e);
     }
+
   }
 
   @Override
