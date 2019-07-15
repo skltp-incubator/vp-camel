@@ -5,8 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.dom4j.Node;
-import xmlutil.NodeHandler;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory.BaseUrlModel;
+import se.skl.tp.vp.xmlutil.NodeHandler;
 
 public abstract class WsdlNodeHandler implements NodeHandler {
   private URL urlOrig;

@@ -1,7 +1,6 @@
 package se.skl.tp.vp.wsdl;
 
 import java.util.List;
-import wsdl.WsdlConfig;
 
 public interface WsdlConfiguration {
 

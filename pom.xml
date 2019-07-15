@@ -67,9 +67,8 @@
   </scm>
 
   <modules>
+    <module>vp-wsdl-utils</module>
     <module>vp-services-camel</module>
-    <module>mount-wsdls-from-jars</module>
-    <module>utility</module>
   </modules>
 
   <dependencyManagement>

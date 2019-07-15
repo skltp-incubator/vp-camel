@@ -1,6 +1,6 @@
 package se.skl.tp.vp.wsdl;
 
-import static wsdl.PathHelper.expandIfPrefixedClassPath;
+import static se.skl.tp.vp.wsdl.PathHelper.expandIfPrefixedClassPath;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 import se.skl.tp.vp.config.ProxyHttpForwardedHeaders;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory.BaseUrlModel;
-import se.skl.tp.vp.wsdl.schema.WsdlShemaImportPathExpander;
-import wsdl.WsdlConfig;
+import se.skl.tp.vp.wsdl.schema.WsdlSchemaImportPathExpander;
 
 @Service
 public class WsdlProcessorImpl implements WsdlProcessor {
@@ -25,14 +24,14 @@ public class WsdlProcessorImpl implements WsdlProcessor {
 
   private ForwardedHttpHeadersBaseUrlFactory baseUrlFactory;
 
-  private WsdlShemaImportPathExpander expand;
+  private WsdlSchemaImportPathExpander expand;
 
   private WsdlConfiguration wsdlConfiguration;
 
   @Autowired
   public WsdlProcessorImpl(WsdlConfiguration wsdlConfiguration) {
     this.wsdlConfiguration = wsdlConfiguration;
-    expand = new WsdlShemaImportPathExpander();
+    expand = new WsdlSchemaImportPathExpander();
     baseUrlFactory = new ForwardedHttpHeadersBaseUrlFactory();
   }
 
