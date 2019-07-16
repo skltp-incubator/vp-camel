@@ -1,10 +1,10 @@
 package se.skl.tp.vp.wsdl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
-import org.dom4j.XPath;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import se.skl.tp.vp.config.ProxyHttpForwardedHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
-import xmlutil.XmlHelper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ProxyHttpForwardedHeaders.class)
@@ -25,7 +24,7 @@ public class WsdlConfigurationJsonTest {
 
 
   @Test
-  public void testWsdlConfiguration() throws IOException {
+  public void testWsdlConfiguration() throws IOException, URISyntaxException {
 
     WsdlConfiguration config = new WsdlConfigurationJson(wsdlConfigJSonFile,wsdlDir);
     List<String> configs = config.getAllWsdlUrl();

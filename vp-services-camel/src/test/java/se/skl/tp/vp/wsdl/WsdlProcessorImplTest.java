@@ -1,7 +1,7 @@
 package se.skl.tp.vp.wsdl;
 
-import static org.junit.Assert.*;
-import static xmlutil.XmlHelper.selectXPathStringValue;
+import static org.junit.Assert.assertTrue;
+import static se.skl.tp.vp.xmlutil.XmlHelper.selectXPathStringValue;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -28,10 +28,8 @@ public class WsdlProcessorImplTest {
   private static String QUERY = "xsd=../../core_components/itintegration_registry_1.0.xsd";
 
   private static String ORIGINAL_URL =
-      "https://test.esb.ntjp.se/vp/clinicalprocess/activity/actions/ProcessActivities/1/rivtabp21?wsdl";
+      "https://some.server.se/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?wsdl";
 
-  private static String ORIGINAL_URL_WITH_FRAGMENT =
-      "https://test.esb.ntjp.se/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?wsdl#fragment";
 
 
   @Autowired
@@ -83,7 +81,7 @@ public class WsdlProcessorImplTest {
     String body = (String) ex.getOut().getBody();
     Document document = DocumentHelper.parseText(body);
     String name = selectXPathStringValue(document,"wsdl:definitions/@name","wsdl=http://schemas.xmlsoap.org/wsdl/");
-    assertTrue("ProcessActivitiesInteraction".equals(name));
+    assertTrue("GetCertificateInteraction".equals(name));
   }
 
 

@@ -33,9 +33,6 @@ public class ForwardedHttpHeadersBaseUrlFactory {
     String scheme;
     String host;
     String port;
-    public BaseUrlModel() {}
-
-
 
     @Override
     public String toString() {

@@ -1,23 +1,14 @@
 package se.skl.tp.vp.wsdl;
 
-import static wsdl.PathHelper.expandIfPrefixedClassPath;
+import static se.skl.tp.vp.wsdl.PathHelper.getPath;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-import se.skl.tp.vp.constants.PropertyConstants;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,36 +17,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import wsdl.WsdlConfig;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+import se.skl.tp.vp.constants.PropertyConstants;
 
 @Service
+@Log4j2
 public class WsdlConfigurationJson implements WsdlConfiguration {
-
-  private static Logger logger = LogManager.getLogger(WsdlConfigurationJson.class);
 
   private List<WsdlConfig> wsdlConfigs;
   private HashMap<String, WsdlConfig> mapOnTjanstekontrakt;
   private HashMap<String, WsdlConfig> mapOnWsdlUrl;
 
   public WsdlConfigurationJson(
-      @Value("${" + PropertyConstants.WSDL_JSON_FILE + "}") String wsdl_json_file,
-      @Value("${" + PropertyConstants.WSDLFILES_DIRECTORY + "}") String wsdlfiles_directory)
-      throws IOException {
+      @Value("${" + PropertyConstants.WSDL_JSON_FILE + "}") String wsdlJsonFile,
+      @Value("${" + PropertyConstants.WSDLFILES_DIRECTORY + "}") String wsdlFilesDirectory)
+      throws IOException, URISyntaxException {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       wsdlConfigs =
           objectMapper.readValue(
-              new File(expandIfPrefixedClassPath(wsdl_json_file)),
+              getPath(wsdlJsonFile).toFile(),
               new TypeReference<List<WsdlConfig>>() {});
     } catch (FileNotFoundException e) {
       wsdlConfigs = new ArrayList<>();
-      logger.warn(
+      log.warn(
           "Json file for wsdlconfiguration not found at "
-              + wsdl_json_file
+              + wsdlJsonFile
               + ", unless wsdl paths are generated from base wsdl directory no wsdls are available.");
     }
 
-    createConfigurationFromWsdlFiles(expandIfPrefixedClassPath(wsdlfiles_directory));
+    createConfigurationFromWsdlFiles(getPath(wsdlFilesDirectory).toString());
 
     initMaps();
   }
@@ -73,9 +73,9 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     try (Stream<Path> paths = Files.walk(Paths.get(wsdlDirectory))) {
       paths
           .filter(f -> f.toString().endsWith(".wsdl"))
-          .forEach(file -> createConfigFromWsdlFile(file));
+          .forEach(this::createConfigFromWsdlFile);
     } catch (IOException e) {
-      logger.warn(
+      log.warn(
           "Problem when trying to read wsdl files in "
               + wsdlDirectory
               + ". No wsdl paths are automatically genereted. Message: "
@@ -150,7 +150,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
       }
 
     } catch (IOException | SAXException | ParserConfigurationException e) {
-      logger.error("Error when trying to parse wsdl file " + file.toString(), e);
+      log.error("Error when trying to parse wsdl file " + file.toString(), e);
     }
     return wsdlInfo;
   }

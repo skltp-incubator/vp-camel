@@ -5,8 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.dom4j.Node;
-import xmlutil.NodeHandler;
 import se.skl.tp.vp.wsdl.schema.ForwardedHttpHeadersBaseUrlFactory.BaseUrlModel;
+import se.skl.tp.vp.xmlutil.NodeHandler;
 
 public abstract class WsdlNodeHandler implements NodeHandler {
   private URL urlOrig;
@@ -38,11 +38,10 @@ public abstract class WsdlNodeHandler implements NodeHandler {
               pQuery,
               uriOrig.getFragment());
       return uriNew.toURL().toExternalForm();
-    } catch (URISyntaxException e) {
-      throw new WsdlNodeHandlerException("Error transforming url", e);
-    } catch (MalformedURLException e) {
+    } catch (URISyntaxException | MalformedURLException e) {
       throw new WsdlNodeHandlerException("Error transforming url", e);
     }
+
   }
 
   @Override
