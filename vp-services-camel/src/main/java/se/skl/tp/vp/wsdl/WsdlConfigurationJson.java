@@ -64,8 +64,8 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     mapOnTjanstekontrakt = new HashMap<>();
     mapOnWsdlUrl = new HashMap<>();
     for (WsdlConfig wsdlConfig : wsdlConfigs) {
-      mapOnTjanstekontrakt.put(wsdlConfig.getTjanstekontrakt(), wsdlConfig);
-      mapOnWsdlUrl.put(wsdlConfig.getWsdlurl(), wsdlConfig);
+      mapOnTjanstekontrakt.put(wsdlConfig.getTjanstekontrakt().toLowerCase(), wsdlConfig);
+      mapOnWsdlUrl.put(wsdlConfig.getWsdlurl().toLowerCase(), wsdlConfig);
     }
   }
 
@@ -157,7 +157,8 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
 
   @Override
   public WsdlConfig getOnWsdlUrl(String wsdlUrl) {
-    return mapOnWsdlUrl.get(wsdlUrl);
+    String uri =  wsdlUrl.startsWith("/") ? wsdlUrl.substring(1): wsdlUrl;
+    return mapOnWsdlUrl.get(uri.toLowerCase());
   }
 
   @Override

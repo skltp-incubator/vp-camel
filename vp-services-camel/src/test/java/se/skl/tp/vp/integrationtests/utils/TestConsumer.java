@@ -15,6 +15,9 @@ public class TestConsumer {
   public static final String DIRECT_START_HTTP = "direct:start_http";
   public static final String DIRECT_START_HTTPS = "direct:start_https";
   private static final String NETTY_PREFIX = "netty4-http:";
+  public static final String HTTPS_NETTY_OPTIONS = "sslContextParameters=#outgoingSSLContextParameters&ssl=true&throwExceptionOnFailure=false";
+  public static final String HTTP_NETTY_OPTIONS = "throwExceptionOnFailure=false";
+
   private String httpConsumerRouteUrl;
   private String httpsConsumerRouteUrl;
 
@@ -54,6 +57,30 @@ public class TestConsumer {
     );
   }
 
+  public String sendHttpRequestToVP(String path, String message, Map<String, Object> headers){
+    String vpHttpBaseUrl = env.getProperty(PropertyConstants.VP_HTTP_ROUTE_URL);
+    path = path.startsWith("/") ? path.substring(1) : path;
+    String delimiter = path.contains("?") ? "&" : "?";
+    String endpointUri = String.format("netty4-http:%s/%s%s%s", vpHttpBaseUrl, path, delimiter, HTTP_NETTY_OPTIONS);
+    return template.requestBodyAndHeaders(
+        endpointUri,
+        message,
+        headers, String.class
+    );
+  }
+
+  public String sendHttpsRequestToVP(String path, String message, Map<String, Object> headers){
+    String vpHttpsBaseUrl = env.getProperty(PropertyConstants.VP_HTTPS_ROUTE_URL);
+    path = path.startsWith("/") ? path.substring(1) : path;
+    String delimiter = path.contains("?") ? "&" : "?";
+    String endpointUri = String.format("netty4-http:%s/%s%s%s", vpHttpsBaseUrl, path, delimiter, HTTPS_NETTY_OPTIONS);
+    return template.requestBodyAndHeaders(
+        endpointUri,
+        message,
+        headers, String.class
+    );
+  }
+
   public byte[] sendHttpsRequestToVP(byte[] message, Map<String, Object> headers){
     return template.requestBodyAndHeaders(
         DIRECT_START_HTTPS,
@@ -65,8 +92,8 @@ public class TestConsumer {
   private void createConsumerRouteUrls(){
     String vpHttpBaseUrl = env.getProperty(PropertyConstants.VP_HTTP_ROUTE_URL);
     String vpHttpsBaseUrl = env.getProperty(PropertyConstants.VP_HTTPS_ROUTE_URL);
-    httpConsumerRouteUrl = NETTY_PREFIX + vpHttpBaseUrl + "/PATH1 "+ "?throwExceptionOnFailure=false";
-    httpsConsumerRouteUrl = NETTY_PREFIX + vpHttpsBaseUrl + "/PATH1 " + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true&throwExceptionOnFailure=false";
+    httpConsumerRouteUrl = NETTY_PREFIX + vpHttpBaseUrl + "/PATH1 "+ "?"+ HTTP_NETTY_OPTIONS;
+    httpsConsumerRouteUrl = NETTY_PREFIX + vpHttpsBaseUrl + "/PATH1 " + "?"+ HTTPS_NETTY_OPTIONS;
   }
 
   private void createConsumerRoutes(CamelContext camelContext) throws Exception {
@@ -78,6 +105,7 @@ public class TestConsumer {
 
         from(DIRECT_START_HTTPS)
                 .to(httpsConsumerRouteUrl);
+
       }
     });
   }

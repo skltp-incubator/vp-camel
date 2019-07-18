@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "http.forwarded.header")
-public class ProxyHttpForwardedHeaders{
+public class ProxyHttpForwardedHeaderProperties {
 
   String xfor;
 
