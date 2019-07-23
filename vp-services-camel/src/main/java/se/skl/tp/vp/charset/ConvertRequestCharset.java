@@ -1,6 +1,5 @@
 package se.skl.tp.vp.charset;
 
-import static org.apache.commons.lang.CharEncoding.UTF_16;
 import static org.apache.commons.lang.CharEncoding.UTF_8;
 
 import java.io.StringWriter;
@@ -44,18 +43,6 @@ public class ConvertRequestCharset implements Processor {
     factory.newTransformer().transform(source, streamResult);
 
     exchange.getIn().setBody(stringWriter.getBuffer().toString());
-  }
-
-  @SuppressWarnings("unused")
-  private String getOriginalEncoding(String xmlEncoding) {
-    String encoding = xmlEncoding.toUpperCase();
-    if (encoding.startsWith(UTF_8)) {
-      return UTF_8;
-    } else if (encoding.startsWith(UTF_16)) {
-      return UTF_16;
-    } else {
-      return encoding;
-    }
   }
 
 

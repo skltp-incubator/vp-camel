@@ -134,8 +134,9 @@ public class VPRouter extends RouteBuilder {
 
 
         from(NETTY4_HTTPS_INCOMING_FROM).routeId(VP_HTTPS_ROUTE)
-            .choice().when(header("wsdl").isNotNull())
-                .process(wsdlProcessor)
+            .choice()
+              .when(header("wsdl").isNotNull()).process(wsdlProcessor)
+              .when(header("xsd").isNotNull()).process(wsdlProcessor)
             .otherwise()
                 .process(certificateExtractorProcessor)
                 .to(DIRECT_VP)
@@ -143,8 +144,9 @@ public class VPRouter extends RouteBuilder {
             .end();
 
         from(NETTY4_HTTP_FROM).routeId(VP_HTTP_ROUTE)
-            .choice().when(header("wsdl").isNotNull())
-                .process(wsdlProcessor)
+            .choice()
+              .when(header("wsdl").isNotNull()).process(wsdlProcessor)
+              .when(header("xsd").isNotNull()).process(wsdlProcessor)
             .otherwise()
                 .process(httpSenderIdExtractorProcessor)
                 .to(DIRECT_VP)

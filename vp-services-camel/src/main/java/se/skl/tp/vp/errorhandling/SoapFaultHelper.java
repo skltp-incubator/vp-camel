@@ -1,5 +1,11 @@
 package se.skl.tp.vp.errorhandling;
 
+import javax.xml.namespace.QName;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
@@ -52,11 +58,22 @@ public class SoapFaultHelper {
     return (s == null) ? "" : s.toString();
   }
 
+  private static Object createSoapFault(String cause) {
+    try {
+      MessageFactory messageFactory = MessageFactory.newInstance();
+      SOAPMessage soapMessage = messageFactory.createMessage();
+      SOAPFault soapFault = soapMessage.getSOAPBody().addFault();
+      soapFault.setFaultCode(new QName(SOAPConstants.URI_NS_SOAP_1_1_ENVELOPE, "Server"));
+      soapFault.setFaultString(cause);
+      return soapMessage.getSOAPPart();
+    } catch (SOAPException e1) {
+      return generateSoap11FaultWithCause(cause);
+    }
+  }
 
   public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
 
-    String soapFault = SoapFaultHelper.generateSoap11FaultWithCause(cause);
-    exchange.getOut().setBody(soapFault);
+    exchange.getOut().setBody(createSoapFault(cause));
     exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR, Boolean.TRUE);
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR_CODE, errorCode);

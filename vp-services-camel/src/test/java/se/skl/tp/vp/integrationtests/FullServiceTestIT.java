@@ -74,7 +74,7 @@ public class FullServiceTestIT {
     try {
       mockProducer.start(HTTP_PRODUCER_URL);
       mockHttpsProducer
-          .start(HTTPS_PRODUCER_URL +"?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
+          .start(HTTPS_PRODUCER_URL + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -109,8 +109,8 @@ public class FullServiceTestIT {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     String response = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_HTTPS), headers);
 
     assertEquals("<mocked answer/>", response);
@@ -120,12 +120,11 @@ public class FullServiceTestIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
   }
-
 
   // TODO should we handle this case??
 //  @Test
@@ -155,8 +154,8 @@ public class FullServiceTestIT {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     headers.put(HttpHeaders.HEADER_CONTENT_TYPE, "text/xml;charset=UTF-8");
     String response = testConsumer.sendHttpRequestToVP(createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS), headers);
 
@@ -167,19 +166,19 @@ public class FullServiceTestIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
   }
 
-  //@Test
+  @Test
   public void callHttpVPEndpointUTF16() throws UnsupportedEncodingException {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     headers.put(HttpHeaders.HEADER_CONTENT_TYPE, "text/xml;charset=UTF-16");
     String payload = createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS);
     byte[] byteResponse = testConsumer.sendHttpRequestToVP(payload.getBytes("UTF-16"), headers);
@@ -192,66 +191,67 @@ public class FullServiceTestIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
   }
 
-  //@Test
+  @Test
   public void callHttpVPEndpointUTF16NoContentTypeSet() throws UnsupportedEncodingException {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     String payload = createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS);
     byte[] byteResponse = testConsumer.sendHttpRequestToVP(payload.getBytes("UTF-16"), headers);
     String response = new String(byteResponse, "UTF-16");
 
-    //assertEquals("<mocked answer/>", response);
+    assertEquals("<mocked answer/>", response);
 
     assertMessageLogsExists();
 
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
   }
 
-  //@Test
+  @Test
   public void callWithUTF16ShouldGenerateUTF8CallToProducer() throws UnsupportedEncodingException {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     headers.put(HttpHeaders.HEADER_CONTENT_TYPE, "text/xml;charset=UTF-16");
     String payload = createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS);
     byte[] byteResponse = testConsumer.sendHttpRequestToVP(payload.getBytes("UTF-16"), headers);
     String response = new String(byteResponse, "UTF-16");
 
-    //assertEquals("<mocked answer/>", response);
+    assertEquals("<mocked answer/>", response);
 
     String inContentType = mockProducer.getInHeader("Content-Type");
     assertStringContains(inContentType, "UTF-8");
 
-    String xmlEncoding = mockProducer.getInBodyXmlReader().getEncoding();;
-    assertEquals("UTF-8", xmlEncoding );
+    String xmlEncoding = mockProducer.getInBodyXmlReader().getEncoding(); ;
+    assertEquals("UTF-8", xmlEncoding);
 
   }
 
-//  @Test
+  @Test
   public void callHttpVPLargePayloadHappyDays() {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
-    String largeRequest = FileUtils.readFile(getClass().getClassLoader().getResource("testfiles/ProcessNotificationLargePayload.xml"));
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
+    String largeRequest = FileUtils
+        .readFile(getClass().getClassLoader().getResource("testfiles/ProcessNotificationLargePayload.xml"));
     String response = testConsumer.sendHttpRequestToVP(largeRequest, headers);
 
     assertEquals("<mocked answer/>", response);
@@ -261,16 +261,18 @@ public class FullServiceTestIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
-    assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
+    assertStringContains(respOutLogMsg,
+        "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
   }
 
- // @Test
+  @Test
   public void callHttpsVPLargePayloadHappyDays() {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    String largeRequest = FileUtils.readFile(getClass().getClassLoader().getResource("testfiles/ProcessNotificationLargePayload.xml"));
+    String largeRequest = FileUtils
+        .readFile(getClass().getClassLoader().getResource("testfiles/ProcessNotificationLargePayload.xml"));
     String response = testConsumer.sendHttpsRequestToVP(largeRequest, headers);
 
     assertEquals("<mocked answer/>", response);
@@ -280,13 +282,14 @@ public class FullServiceTestIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpsUrl);
-    assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpsUrl);
+    assertStringContains(respOutLogMsg,
+        "-servicecontract_namespace=urn:riv:itintegration:engagementindex:ProcessNotificationResponder:1");
   }
 
   /**
-   * Test for scenario where a reverse-proxy/loadbalancer sits in front of VP
-   * and is required to forward original request info to VP for:
+   * Test for scenario where a reverse-proxy/loadbalancer sits in front of VP and is required to forward original request info to
+   * VP for:
    * <ol>
    * <li>X-Forwarded-Proto</li>
    * <li>X-Forwarded-Host</li>
@@ -305,12 +308,12 @@ public class FullServiceTestIT {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
-    headers.put(forwardedHeaderFor,"1.2.3.4");
-    headers.put(forwardedHeaderProto,"https");
-    headers.put(forwardedHeaderHost,"skltp-lb.example.org");
-    headers.put(forwardedHeaderPort,"443");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
+    headers.put(forwardedHeaderFor, "1.2.3.4");
+    headers.put(forwardedHeaderProto, "https");
+    headers.put(forwardedHeaderHost, "skltp-lb.example.org");
+    headers.put(forwardedHeaderPort, "443");
 
     String response = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_HTTPS), headers);
     assertEquals("<mocked answer/>", response);
@@ -325,6 +328,56 @@ public class FullServiceTestIT {
 
   }
 
+  @Test
+  public void getWsdlByHttpsHappyDays() {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    String response = testConsumer
+        .sendHttpsRequestToVP("/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?wsdl", null, headers);
+
+    assertStringContains(response,
+        "targetNamespace=\"urn:riv:clinicalprocess:healthcond:certificate:GetCertificate:2:rivtabp21\"");
+    assertStringContains(response,
+        "<xs:import schemaLocation=\"https://localhost:1028/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?xsd=../../core_components/itintegration_registry_1.0.xsd\" namespace=\"urn:riv:itintegration:registry:1\"/>");
+
+  }
+
+  @Test
+  public void getWsdlByHttpHappyDays() {
+    String response = testConsumer
+        .sendHttpRequestToVP("/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?wsdl",
+            null, new HashMap<>());
+
+    assertStringContains(response,
+        "targetNamespace=\"urn:riv:clinicalprocess:healthcond:certificate:GetCertificate:2:rivtabp21\"");
+    assertStringContains(response,
+        "<xs:import schemaLocation=\"http://localhost:12312/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?xsd=../../core_components/itintegration_registry_1.0.xsd\" namespace=\"urn:riv:itintegration:registry:1\"/>");
+
+  }
+
+  @Test
+  public void getXsdByHttpsHappyDays() {
+    String response = testConsumer
+        .sendHttpsRequestToVP(
+            "clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?xsd=../../core_components/itintegration_registry_1.0.xsd",
+            null, new HashMap<>());
+
+    assertStringContains(response,
+        "targetNamespace=\"urn:riv:itintegration:registry:1\"");
+  }
+
+  @Test
+  public void getXsdByHttpHappyDays() {
+    String response = testConsumer
+        .sendHttpRequestToVP(
+            "clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?xsd=../../core_components/itintegration_registry_1.0.xsd",
+            null, new HashMap<>());
+
+    assertStringContains(response,
+        "targetNamespace=\"urn:riv:itintegration:registry:1\"");
+  }
+
   private void assertMessageLogsExists() {
     assertEquals(0, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_IN));
@@ -335,7 +388,8 @@ public class FullServiceTestIT {
 
   private void assertExtraInfoLog(String respOutLogMsg, String expectedReceiverId, String expectedProducerUrl) {
     assertStringContains(respOutLogMsg, "-senderIpAdress=");
-    assertStringContains(respOutLogMsg, "-servicecontract_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
+    assertStringContains(respOutLogMsg,
+        "-servicecontract_namespace=urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1");
     assertStringContains(respOutLogMsg, "-senderid=tp");
     assertStringContains(respOutLogMsg, "-receiverid=" + expectedReceiverId);
     assertStringContains(respOutLogMsg, "-endpoint_url=" + expectedProducerUrl);
