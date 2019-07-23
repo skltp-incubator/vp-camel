@@ -40,9 +40,8 @@ public class HandleProducerExceptionProcessor implements Processor {
         }
 
         log.debug("Exception Caught by Camel when contacting producer. Exception information: " + left(message, 200) + "...");
-        String addr = (String) exchange.getProperty(VPExchangeProperties.VAGVAL, "<UNKNOWN>");
-        String vpMsg = String.format("%s. Exception Caught by Camel when contacting producer. Exception information: (%s: %s)",
-            addr, exception.getClass().getName(), message);
+        String vpMsg = String.format("Exception Caught by Camel when contacting producer. Exception information: (%s)",
+            exception.getClass().getName());
         String cause = exceptionUtil.createMessage(VpSemanticErrorCodeEnum.VP009, vpMsg);
         SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
       }

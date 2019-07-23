@@ -1,6 +1,7 @@
 package se.skl.tp.vp.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
@@ -109,7 +110,7 @@ public class ErrorInResponseTest {
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "VP009");
-    assertStringContains(resultBody, "address");
+    assertFalse(resultBody.contains("address"));
     assertStringContains(resultBody, "Exception Caught by Camel when contacting producer.");
     resultEndpoint.assertIsSatisfied();
   }
@@ -125,7 +126,7 @@ public class ErrorInResponseTest {
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "VP009");
-    assertStringContains(resultBody, "address");
+    assertFalse(resultBody.contains("address"));
     assertStringContains(resultBody, "Empty message when server responded with status code:");
     resultEndpoint.assertIsSatisfied();
   }
