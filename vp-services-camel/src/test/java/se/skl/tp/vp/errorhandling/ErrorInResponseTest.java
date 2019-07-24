@@ -110,7 +110,7 @@ public class ErrorInResponseTest {
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "VP009");
-    assertFalse(resultBody.contains("address"));
+    assertFalse(resultBody.contains(NO_EXISTING_PRODUCER));
     assertStringContains(resultBody, "Exception Caught by Camel when contacting producer.");
     resultEndpoint.assertIsSatisfied();
   }
@@ -126,7 +126,7 @@ public class ErrorInResponseTest {
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "VP009");
-    assertFalse(resultBody.contains("address"));
+    assertFalse(resultBody.contains(MOCK_PRODUCER_ADDRESS));
     assertStringContains(resultBody, "Empty message when server responded with status code:");
     resultEndpoint.assertIsSatisfied();
   }
