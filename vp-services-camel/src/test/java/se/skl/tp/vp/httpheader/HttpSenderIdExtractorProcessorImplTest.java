@@ -115,6 +115,19 @@ public class HttpSenderIdExtractorProcessorImplTest {
 
     assertEquals(CERT_SENDER_ID, exchange.getProperty(VPExchangeProperties.SENDER_ID));
   }
+
+  @Test
+  public void nonInternalCallWithHeaderXvpAuthDnSetShouldUseThat() throws Exception {
+    Exchange exchange = createExchange();
+    final X500Principal principal = new X500Principal("OU=urken");
+    exchange.getIn().setHeader(NettyConstants.NETTY_REMOTE_ADDRESS, mockInetAddress(WHITELISTED_IP_ADDRESS));
+    exchange.getIn().setHeader(HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY, createMockCertificate());
+    exchange.getIn().setHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, principal);
+    httpHeaderExtractorProcessor.process(exchange);
+
+    assertEquals(CERT_SENDER_ID, exchange.getProperty(VPExchangeProperties.SENDER_ID));
+  }
+
   @Test
   public void nonInternalCallAndSenderNotWhitelistedShouldThrowVP011() throws Exception {
     thrown.expect(VpSemanticException.class);
