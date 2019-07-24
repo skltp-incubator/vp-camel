@@ -23,7 +23,7 @@ public class CertificateReaderTest {
   @Test
   public void testSenderIdExtractedFromCertificateSubject() throws Exception {
     Exchange exchange = createExchange("SERIALNUMBER=SE5565594230-BCQ,CN=kentor.ntjp.sjunet.org,O=Inera AB,L=Stockholm,C=SE");
-    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)");
+    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)", true);
     certificateExtractorProcessor.process(exchange);
 
     Assert.assertEquals("SE5565594230-BCQ", exchange.getProperty(VPExchangeProperties.SENDER_ID));
@@ -37,7 +37,7 @@ public class CertificateReaderTest {
 
     Exchange exchange = createExchangeWithoutNettyCert();
 
-    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)");
+    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)", true);
     certificateExtractorProcessor.process(exchange);
 
   }
@@ -46,7 +46,7 @@ public class CertificateReaderTest {
   public void testExtractSenderIdInHexFormat() throws Exception {
     // TODO Hitta exempel på hur ett riktigt serialnumber i hex format ser ut.
     Exchange exchange = createExchange("2.5.4.5=#13145453544e4d54323332313030303135362d423032,CN=kentor.ntjp.sjunet.org,O=Inera AB,L=Stockholm,C=SE");
-    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)");
+    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)", true);
     certificateExtractorProcessor.process(exchange);
 
     Assert.assertEquals("TSTNMT2321000156-B02", exchange.getProperty(VPExchangeProperties.SENDER_ID));
@@ -59,7 +59,7 @@ public class CertificateReaderTest {
     thrown.expectMessage(containsString("VP002"));
 
     Exchange exchange = createExchange("CN=kentor.ntjp.sjunet.org,O=Inera AB,L=Stockholm,C=SE");
-    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)");
+    CertificateExtractorProcessor certificateExtractorProcessor = new CertificateExtractorProcessorImpl("(?:2.5.4.5|SERIALNUMBER)=([^,]+)", true);
     certificateExtractorProcessor.process(exchange);
   }
 

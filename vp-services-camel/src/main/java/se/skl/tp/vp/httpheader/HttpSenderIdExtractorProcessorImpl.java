@@ -6,6 +6,7 @@ import org.apache.camel.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
@@ -22,6 +23,8 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   private SenderIpExtractor senderIpExtractor;
   private String vpInstanceId;
   private ExceptionUtil exceptionUtil;
+  @Value("${" + PropertyConstants.USE_HEADER_X_VP_AUTH_DN_TO_RETRIEVE_SENDER_ID + "}")
+  boolean useHeaderXVpAuthDnToRetrieveSenderId;
 
   @Autowired
   public HttpSenderIdExtractorProcessorImpl(Environment env,
@@ -39,7 +42,6 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   @Override
   public void process(Exchange exchange) throws Exception {
     Message message = exchange.getIn();
-
     String callerRemoteAddress = senderIpExtractor.getCallerRemoteAddress(message);
     checkCallerOnWhitelist(callerRemoteAddress, senderIpExtractor.getCallerRemoteAddressHeaderName());
 
@@ -49,13 +51,22 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
 
     String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
     String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
+    //TODO: How is this logic? If senderId != null and vpInstanceId != senderVpInstanceId ??? Discard senderId??
     if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
       log.debug("Internal plattform call, setting senderId from property {}:{}", HttpHeaders.X_VP_SENDER_ID, senderId);
       checkCallerOnWhitelist(forwardedForIpAdress, senderIpExtractor.getForwardForHeaderName());
       exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
     } else {
-      log.debug("Try extract senderId from provided certificate");
-      exchange.setProperty(VPExchangeProperties.SENDER_ID, getSenderIdFromCertificate(message));
+      if (useHeaderXVpAuthDnToRetrieveSenderId) {
+        if (exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class) != null) {
+          //TODO: senderId = getSenderIdFromDN(); ?
+          senderId = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
+        }
+      } else {
+        log.debug("Try extract senderId from provided certificate");
+        senderId = getSenderIdFromCertificate(message);
+      }
+      exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
     }
   }
 
