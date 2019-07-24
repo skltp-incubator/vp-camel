@@ -8,6 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
+import se.skl.tp.vp.certificate.SenderIdExtractor;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
@@ -24,7 +25,9 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   private String vpInstanceId;
   private ExceptionUtil exceptionUtil;
   @Value("${" + PropertyConstants.USE_HEADER_X_VP_AUTH_DN_TO_RETRIEVE_SENDER_ID + "}")
-  boolean useHeaderXVpAuthDnToRetrieveSenderId;
+  private boolean useHeaderXVpAuthDnToRetrieveSenderId;
+  private String subjectPattern;
+  private SenderIdExtractor senderIdExtractor;
 
   @Autowired
   public HttpSenderIdExtractorProcessorImpl(Environment env,
@@ -32,11 +35,15 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
       HeaderCertificateHelper headerCertificateHelper,
       IPWhitelistHandler ipWhitelistHandler,
       ExceptionUtil exceptionUtil) {
+
+
     this.headerCertificateHelper = headerCertificateHelper;
     this.ipWhitelistHandler = ipWhitelistHandler;
     this.senderIpExtractor = senderIpExtractor;
     vpInstanceId = env.getProperty(PropertyConstants.VP_INSTANCE_ID);
     this.exceptionUtil = exceptionUtil;
+    subjectPattern = env.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN);
+    senderIdExtractor = new SenderIdExtractor(subjectPattern);
   }
 
   @Override
@@ -59,10 +66,13 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
     } else {
       if (useHeaderXVpAuthDnToRetrieveSenderId) {
         if (exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class) != null) {
-          //TODO: senderId = getSenderIdFromDN(); ?
-          senderId = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
+          String principal = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
+          if (principal != null) {
+            senderId = senderIdExtractor.extractSenderFromPrincipal(principal);
+          }
         }
-      } else {
+      }
+      if (senderId == null) {
         log.debug("Try extract senderId from provided certificate");
         senderId = getSenderIdFromCertificate(message);
       }
