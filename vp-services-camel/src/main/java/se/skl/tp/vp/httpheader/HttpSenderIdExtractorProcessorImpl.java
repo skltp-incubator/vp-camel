@@ -35,8 +35,6 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
       HeaderCertificateHelper headerCertificateHelper,
       IPWhitelistHandler ipWhitelistHandler,
       ExceptionUtil exceptionUtil) {
-
-
     this.headerCertificateHelper = headerCertificateHelper;
     this.ipWhitelistHandler = ipWhitelistHandler;
     this.senderIpExtractor = senderIpExtractor;
@@ -58,12 +56,12 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
 
     String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
     String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
-    //TODO: How is this logic? If senderId != null and vpInstanceId != senderVpInstanceId ??? Discard senderId??
     if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
       log.debug("Internal plattform call, setting senderId from property {}:{}", HttpHeaders.X_VP_SENDER_ID, senderId);
       checkCallerOnWhitelist(forwardedForIpAdress, senderIpExtractor.getForwardForHeaderName());
       exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
     } else {
+      senderId = null;
       if (useHeaderXVpAuthDnToRetrieveSenderId) {
         if (exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class) != null) {
           String principal = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);

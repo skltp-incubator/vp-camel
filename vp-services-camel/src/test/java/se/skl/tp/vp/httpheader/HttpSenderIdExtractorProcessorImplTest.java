@@ -47,6 +47,8 @@ public class HttpSenderIdExtractorProcessorImplTest {
   public static final String NOT_WHITELISTED_IP_ADDRESS = "10.20.30.40";
   public static final String HEADER_SENDER_ID = "Sender1";
   public static final String CERT_SENDER_ID = "urken";
+  public static final String PRINCIPAL_STRING = "CN=Hermione Granger, O=Apache Software Foundation, OU=Harmony, L=Hogwarts, ST=Hants, C=GB";
+  public static final String PRINCIPAL_OU = "Harmony";
 
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
@@ -119,10 +121,22 @@ public class HttpSenderIdExtractorProcessorImplTest {
   @Test
   public void nonInternalCallWithHeaderXvpAuthDnSetShouldUseThat() throws Exception {
     Exchange exchange = createExchange();
-    final X500Principal principal = new X500Principal("OU=urken");
+    final X500Principal principal = new X500Principal(PRINCIPAL_STRING);
     exchange.getIn().setHeader(NettyConstants.NETTY_REMOTE_ADDRESS, mockInetAddress(WHITELISTED_IP_ADDRESS));
     exchange.getIn().setHeader(HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY, createMockCertificate());
     exchange.getIn().setHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, principal);
+    httpHeaderExtractorProcessor.process(exchange);
+
+    assertEquals(PRINCIPAL_OU, exchange.getProperty(VPExchangeProperties.SENDER_ID));
+  }
+
+  @Test
+  public void nonInternalCallWithHeaderXvpAuthDnFaultyShouldTryThat() throws Exception {
+    Exchange exchange = createExchange();
+    final X500Principal principal = new X500Principal(PRINCIPAL_STRING);
+    exchange.getIn().setHeader(NettyConstants.NETTY_REMOTE_ADDRESS, mockInetAddress(WHITELISTED_IP_ADDRESS));
+    exchange.getIn().setHeader(HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY, createMockCertificate());
+    exchange.getIn().setHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, " XXX ");
     httpHeaderExtractorProcessor.process(exchange);
 
     assertEquals(CERT_SENDER_ID, exchange.getProperty(VPExchangeProperties.SENDER_ID));
