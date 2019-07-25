@@ -120,6 +120,8 @@ public class HttpSenderIdExtractorProcessorImplTest {
 
   @Test
   public void nonInternalCallWithHeaderXvpAuthDnSetShouldUseThat() throws Exception {
+    boolean oldValue = HttpSenderIdExtractorProcessorImpl.isUseHeaderXVpAuthDnToRetrieveSenderId();
+    HttpSenderIdExtractorProcessorImpl.setUseHeaderXVpAuthDnToRetrieveSenderId(true);
     Exchange exchange = createExchange();
     final X500Principal principal = new X500Principal(PRINCIPAL_STRING);
     exchange.getIn().setHeader(NettyConstants.NETTY_REMOTE_ADDRESS, mockInetAddress(WHITELISTED_IP_ADDRESS));
@@ -128,18 +130,36 @@ public class HttpSenderIdExtractorProcessorImplTest {
     httpHeaderExtractorProcessor.process(exchange);
 
     assertEquals(PRINCIPAL_OU, exchange.getProperty(VPExchangeProperties.SENDER_ID));
+    HttpSenderIdExtractorProcessorImpl.setUseHeaderXVpAuthDnToRetrieveSenderId(oldValue);
+  }
+
+  @Test
+  public void nonInternalCallWithHeaderXvpAuthDnSetShouldNotUseThatIfBooleanFalse() throws Exception {
+    boolean oldValue = HttpSenderIdExtractorProcessorImpl.isUseHeaderXVpAuthDnToRetrieveSenderId();
+    HttpSenderIdExtractorProcessorImpl.setUseHeaderXVpAuthDnToRetrieveSenderId(false);
+    Exchange exchange = createExchange();
+    final X500Principal principal = new X500Principal(PRINCIPAL_STRING);
+    exchange.getIn().setHeader(NettyConstants.NETTY_REMOTE_ADDRESS, mockInetAddress(WHITELISTED_IP_ADDRESS));
+    exchange.getIn().setHeader(HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY, createMockCertificate());
+    exchange.getIn().setHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, principal);
+    httpHeaderExtractorProcessor.process(exchange);
+
+    assertEquals(CERT_SENDER_ID, exchange.getProperty(VPExchangeProperties.SENDER_ID));
+    HttpSenderIdExtractorProcessorImpl.setUseHeaderXVpAuthDnToRetrieveSenderId(oldValue);
   }
 
   @Test
   public void nonInternalCallWithHeaderXvpAuthDnFaultyShouldTryThat() throws Exception {
+    boolean oldValue = HttpSenderIdExtractorProcessorImpl.isUseHeaderXVpAuthDnToRetrieveSenderId();
+    HttpSenderIdExtractorProcessorImpl.setUseHeaderXVpAuthDnToRetrieveSenderId(true);
     Exchange exchange = createExchange();
-    final X500Principal principal = new X500Principal(PRINCIPAL_STRING);
     exchange.getIn().setHeader(NettyConstants.NETTY_REMOTE_ADDRESS, mockInetAddress(WHITELISTED_IP_ADDRESS));
     exchange.getIn().setHeader(HttpHeaders.CERTIFICATE_FROM_REVERSE_PROXY, createMockCertificate());
     exchange.getIn().setHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, " XXX ");
     httpHeaderExtractorProcessor.process(exchange);
 
     assertEquals(CERT_SENDER_ID, exchange.getProperty(VPExchangeProperties.SENDER_ID));
+    HttpSenderIdExtractorProcessorImpl.setUseHeaderXVpAuthDnToRetrieveSenderId(oldValue);
   }
 
   @Test

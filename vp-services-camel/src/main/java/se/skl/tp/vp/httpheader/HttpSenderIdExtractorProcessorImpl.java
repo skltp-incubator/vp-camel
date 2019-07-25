@@ -25,7 +25,7 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   private String vpInstanceId;
   private ExceptionUtil exceptionUtil;
   @Value("${" + PropertyConstants.USE_HEADER_X_VP_AUTH_DN_TO_RETRIEVE_SENDER_ID + "}")
-  private boolean useHeaderXVpAuthDnToRetrieveSenderId;
+  private static boolean useHeaderXVpAuthDnToRetrieveSenderId;
   private String subjectPattern;
   private SenderIdExtractor senderIdExtractor;
 
@@ -42,6 +42,14 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
     this.exceptionUtil = exceptionUtil;
     subjectPattern = env.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN);
     senderIdExtractor = new SenderIdExtractor(subjectPattern);
+  }
+
+  public static void setUseHeaderXVpAuthDnToRetrieveSenderId(boolean val) {
+    useHeaderXVpAuthDnToRetrieveSenderId = val;
+  }
+
+  public static boolean isUseHeaderXVpAuthDnToRetrieveSenderId() {
+    return useHeaderXVpAuthDnToRetrieveSenderId;
   }
 
   @Override
