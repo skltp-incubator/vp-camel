@@ -6,7 +6,9 @@ import org.apache.camel.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import se.skl.tp.vp.certificate.HeaderCertificateHelper;
+import se.skl.tp.vp.certificate.SenderIdExtractor;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
@@ -22,6 +24,10 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   private SenderIpExtractor senderIpExtractor;
   private String vpInstanceId;
   private ExceptionUtil exceptionUtil;
+  @Value("${" + PropertyConstants.USE_HEADER_X_VP_AUTH_DN_TO_RETRIEVE_SENDER_ID + "}")
+  private static boolean useHeaderXVpAuthDnToRetrieveSenderId;
+  private String subjectPattern;
+  private SenderIdExtractor senderIdExtractor;
 
   @Autowired
   public HttpSenderIdExtractorProcessorImpl(Environment env,
@@ -34,12 +40,21 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
     this.senderIpExtractor = senderIpExtractor;
     vpInstanceId = env.getProperty(PropertyConstants.VP_INSTANCE_ID);
     this.exceptionUtil = exceptionUtil;
+    subjectPattern = env.getProperty(PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN);
+    senderIdExtractor = new SenderIdExtractor(subjectPattern);
+  }
+
+  public static void setUseHeaderXVpAuthDnToRetrieveSenderId(boolean val) {
+    useHeaderXVpAuthDnToRetrieveSenderId = val;
+  }
+
+  public static boolean isUseHeaderXVpAuthDnToRetrieveSenderId() {
+    return useHeaderXVpAuthDnToRetrieveSenderId;
   }
 
   @Override
   public void process(Exchange exchange) throws Exception {
     Message message = exchange.getIn();
-
     String callerRemoteAddress = senderIpExtractor.getCallerRemoteAddress(message);
     checkCallerOnWhitelist(callerRemoteAddress, senderIpExtractor.getCallerRemoteAddressHeaderName());
 
@@ -54,8 +69,21 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
       checkCallerOnWhitelist(forwardedForIpAdress, senderIpExtractor.getForwardForHeaderName());
       exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
     } else {
-      log.debug("Try extract senderId from provided certificate");
-      exchange.setProperty(VPExchangeProperties.SENDER_ID, getSenderIdFromCertificate(message));
+      senderId = null;
+      if (useHeaderXVpAuthDnToRetrieveSenderId) {
+        if (exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class) != null) {
+          String principal = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
+          if (principal != null) {
+            senderId = senderIdExtractor.extractSenderFromPrincipal(principal);
+            log.debug("Getting senderId from header {}:{}", HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, senderId);
+          }
+        }
+      }
+      if (senderId == null) {
+        senderId = getSenderIdFromCertificate(message);
+        log.debug("Try to extract senderId from provided certificate. SenderId was {}", senderId);
+      }
+      exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
     }
   }
 

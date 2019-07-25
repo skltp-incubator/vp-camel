@@ -25,17 +25,13 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
 
   @Override
   public void process(Exchange exchange){
-    String principal = ""+exchange.getIn().getHeader(NettyConstants.NETTY_SSL_CLIENT_CERT_SUBJECT_NAME, String.class);
+    String principal = "" + exchange.getIn().getHeader(NettyConstants.NETTY_SSL_CLIENT_CERT_SUBJECT_NAME, String.class);
     String senderId = senderIdExtractor.extractSenderFromPrincipal(principal);
-
     if (senderId == null) {
       throw new VpSemanticException(VpSemanticErrorCodeEnum.VP002 + " No senderId found in Certificate: " + principal,
           VpSemanticErrorCodeEnum.VP002);
     }
-
     exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
-
   }
-
 
 }
