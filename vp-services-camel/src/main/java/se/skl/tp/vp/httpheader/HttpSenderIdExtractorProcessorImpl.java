@@ -75,7 +75,7 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
           String principal = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
           if (principal != null) {
             senderId = senderIdExtractor.extractSenderFromPrincipal(principal);
-            log.debug("Getting senderId from header DN_IN_CERT_FROM_REVERSE_PROXY. SenderId was {}", senderId);
+            log.debug("Getting senderId from header {}:{}", HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, senderId);
           }
         }
       }
