@@ -19,8 +19,7 @@ public class CertificateExtractorProcessorImpl implements CertificateExtractorPr
   private static final String PATTERN_PROPERTY = "${" + PropertyConstants.CERTIFICATE_SENDERID_SUBJECT_PATTERN + "}";
 
   @Autowired
-  public CertificateExtractorProcessorImpl(
-          @Value(PATTERN_PROPERTY) String certificateSenderidSubject) {
+  public CertificateExtractorProcessorImpl(@Value(PATTERN_PROPERTY) String certificateSenderidSubject) {
     senderIdExtractor = new SenderIdExtractor(certificateSenderidSubject);
   }
 
