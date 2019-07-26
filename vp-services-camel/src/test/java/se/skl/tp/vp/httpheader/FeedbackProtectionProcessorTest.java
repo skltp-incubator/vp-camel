@@ -51,6 +51,11 @@ public class FeedbackProtectionProcessorTest {
     }
   }
 
+  @After
+  public void after(){
+    feedbackProtectionProcessor.setPlatformId(platformId);
+  }
+
   @Test
   public void senderHasSetHeaderXvpPlatformId() throws Exception {
     feedbackProtectionProcessor.setPlatformId(localPlatformId);
@@ -61,7 +66,7 @@ public class FeedbackProtectionProcessorTest {
       feedbackProtectionProcessor.process(exchange);
     } catch (VpSemanticException e) {
       assertTrue(e.getMessage().contains("VP014 Faulty addressing. This message was sent from this VP instance and has been returned."));
-      feedbackProtectionProcessor.setPlatformId(platformId);
+
     }
   }
 
@@ -73,7 +78,6 @@ public class FeedbackProtectionProcessorTest {
     try {
       feedbackProtectionProcessor.process(exchange);
       assertTrue(exchange.getIn().getHeader(HttpHeaders.X_VP_PLATFORM_ID).equals(localPlatformId));
-      feedbackProtectionProcessor.setPlatformId(platformId);
     } catch (VpSemanticException e) {
       // Don't expect exception....
     }
@@ -87,7 +91,6 @@ public class FeedbackProtectionProcessorTest {
     try {
       feedbackProtectionProcessor.process(exchange);
       assertTrue(exchange.getIn().getHeader(HttpHeaders.X_VP_PLATFORM_ID) == null);
-      feedbackProtectionProcessor.setPlatformId(platformId);
     } catch (VpSemanticException e) {
       // Don't expect exception....
     }
