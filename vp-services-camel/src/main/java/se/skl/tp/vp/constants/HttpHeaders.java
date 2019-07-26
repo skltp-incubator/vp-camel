@@ -64,15 +64,17 @@ public class HttpHeaders {
 	 */
 	public static final String X_VP_INSTANCE_ID = "x-vp-instance-id";
 	/**
+	 * This header is used to recognize messages sent from this VP, and returned via faulty addressing, creating a loop.
+	 */
+	public static final String X_VP_PLATFORM_ID = "x-vp-platform-id";
+	/**
 	 * Incoming HTTP Header x-vp-auth-cert, carrying a X509 certificate, used when implementing a reverse proxy.
 	 *
 	 * @since VP-1.3
 	 */
 	public static final String CERTIFICATE_FROM_REVERSE_PROXY 	= "x-vp-auth-cert";
 	/**
-	 * Incoming HTTP Header x-vp-auth-DN, carrying the DN from a X509 certificate, used when implementing a reverse proxy.
-	 *
-	 * @since VP-1.3
+	 * If a message is coming from a reverse proxy, it can set this header with the extracted DN from the cert.
 	 */
 	public static final String DN_IN_CERT_FROM_REVERSE_PROXY 	= "x-vp-auth-DN";
 
