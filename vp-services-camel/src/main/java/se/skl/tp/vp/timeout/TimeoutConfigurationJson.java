@@ -32,7 +32,7 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
   public TimeoutConfigurationJson(
       @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeout_json_file,
       @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}")
-          String timeout_json_file_default_tjanstekontrakt_name)
+          String timeoutJsonFileDefaultTjanstekontraktName)
       throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
@@ -47,12 +47,12 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
     }
     boolean defaultTimeoutsExist = false;
     for (TimeoutConfig timeoutConfig : wsdlConfigs) {
-      if (timeoutConfig.getTjanstekontrakt().equalsIgnoreCase(timeout_json_file_default_tjanstekontrakt_name)) {
+      if (timeoutConfig.getTjanstekontrakt().equalsIgnoreCase(timeoutJsonFileDefaultTjanstekontraktName)) {
         defaultTimeoutsExist = true;
       }
     }
     if (!defaultTimeoutsExist) {
-      createDefaultTimeoutsWhenMissing(timeout_json_file_default_tjanstekontrakt_name);
+      createDefaultTimeoutsWhenMissing(timeoutJsonFileDefaultTjanstekontraktName);
       LOGGER.warn("Could not find any default timeoutvalues, using producertimeout=29000 and routetimeout=30000 as default timeouts. " +
               "Please create and configure a timeoutconfig.json file to set this manually.");
     }
