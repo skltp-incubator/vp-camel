@@ -24,13 +24,16 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   private SenderIpExtractor senderIpExtractor;
   private String vpInstanceId;
   private ExceptionUtil exceptionUtil;
+
   @Value("${" + PropertyConstants.USE_HEADER_X_VP_AUTH_DN_TO_RETRIEVE_SENDER_ID + "}")
   private static boolean useHeaderXVpAuthDnToRetrieveSenderId;
+
   private String subjectPattern;
   private SenderIdExtractor senderIdExtractor;
 
   @Autowired
-  public HttpSenderIdExtractorProcessorImpl(Environment env,
+  public HttpSenderIdExtractorProcessorImpl(
+      Environment env,
       SenderIpExtractor senderIpExtractor,
       HeaderCertificateHelper headerCertificateHelper,
       IPWhitelistHandler ipWhitelistHandler,
@@ -56,27 +59,37 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
   public void process(Exchange exchange) throws Exception {
     Message message = exchange.getIn();
     String callerRemoteAddress = senderIpExtractor.getCallerRemoteAddress(message);
-    checkCallerOnWhitelist(callerRemoteAddress, senderIpExtractor.getCallerRemoteAddressHeaderName());
+    checkCallerOnWhitelist(
+        callerRemoteAddress, senderIpExtractor.getCallerRemoteAddressHeaderName());
 
     String forwardedForIpAdress = senderIpExtractor.getForwardedForAddress(message);
-    String senderIpAdress = forwardedForIpAdress != null ? forwardedForIpAdress : callerRemoteAddress;
+    String senderIpAdress =
+        forwardedForIpAdress != null ? forwardedForIpAdress : callerRemoteAddress;
     exchange.setProperty(VPExchangeProperties.SENDER_IP_ADRESS, senderIpAdress);
 
     String senderId = message.getHeader(HttpHeaders.X_VP_SENDER_ID, String.class);
     String senderVpInstanceId = message.getHeader(HttpHeaders.X_VP_INSTANCE_ID, String.class);
     if (senderId != null && vpInstanceId.equals(senderVpInstanceId)) {
-      log.debug("Internal plattform call, setting senderId from property {}:{}", HttpHeaders.X_VP_SENDER_ID, senderId);
+      log.debug(
+          "Internal plattform call, setting senderId from property {}:{}",
+          HttpHeaders.X_VP_SENDER_ID,
+          senderId);
       checkCallerOnWhitelist(forwardedForIpAdress, senderIpExtractor.getForwardForHeaderName());
       exchange.setProperty(VPExchangeProperties.SENDER_ID, senderId);
     } else {
       senderId = null;
-      if (useHeaderXVpAuthDnToRetrieveSenderId) {
-        if (exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class) != null) {
-          String principal = exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
-          if (principal != null) {
-            senderId = senderIdExtractor.extractSenderFromPrincipal(principal);
-            log.debug("Getting senderId from header {}:{}", HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, senderId);
-          }
+      if (useHeaderXVpAuthDnToRetrieveSenderId
+          && exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class)
+              != null) {
+
+        String principal =
+            exchange.getIn().getHeader(HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY, String.class);
+        if (principal != null) {
+          senderId = senderIdExtractor.extractSenderFromPrincipal(principal);
+          log.debug(
+              "Getting senderId from header {}:{}",
+              HttpHeaders.DN_IN_CERT_FROM_REVERSE_PROXY,
+              senderId);
         }
       }
       if (senderId == null) {
@@ -94,10 +107,9 @@ public class HttpSenderIdExtractorProcessorImpl implements HttpSenderIdExtractor
 
   private void checkCallerOnWhitelist(String senderIpAdress, String header) {
     if (senderIpAdress != null && !ipWhitelistHandler.isCallerOnWhiteList(senderIpAdress)) {
-      throw exceptionUtil.createVpSemanticException(VpSemanticErrorCodeEnum.VP011,
-          " IP-address: " + senderIpAdress
-              + ". HTTP header that caused checking: " + header);
+      throw exceptionUtil.createVpSemanticException(
+          VpSemanticErrorCodeEnum.VP011,
+          " IP-address: " + senderIpAdress + ". HTTP header that caused checking: " + header);
     }
   }
-
 }
