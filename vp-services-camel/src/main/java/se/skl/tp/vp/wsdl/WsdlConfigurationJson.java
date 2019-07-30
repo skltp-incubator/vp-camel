@@ -173,7 +173,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
 
   private class WsdlInfo {
     String serviceInteractionNameSpace;
-    String ServiceContractName;
+    String serviceContractName;
 
     public String getServiceInteractionNameSpace() {
       return serviceInteractionNameSpace;
@@ -184,11 +184,11 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     }
 
     public String getServiceContractName() {
-      return ServiceContractName;
+      return serviceContractName;
     }
 
     public void setServiceContractName(String serviceContractName) {
-      ServiceContractName = serviceContractName;
+      this.serviceContractName = serviceContractName;
     }
   }
 }

@@ -130,13 +130,7 @@ public class RivTaProfilProcessor implements Processor {
                                           final String toAddressingElement)
             throws XMLStreamException {
 
-        String uri = reader.getNamespaceURI();
-        if (fromAddressingNs.equals(uri)) {
-            if (log.isDebugEnabled()) {
-                log.debug("RivTransformer { fromNS: {}, toNS: {} }", new Object[]{fromAddressingNs, toAddressingNs});
-            }
-            uri = toAddressingNs;
-        }
+        String uri = getUriFromXmlStreamOrSubstitute(reader,fromAddressingNs,toAddressingNs);
 
         String local = reader.getLocalName();
         // make sure we only transforms element names within the right namespace
@@ -182,6 +176,18 @@ public class RivTaProfilProcessor implements Processor {
         // Write out attributes
         writeOutAttributes(reader, writer, fromAddressingNs, toAddressingNs, toAddressingElement,
             local);
+    }
+
+    private static String getUriFromXmlStreamOrSubstitute(XMLStreamReader reader,final String fromAddressingNs,
+        final String toAddressingNs){
+        String uri = reader.getNamespaceURI();
+        if (fromAddressingNs.equals(uri)) {
+            if (log.isDebugEnabled()) {
+                log.debug("RivTransformer { fromNS: {}, toNS: {} }", new Object[]{fromAddressingNs, toAddressingNs});
+            }
+            uri = toAddressingNs;
+        }
+        return  uri;
     }
 
     private static void writeOutElementName(XMLStreamWriter writer, String uri, String local,

@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class TimeoutConfigurationJson implements TimeoutConfiguration {
 
-  private static Logger LOGGER = LogManager.getLogger(TimeoutConfigurationJson.class);
+  private static final Logger LOGGER = LogManager.getLogger(TimeoutConfigurationJson.class);
 
   private List<TimeoutConfig> wsdlConfigs;
   private HashMap<String, TimeoutConfig> mapOnTjanstekontrakt;
@@ -30,17 +30,17 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
   }
 
   public TimeoutConfigurationJson(
-      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeout_json_file,
+      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeoutJsonFile,
       @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}")
           String timeoutJsonFileDefaultTjanstekontraktName)
       throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
-      wsdlConfigs = objectMapper.readValue(new File(timeout_json_file), new TypeReference<List<TimeoutConfig>>() {});
+      wsdlConfigs = objectMapper.readValue(new File(timeoutJsonFile), new TypeReference<List<TimeoutConfig>>() {});
     } catch (FileNotFoundException e) {
-      LOGGER.warn("Json file for timeouts not found at " + timeout_json_file + ".");
+      LOGGER.warn("Json file for timeouts not found at " + timeoutJsonFile + ".");
     } catch (JsonParseException e) {
-      LOGGER.warn("Json file for timeouts " + timeout_json_file + " could not be parsed.");
+      LOGGER.warn("Json file for timeouts " + timeoutJsonFile + " could not be parsed.");
     }
     if (wsdlConfigs == null) {
       wsdlConfigs = new ArrayList<>();
