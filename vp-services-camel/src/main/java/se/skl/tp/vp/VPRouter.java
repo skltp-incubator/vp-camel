@@ -69,6 +69,8 @@ public class VPRouter extends RouteBuilder {
     @Autowired
     CorrelationIdProcessor correlationIdProcessor;
 
+    @Autowired
+    FeedbackProtectionProcesssor feedbackProtectionProcesssor;
 
     @Autowired
     OriginalConsumerIdProcessor originalConsumerIdProcessor;
