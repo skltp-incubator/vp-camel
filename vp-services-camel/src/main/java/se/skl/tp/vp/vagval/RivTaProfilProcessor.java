@@ -123,6 +123,23 @@ public class RivTaProfilProcessor implements Processor {
     }
 
 
+    interface NameSpaceUriSubstituteRule {
+        String substituteOnRuleMatch(String pCandidate);
+    }
+    private static NameSpaceUriSubstituteRule createNameSpaceSubstitutionRule(
+        String fromAddressingNs,
+        String toAddressingNs, String toAddressingElement, String local) {
+        return pCandidateNameSpace -> {
+            String resultNameSpaceUri = pCandidateNameSpace;
+
+            if (fromAddressingNs.equals(pCandidateNameSpace) && ("Envelope".equals(local) || "Header".equals(
+                local)
+                || toAddressingElement.equals(local))) {
+                resultNameSpaceUri = toAddressingNs;
+            }
+            return resultNameSpaceUri;
+        };
+    }
     private static void writeStartElement(XMLStreamReader reader, XMLStreamWriter writer,
                                           final String fromAddressingNs,
                                           final String toAddressingNs,
@@ -157,10 +174,11 @@ public class RivTaProfilProcessor implements Processor {
         // Write out the element name
         writeOutElementName(writer, uri, local, prefix);
 
+        NameSpaceUriSubstituteRule nameSpaceUriSubstituteRule = createNameSpaceSubstitutionRule(
+            fromAddressingNs, toAddressingNs, toAddressingElement, local);
         // Write out the namespaces
-        writeElementNS = writeOutNameSpaces(reader, writer, fromAddressingNs, toAddressingNs,
-            toAddressingElement, uri,
-            local, prefix, writeElementNS);
+        writeElementNS = writeOutNameSpaces(reader, writer,  uri,
+             prefix, writeElementNS, nameSpaceUriSubstituteRule);
 
         // Check if the namespace still needs to be written.
         // We need this check because namespace writing works
@@ -177,6 +195,8 @@ public class RivTaProfilProcessor implements Processor {
         writeOutAttributes(reader, writer, fromAddressingNs, toAddressingNs, toAddressingElement,
             local);
     }
+
+
 
     private static String getUriFromXmlStreamOrSubstitute(XMLStreamReader reader,final String fromAddressingNs,
         final String toAddressingNs){
@@ -207,14 +227,12 @@ public class RivTaProfilProcessor implements Processor {
     }
 
     private static boolean writeOutNameSpaces(XMLStreamReader reader, XMLStreamWriter writer,
-        String fromAddressingNs, String toAddressingNs, String toAddressingElement, String uri,
-        String local, String prefix, boolean writeElementNS) throws XMLStreamException {
+        String uri,
+         String prefix, boolean writeElementNS,
+        NameSpaceUriSubstituteRule nameSpaceUriSubstituteRule) throws XMLStreamException {
+
         for (int i = 0; i < reader.getNamespaceCount(); i++) {
-            String nsURI = reader.getNamespaceURI(i);
-            if (fromAddressingNs.equals(nsURI) && ("Envelope".equals(local) || "Header".equals(local)
-                    || toAddressingElement.equals(local))) {
-                nsURI = toAddressingNs;
-            }
+            String nsURI = nameSpaceUriSubstituteRule.substituteOnRuleMatch(reader.getNamespaceURI(i));
 
             String nsPrefix = reader.getNamespacePrefix(i);
             if (nsPrefix == null) {
