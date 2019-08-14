@@ -1,5 +1,7 @@
 package se.skl.tp.vp.requestreader;
 
+import static org.apache.commons.lang.CharEncoding.UTF_8;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import lombok.extern.log4j.Log4j2;
@@ -19,7 +21,7 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
   @Override
   public void process(Exchange exchange) throws Exception {
     try {
-      XMLStreamReader reader = exchange.getIn().getBody(XMLStreamReader.class);
+      XMLStreamReader reader = toStreamReader(exchange);
       PayloadInfo payloadInfo = PayloadInfoParser.extractInfoFromPayload(reader);
 
       exchange.setProperty(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, payloadInfo.getServiceContractNamespace());
@@ -29,6 +31,16 @@ public class RequestReaderProcessorXMLEventReader implements RequestReaderProces
 
     } catch (final XMLStreamException e) {
       throw new VpTechnicalException(e);
+    }
+  }
+
+  private XMLStreamReader toStreamReader(Exchange exchange) throws XMLStreamException {
+    try {
+      return exchange.getIn().getBody(XMLStreamReader.class);
+    } catch (Exception e) {
+      log.warn("Failed convert payload to XMLStreamReader. Trying with default encoding UTF-8...");
+      exchange.setProperty(Exchange.CHARSET_NAME, UTF_8);
+      return exchange.getIn().getBody(XMLStreamReader.class);
     }
   }
 

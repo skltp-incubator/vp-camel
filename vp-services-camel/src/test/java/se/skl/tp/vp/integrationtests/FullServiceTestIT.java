@@ -126,28 +126,27 @@ public class FullServiceTestIT {
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
   }
 
-  // TODO should we handle this case??
-//  @Test
-//  public void callHttpVPEndpointDeclaredUTF16ButIsUTF8() {
-//    mockProducer.setResponseBody("<mocked answer/>");
-//
-//    Map<String, Object> headers = new HashMap<>();
-//    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-//    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
-//    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS), headers);
-//
-//    assertEquals("<mocked answer/>", response);
-//
-//    assertMessageLogsExists();
-//
-//    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
-//    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
-//    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-//    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
-//    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
-//    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
-//    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
-//  }
+  @Test
+  public void callHttpVPEndpointDeclaredUTF16ButIsUTF8() {
+    mockProducer.setResponseBody("<mocked answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS), headers);
+
+    assertEquals("<mocked answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
 
   @Test
   public void callHttpVPEndpointDeclaredUTF16ButIsUTF8WithContentTypeSet() {
