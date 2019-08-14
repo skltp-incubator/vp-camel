@@ -7,6 +7,7 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 
 @Service
@@ -39,8 +40,9 @@ public class HandleProducerExceptionProcessor implements Processor {
         }
 
         log.debug("Exception Caught by Camel when contacting producer. Exception information: " + left(message, 200) + "...");
-        String vpMsg = String.format("Exception Caught by Camel when contacting producer. Exception information: (%s)",
-            exception.getClass().getName());
+        String addr = (String) exchange.getProperty(VPExchangeProperties.VAGVAL, "<UNKNOWN>");
+        String vpMsg = String.format("%s. Exception Caught by Camel when contacting producer. Exception information: (%s: %s)",
+            addr, exception.getClass().getName(), message);
         String cause = exceptionUtil.createMessage(VpSemanticErrorCodeEnum.VP009, vpMsg);
         SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
       }

@@ -32,7 +32,7 @@ import se.skl.tp.vp.constants.PropertyConstants;
 @Service
 @Log4j2
 public class WsdlConfigurationJson implements WsdlConfiguration {
-  private static final String F_SLASH = "/";
+
   private List<WsdlConfig> wsdlConfigs;
   private HashMap<String, WsdlConfig> mapOnTjanstekontrakt;
   private HashMap<String, WsdlConfig> mapOnWsdlUrl;
@@ -104,10 +104,10 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
       }
       String subdomain = subdomainBuilder.toString();
 
-      String subdomainAdress = subdomain.replaceAll(":", F_SLASH);
-      String serviceRelativePath = serviceName + F_SLASH + serviceVersion +F_SLASH + rivtaVersion;
+      String subdomainAdress = subdomain.replaceAll(":", "/");
+      String serviceRelativePath = serviceName + "/" + serviceVersion + "/" + rivtaVersion;
 
-      String wsdlurl = "vp/" + maindomain + F_SLASH + subdomainAdress + F_SLASH + serviceRelativePath;
+      String wsdlurl = "vp/" + maindomain + "/" + subdomainAdress + "/" + serviceRelativePath;
       String wsdlPath = file.toString();
       String tjanstekontrakt = wsdlInfo.getServiceContractName();
 
@@ -173,7 +173,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
 
   private class WsdlInfo {
     String serviceInteractionNameSpace;
-    String serviceContractName;
+    String ServiceContractName;
 
     public String getServiceInteractionNameSpace() {
       return serviceInteractionNameSpace;
@@ -184,11 +184,11 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     }
 
     public String getServiceContractName() {
-      return serviceContractName;
+      return ServiceContractName;
     }
 
     public void setServiceContractName(String serviceContractName) {
-      this.serviceContractName = serviceContractName;
+      ServiceContractName = serviceContractName;
     }
   }
 }

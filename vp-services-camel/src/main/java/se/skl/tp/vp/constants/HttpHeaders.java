@@ -69,10 +69,6 @@ public class HttpHeaders {
 	 * @since VP-1.3
 	 */
 	public static final String CERTIFICATE_FROM_REVERSE_PROXY 	= "x-vp-auth-cert";
-	/**
-	 * If a message is coming from a reverse proxy, it can set this header with the extracted DN from the cert.
-	 */
-	public static final String DN_IN_CERT_FROM_REVERSE_PROXY 	= "x-vp-auth-DN";
 
 	public static final String HEADER_USER_AGENT = "User-Agent";
 

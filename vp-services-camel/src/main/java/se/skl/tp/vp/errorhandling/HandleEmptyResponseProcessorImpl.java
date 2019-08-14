@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 
 @Service
@@ -25,8 +26,9 @@ public class HandleEmptyResponseProcessorImpl implements HandleEmptyResponseProc
             String strPayload = exchange.getIn().getBody(String.class);
             if (strPayload == null || strPayload.length() == 0 ) {
                 log.debug("Found return message with length 0, replace with SoapFault because CXF doesn't like the empty string");
+                String addr = exchange.getProperty(VPExchangeProperties.VAGVAL, "<UNKNOWN>", String.class);
                 String cause = exceptionUtil.createMessage(VpSemanticErrorCodeEnum.VP009,
-                    "Empty message when server responded with status code: " + SoapFaultHelper
+                    addr + ". Empty message when server responded with status code: " + SoapFaultHelper
                         .getStatusMessage(httpResponseCode.toString(), "NULL"));
                 SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
             }

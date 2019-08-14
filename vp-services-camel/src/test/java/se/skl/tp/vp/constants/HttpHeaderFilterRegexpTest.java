@@ -27,8 +27,6 @@ public class HttpHeaderFilterRegexpTest {
   @Test
   public void testDefaultRemoveRegExp() {
     String regExp = reg.getRemoveRegExp();
-
-    assertTrue(!(regExp.matches("Transfer-Encoding")));
     for (String header : testData.getRemovers()) {
       assertTrue(header.matches(regExp));
     }

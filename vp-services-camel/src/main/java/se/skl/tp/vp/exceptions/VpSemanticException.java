@@ -4,7 +4,7 @@ public class VpSemanticException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	private final VpSemanticErrorCodeEnum errorCode;
+	private VpSemanticErrorCodeEnum errorCode;
 
 	public VpSemanticException(String message, VpSemanticErrorCodeEnum errorCode) {
 		super(message);

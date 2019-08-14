@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 public class TimeoutConfigurationJson implements TimeoutConfiguration {
 
-  private static final Logger LOGGER = LogManager.getLogger(TimeoutConfigurationJson.class);
+  private static Logger LOGGER = LogManager.getLogger(TimeoutConfigurationJson.class);
 
   private List<TimeoutConfig> wsdlConfigs;
   private HashMap<String, TimeoutConfig> mapOnTjanstekontrakt;
@@ -30,29 +30,29 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
   }
 
   public TimeoutConfigurationJson(
-      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeoutJsonFile,
+      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE + "}") String timeout_json_file,
       @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}")
-          String timeoutJsonFileDefaultTjanstekontraktName)
+          String timeout_json_file_default_tjanstekontrakt_name)
       throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
-      wsdlConfigs = objectMapper.readValue(new File(timeoutJsonFile), new TypeReference<List<TimeoutConfig>>() {});
+      wsdlConfigs = objectMapper.readValue(new File(timeout_json_file), new TypeReference<List<TimeoutConfig>>() {});
     } catch (FileNotFoundException e) {
-      LOGGER.warn("Json file for timeouts not found at " + timeoutJsonFile + ".");
+      LOGGER.warn("Json file for timeouts not found at " + timeout_json_file + ".");
     } catch (JsonParseException e) {
-      LOGGER.warn("Json file for timeouts " + timeoutJsonFile + " could not be parsed.");
+      LOGGER.warn("Json file for timeouts " + timeout_json_file + " could not be parsed.");
     }
     if (wsdlConfigs == null) {
       wsdlConfigs = new ArrayList<>();
     }
     boolean defaultTimeoutsExist = false;
     for (TimeoutConfig timeoutConfig : wsdlConfigs) {
-      if (timeoutConfig.getTjanstekontrakt().equalsIgnoreCase(timeoutJsonFileDefaultTjanstekontraktName)) {
+      if (timeoutConfig.getTjanstekontrakt().equalsIgnoreCase(timeout_json_file_default_tjanstekontrakt_name)) {
         defaultTimeoutsExist = true;
       }
     }
     if (!defaultTimeoutsExist) {
-      createDefaultTimeoutsWhenMissing(timeoutJsonFileDefaultTjanstekontraktName);
+      createDefaultTimeoutsWhenMissing(timeout_json_file_default_tjanstekontrakt_name);
       LOGGER.warn("Could not find any default timeoutvalues, using producertimeout=29000 and routetimeout=30000 as default timeouts. " +
               "Please create and configure a timeoutconfig.json file to set this manually.");
     }

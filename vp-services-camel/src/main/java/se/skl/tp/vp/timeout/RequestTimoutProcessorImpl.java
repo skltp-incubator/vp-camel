@@ -13,13 +13,13 @@ import static org.apache.camel.component.netty4.NettyConstants.NETTY_REQUEST_TIM
 public class RequestTimoutProcessorImpl implements RequestTimoutProcessor {
 
     TimeoutConfiguration timeoutConfiguration;
-    private final String defaultTjanstekontrakt;
+    private final String DEFAULT_TJANSTEKONTRAKT;
 
     @Autowired
     public RequestTimoutProcessorImpl(TimeoutConfiguration timeoutConfiguration,
-                                      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String defaultTjanstekontrakt) {
+                                      @Value("${" + PropertyConstants.TIMEOUT_JSON_FILE_DEFAULT_TJANSTEKONTRAKT_NAME + "}") String default_tjanstekontrakt) {
         this.timeoutConfiguration = timeoutConfiguration;
-        this.defaultTjanstekontrakt = defaultTjanstekontrakt;
+        this.DEFAULT_TJANSTEKONTRAKT = default_tjanstekontrakt;
     }
 
     @Override
@@ -28,8 +28,7 @@ public class RequestTimoutProcessorImpl implements RequestTimoutProcessor {
         if(timoutConfig != null) {
             exchange.getIn().setHeader(NETTY_REQUEST_TIMEOUT, timoutConfig.getProducertimeout());
         } else {
-            TimeoutConfig defaultConfig = timeoutConfiguration.getOnTjanstekontrakt(
-                defaultTjanstekontrakt);
+            TimeoutConfig defaultConfig = timeoutConfiguration.getOnTjanstekontrakt(DEFAULT_TJANSTEKONTRAKT);
             exchange.getIn().setHeader(NETTY_REQUEST_TIMEOUT, defaultConfig.getProducertimeout());
         }
 

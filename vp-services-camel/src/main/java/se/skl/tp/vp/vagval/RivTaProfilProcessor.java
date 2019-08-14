@@ -123,23 +123,6 @@ public class RivTaProfilProcessor implements Processor {
     }
 
 
-    interface NameSpaceUriSubstituteRule {
-        String substituteOnRuleMatch(String pCandidate);
-    }
-    private static NameSpaceUriSubstituteRule createNameSpaceSubstitutionRule(
-        String fromAddressingNs,
-        String toAddressingNs, String toAddressingElement, String local) {
-        return pCandidateNameSpace -> {
-            String resultNameSpaceUri = pCandidateNameSpace;
-
-            if (fromAddressingNs.equals(pCandidateNameSpace) && ("Envelope".equals(local) || "Header".equals(
-                local)
-                || toAddressingElement.equals(local))) {
-                resultNameSpaceUri = toAddressingNs;
-            }
-            return resultNameSpaceUri;
-        };
-    }
     private static void writeStartElement(XMLStreamReader reader, XMLStreamWriter writer,
                                           final String fromAddressingNs,
                                           final String toAddressingNs,
@@ -147,7 +130,13 @@ public class RivTaProfilProcessor implements Processor {
                                           final String toAddressingElement)
             throws XMLStreamException {
 
-        String uri = getUriFromXmlStreamOrSubstitute(reader,fromAddressingNs,toAddressingNs);
+        String uri = reader.getNamespaceURI();
+        if (fromAddressingNs.equals(uri)) {
+            if (log.isDebugEnabled()) {
+                log.debug("RivTransformer { fromNS: {}, toNS: {} }", new Object[]{fromAddressingNs, toAddressingNs});
+            }
+            uri = toAddressingNs;
+        }
 
         String local = reader.getLocalName();
         // make sure we only transforms element names within the right namespace
@@ -174,11 +163,10 @@ public class RivTaProfilProcessor implements Processor {
         // Write out the element name
         writeOutElementName(writer, uri, local, prefix);
 
-        NameSpaceUriSubstituteRule nameSpaceUriSubstituteRule = createNameSpaceSubstitutionRule(
-            fromAddressingNs, toAddressingNs, toAddressingElement, local);
         // Write out the namespaces
-        writeElementNS = writeOutNameSpaces(reader, writer,  uri,
-             prefix, writeElementNS, nameSpaceUriSubstituteRule);
+        writeElementNS = writeOutNameSpaces(reader, writer, fromAddressingNs, toAddressingNs,
+            toAddressingElement, uri,
+            local, prefix, writeElementNS);
 
         // Check if the namespace still needs to be written.
         // We need this check because namespace writing works
@@ -194,20 +182,6 @@ public class RivTaProfilProcessor implements Processor {
         // Write out attributes
         writeOutAttributes(reader, writer, fromAddressingNs, toAddressingNs, toAddressingElement,
             local);
-    }
-
-
-
-    private static String getUriFromXmlStreamOrSubstitute(XMLStreamReader reader,final String fromAddressingNs,
-        final String toAddressingNs){
-        String uri = reader.getNamespaceURI();
-        if (fromAddressingNs.equals(uri)) {
-            if (log.isDebugEnabled()) {
-                log.debug("RivTransformer { fromNS: {}, toNS: {} }", new Object[]{fromAddressingNs, toAddressingNs});
-            }
-            uri = toAddressingNs;
-        }
-        return  uri;
     }
 
     private static void writeOutElementName(XMLStreamWriter writer, String uri, String local,
@@ -227,12 +201,14 @@ public class RivTaProfilProcessor implements Processor {
     }
 
     private static boolean writeOutNameSpaces(XMLStreamReader reader, XMLStreamWriter writer,
-        String uri,
-         String prefix, boolean writeElementNS,
-        NameSpaceUriSubstituteRule nameSpaceUriSubstituteRule) throws XMLStreamException {
-
+        String fromAddressingNs, String toAddressingNs, String toAddressingElement, String uri,
+        String local, String prefix, boolean writeElementNS) throws XMLStreamException {
         for (int i = 0; i < reader.getNamespaceCount(); i++) {
-            String nsURI = nameSpaceUriSubstituteRule.substituteOnRuleMatch(reader.getNamespaceURI(i));
+            String nsURI = reader.getNamespaceURI(i);
+            if (fromAddressingNs.equals(nsURI) && ("Envelope".equals(local) || "Header".equals(local)
+                    || toAddressingElement.equals(local))) {
+                nsURI = toAddressingNs;
+            }
 
             String nsPrefix = reader.getNamespacePrefix(i);
             if (nsPrefix == null) {

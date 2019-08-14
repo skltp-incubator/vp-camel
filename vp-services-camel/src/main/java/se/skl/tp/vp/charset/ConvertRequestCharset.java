@@ -24,7 +24,7 @@ public class ConvertRequestCharset implements Processor {
   @Override
   public void process(Exchange exchange) throws Exception {
     String xmlRequestEncoding = exchange.getProperty(VPExchangeProperties.XML_REQUEST_ENCODING, String.class);
-    if (xmlRequestEncoding != null && !xmlRequestEncoding.toUpperCase().startsWith(DEFAULT_ENCODING)) {
+    if (!xmlRequestEncoding.toUpperCase().startsWith(DEFAULT_ENCODING)) {
       convertBodyToUTF8String(exchange);
       exchange.setProperty(Exchange.CHARSET_NAME, DEFAULT_ENCODING);
       exchange.setProperty(VPExchangeProperties.ORIGINAL_REQUEST_ENCODING, xmlRequestEncoding);
