@@ -52,12 +52,14 @@ public class VPRouter extends RouteBuilder {
         + "chunkedMaxContentLength={{vp.max.receive.length}}";
     public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}?"
         + "useRelativePath=true&"
+        + "nettyHttpBinding=VPNettyHttpBinding&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}&"
         + "connectTimeout={{vp.connection.timeout}}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
         + "ssl=true&"
         + "useRelativePath=true&"
+        + "nettyHttpBinding=VPNettyHttpBinding&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}&"
         + "connectTimeout={{vp.connection.timeout}}";
 
