@@ -22,16 +22,14 @@ public class HsaCacheServiceImpl implements HsaCacheService {
   private HsaCacheStatus hsaCacheStatus = new HsaCacheStatus();
 
   @Autowired
-  public HsaCacheServiceImpl(@Value("${" + PropertyConstants.HSA_FILES + "}")String hsaFiles
-                , HsaCache hsaCache) {
+  public HsaCacheServiceImpl(@Value("${" + PropertyConstants.HSA_FILES + "}")String hsaFiles, HsaCache hsaCache) {
     this.hsaFiles = toFilesArray(hsaFiles);
-
     this.hsaCache = hsaCache;
   }
 
   private String[] toFilesArray(String hsaFiles) {
     String[] files = hsaFiles.split(",");
-    for(int i=0; i<files.length;i++){
+    for(int i = 0; i <files.length; i++){
       if(files[i].startsWith("classpath:")) {
         files[i] = resourceToFullPath(files[i]);
       }
@@ -60,7 +58,8 @@ public class HsaCacheServiceImpl implements HsaCacheService {
       hsaCacheStatus.setNumInCacheNew(cache.getHSACacheSize());
 
       if (hsaCacheStatus.getNumInCacheNew() > 1) {
-        logData = String.format("Successfully reset HSA cache. %nHSA cache size was: %d %nHSA cache now is: %d.", hsaCacheStatus.getNumInCacheOld(), hsaCacheStatus.getNumInCacheNew());
+        logData = String.format("Successfully reset HSA cache. %nHSA cache size was: %d %nHSA cache now is: %d.",
+                hsaCacheStatus.getNumInCacheOld(), hsaCacheStatus.getNumInCacheNew());
         log.info(logData);
         result+= logData;
       } else {

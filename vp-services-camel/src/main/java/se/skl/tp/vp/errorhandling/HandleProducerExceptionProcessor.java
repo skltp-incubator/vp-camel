@@ -31,7 +31,7 @@ public class HandleProducerExceptionProcessor implements Processor {
          if (exception instanceof NettyHttpOperationFailedException) {
                NettyHttpOperationFailedException operationFailedException = (NettyHttpOperationFailedException) exception;
               if (operationFailedException.getStatusCode() == HTTP_STATUS_500 && operationFailedException.getContentAsString().contains(SOAP_XMLNS)) {
-                  return;  //skicka meddelande med error vidare
+                  return;  //Pass on error message..
               }
           }
         String message = exception.getMessage();

@@ -38,8 +38,8 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler {
 
     // When no whitelist exist we can not validate incoming ip address
     if (whiteListArray == null) {
-      log.warn(
-          "A check against the ip address whitelist was requested, but the whitelist is configured empty. Update VP configuration property IP_WHITE_LIST");
+      log.warn("A check against the ip address whitelist was requested, but the whitelist is configured empty. " +
+              "Update VP configuration property IP_WHITE_LIST");
       return false;
     }
 
@@ -50,8 +50,7 @@ public class IPWhitelistHandlerImpl implements IPWhitelistHandler {
       }
     }
 
-    log.warn(
-        "Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST:[{}]",
+    log.warn("Caller was not on the white list of accepted IP-addresses. IP-address: {}, accepted IP-addresses in IP_WHITE_LIST:[{}]",
         senderIpAdress,
         whitelist);
     return false;

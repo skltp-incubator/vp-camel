@@ -37,9 +37,4 @@ public class HandleEmptyResponseProcessorImpl implements HandleEmptyResponseProc
         }
     }
 
-
-
-
-
-
 }
