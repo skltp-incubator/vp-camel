@@ -58,11 +58,7 @@ public class MockProducer {
               inBody = exchange.getIn().getBody(String.class);
               inBodyXmlReader = exchange.getIn().getBody(XMLStreamReader.class);
               exchange.getOut().setBody(responseBody);
-              System.out.println(">>>>>>>>>> MockProducer" + exchange.getExchangeId());
-              System.out.println(">>>>>>>>>> MockProducer Out body: " + exchange.getOut().getBody());
               exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, responseHttpStatus);
-
-                exchange.setProperty("myProperty", "value!!!") ;
               Thread.sleep(timeout);
             });
 

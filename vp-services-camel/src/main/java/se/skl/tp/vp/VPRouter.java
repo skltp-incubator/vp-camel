@@ -58,6 +58,7 @@ public class VPRouter extends RouteBuilder {
             + "ignoreResponseBody=false&"
             + "disableStreamCache=false&"
         + "bridgeEndpoint=true&"
+            + "throwExceptionOnFailure=false"
         + "connectTimeout={{vp.connection.timeout}}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagval}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
@@ -67,6 +68,7 @@ public class VPRouter extends RouteBuilder {
 //        + "useRelativePath=true&"
 //        + "nettyHttpBinding=VPNettyHttpBinding&"
         + "bridgeEndpoint=true&"
+            + "throwExceptionOnFailure=false"
 //        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
         + "connectTimeout={{vp.connection.timeout}}";
 
@@ -164,7 +166,6 @@ public class VPRouter extends RouteBuilder {
 
         from(DIRECT_VP).routeId(VAGVAL_ROUTE)
             .streamCaching()
-
             .setProperty(VPExchangeProperties.HTTP_URL_IN,  header(Exchange.HTTP_URL))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
@@ -180,12 +181,6 @@ public class VPRouter extends RouteBuilder {
             .process(rivTaProfilProcessor)
             .process(setOutHeadersProcessor)
             .to(DIRECT_PRODUCER_ROUTE)
-                .process(exchange ->
-                {
-                    System.out.println(">>>>>>>>>> -------------- " + exchange.getExchangeId());
-                    System.out.println(">>>>>>>>>> ---------------: " + exchange.getIn().getBody(String.class));
-                    System.out.println(">>>>>>>>>> ---------------: " + exchange.getIn().getBody());
-                })
             .choice().when(or(body().isNull(), body().isEqualTo("")))
                 .log(LoggingLevel.ERROR, "Response from producer is empty")
                 .process(handleEmptyResponseProcessor)
@@ -194,7 +189,7 @@ public class VPRouter extends RouteBuilder {
 
         from(DIRECT_PRODUCER_ROUTE)
             .routeId(TO_PRODUCER_ROUTE)
-
+            .streamCaching()
             .onException(SocketException.class)
                 .log(LoggingLevel.ERROR, "OnBefore Redelivery Global")
                 .redeliveryDelay("{{vp.producer.retry.delay}}")

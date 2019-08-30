@@ -36,7 +36,7 @@ public class FullServiceRivVersionTransformationIT {
   MockProducer mockProducer;
 
 
-  public static final String HTTP_PRODUCER_URL = "http://localhost:19000/GetActivitiesResponder";
+  public static final String HTTP_PRODUCER_URL = "localhost:19000/GetActivitiesResponder";
 
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
 

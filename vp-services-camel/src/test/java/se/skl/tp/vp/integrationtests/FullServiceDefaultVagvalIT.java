@@ -54,8 +54,8 @@ public class FullServiceDefaultVagvalIT {
 
   @Before
   public void before() throws Exception {
-    defaultRoutedProducer.start("http://localhost:1900/default/GetActivitiesResponder");
-    explicedRoutedProducer.start("http://localhost:1900/explicit/GetActivitiesResponder");
+    defaultRoutedProducer.start("localhost:1900/default/GetActivitiesResponder");
+    explicedRoutedProducer.start("localhost:1900/explicit/GetActivitiesResponder");
     testLogAppender.clearEvents();
   }
 

@@ -3,8 +3,11 @@ package se.skl.tp.vp.vagval;
 import static se.skl.tp.vp.VPRouter.VP_HTTPS_ROUTE;
 import static se.skl.tp.vp.VPRouter.VP_HTTP_ROUTE;
 import static se.skl.tp.vp.constants.HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME;
+
+
 import org.apache.camel.Exchange;
 import org.apache.camel.component.netty4.http.NettyHttpEndpoint;
+import org.apache.camel.component.http4.HttpEndpoint;
 import org.apache.camel.management.event.ExchangeSentEvent;
 import org.apache.camel.support.EventNotifierSupport;
 import org.springframework.stereotype.Component;
@@ -54,7 +57,7 @@ public class VPEventNotifierSupport extends EventNotifierSupport {
   }
 
   /**
-   * This method rely on the NettyHttpEndpoint only being used once (when invoking producer) on on
+   * This method rely on the HttpEndpoint only being used once (when invoking producer) on on
    * each HTTP/S route
    *
    * @param sent
@@ -62,7 +65,7 @@ public class VPEventNotifierSupport extends EventNotifierSupport {
    * @return true if end point is producer
    */
   private boolean isSentToProducer(ExchangeSentEvent sent, Exchange exchange) {
-    return sent.getEndpoint() instanceof NettyHttpEndpoint
+    return sent.getEndpoint() instanceof HttpEndpoint
         && (exchange.getFromRouteId().equals(VP_HTTP_ROUTE)
             || exchange.getFromRouteId().equals(VP_HTTPS_ROUTE));
   }

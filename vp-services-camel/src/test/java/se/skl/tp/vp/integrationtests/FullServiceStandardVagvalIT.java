@@ -56,8 +56,8 @@ public class FullServiceStandardVagvalIT {
 
   @Before
   public void before() throws Exception {
-    defaultRoutedProducer.start("http://localhost:1900/default/GetActivitiesResponder");
-    explicedRoutedProducer.start("http://localhost:1900/explicit/GetActivitiesResponder");
+    defaultRoutedProducer.start("localhost:1900/default/GetActivitiesResponder");
+    explicedRoutedProducer.start("localhost:1900/explicit/GetActivitiesResponder");
     testLogAppender.clearEvents();
   }
 
@@ -146,7 +146,7 @@ public class FullServiceStandardVagvalIT {
 
   @Test
   public void testHsaRoutingShouldBeDoneBeforeStandardVagval() throws Exception {
-    hsaTreeRoutedProducer.start("http://localhost:1900/treeclimbing/GetActivitiesResponder");
+    hsaTreeRoutedProducer.start("localhost:1900/treeclimbing/GetActivitiesResponder");
     hsaTreeRoutedProducer.setResponseBody(ANSWER_FROM_HSATREE_PRODUCER);
 
     Map<String, Object> headers = new HashMap<>();
