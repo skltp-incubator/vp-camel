@@ -107,7 +107,7 @@ public class FullServiceDefaultVagvalIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "-senderid=SenderWithDefaultBehorighet");
-    assertStringContains(respOutLogMsg, "-endpoint_url=http://localhost:1900/default/GetActivitiesResponder");
+    assertStringContains(respOutLogMsg, "-endpoint_url=localhost:1900/default/GetActivitiesResponder");
     assertStringContains(respOutLogMsg, "-receiverid=" + receiver);
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=(leaf)" + trace);
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=(leaf)" + trace);

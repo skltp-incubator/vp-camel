@@ -47,9 +47,9 @@ public class ErrorInResponseTest {
                   "HTTP header that caused checking: x-vp-sender-id (se.skl.tp.vp.exceptions.VpSemanticException). " +
                   "Message payload is of type: ReversibleXMLStreamReader</faultstring>\n" +
           "    </soap:Fault>  </soapenv:Body></soapenv:Envelope>";
-  public static final String VP_ADDRESS = "http://localhost:12312/vp";
-  public static final String NO_EXISTING_PRODUCER = "http://localhost:12100/vp";
-  public static final String MOCK_PRODUCER_ADDRESS = "http://localhost:12126/vp";
+  public static final String VP_ADDRESS = "localhost:12312/vp";
+  public static final String NO_EXISTING_PRODUCER = "localhost:12100/vp";
+  public static final String MOCK_PRODUCER_ADDRESS = "localhost:12126/vp";
 
   @Autowired
   private CamelContext camelContext;
@@ -180,7 +180,7 @@ public class ErrorInResponseTest {
             .setHeader(HttpHeaders.X_VP_SENDER_ID, constant("UnitTest"))
             .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
             .setHeader("X-Forwarded-For", constant("1.2.3.4"))
-            .to("netty4-http:"+VP_ADDRESS+"?throwExceptionOnFailure=false")
+            .to("http4://"+VP_ADDRESS+"?throwExceptionOnFailure=false")
             .to("mock:result");
       }
     });

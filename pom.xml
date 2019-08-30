@@ -153,7 +153,12 @@
         <artifactId>camel-netty4-http-starter</artifactId>
         <version>${camel.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-http4</artifactId>
+        <version>${camel.version}</version>
+        <scope>test</scope>
+      </dependency>
       <!--hawt.io-->
       <dependency>
         <groupId>io.hawt</groupId>

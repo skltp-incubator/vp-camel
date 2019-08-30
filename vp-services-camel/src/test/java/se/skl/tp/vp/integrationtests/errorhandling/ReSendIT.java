@@ -36,8 +36,8 @@ import se.skltp.takcache.TakCache;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class ReSendIT {
 
-  private static final String MOCK_PRODUCER_ADDRESS = "http://localhost:12126/vp";
-  private static final String VP_ADDRESS = "http://localhost:12312/vp";
+  private static final String MOCK_PRODUCER_ADDRESS = "localhost:12126/vp";
+  private static final String VP_ADDRESS = "localhost:12312/vp";
   private static final String URL_MOCK_ENDPOINT= "mock:result";
   private static boolean isContextStarted = false;
 

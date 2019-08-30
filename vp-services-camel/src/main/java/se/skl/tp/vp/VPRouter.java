@@ -1,9 +1,6 @@
 package se.skl.tp.vp;
 
-import static org.apache.camel.builder.PredicateBuilder.or;
-
 import io.netty.handler.timeout.ReadTimeoutException;
-import java.net.SocketException;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
@@ -30,6 +27,10 @@ import se.skl.tp.vp.vagval.RivTaProfilProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 import se.skl.tp.vp.wsdl.WsdlProcessor;
 
+import java.net.SocketException;
+
+import static org.apache.camel.builder.PredicateBuilder.or;
+
 @Component
 public class VPRouter extends RouteBuilder {
 
@@ -50,17 +51,23 @@ public class VPRouter extends RouteBuilder {
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?"
         + "matchOnUriPrefix=true&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}";
-    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}?"
-        + "useRelativePath=true&"
-        + "nettyHttpBinding=VPNettyHttpBinding&"
-        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+    public static final String NETTY4_HTTP_TOD = "http4://${property.vagval}?"
+//        + "useRelativePath=true&"
+//        + "nettyHttpBinding=VPNettyHttpBinding&"
+//        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+            + "ignoreResponseBody=false&"
+            + "disableStreamCache=false&"
+        + "bridgeEndpoint=true&"
         + "connectTimeout={{vp.connection.timeout}}";
-    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?"
+    public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagval}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
         + "ssl=true&"
-        + "useRelativePath=true&"
-        + "nettyHttpBinding=VPNettyHttpBinding&"
-        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+        + "disableStreamCache=false&"
+            + "ignoreResponseBody=false&"
+//        + "useRelativePath=true&"
+//        + "nettyHttpBinding=VPNettyHttpBinding&"
+        + "bridgeEndpoint=true&"
+//        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
         + "connectTimeout={{vp.connection.timeout}}";
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
@@ -157,10 +164,12 @@ public class VPRouter extends RouteBuilder {
 
         from(DIRECT_VP).routeId(VAGVAL_ROUTE)
             .streamCaching()
+
             .setProperty(VPExchangeProperties.HTTP_URL_IN,  header(Exchange.HTTP_URL))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
+
             .process(requestReaderProcessor)
             .process(correlationIdProcessor)
             .process(originalConsumerIdProcessor)
@@ -171,6 +180,12 @@ public class VPRouter extends RouteBuilder {
             .process(rivTaProfilProcessor)
             .process(setOutHeadersProcessor)
             .to(DIRECT_PRODUCER_ROUTE)
+                .process(exchange ->
+                {
+                    System.out.println(">>>>>>>>>> -------------- " + exchange.getExchangeId());
+                    System.out.println(">>>>>>>>>> ---------------: " + exchange.getIn().getBody(String.class));
+                    System.out.println(">>>>>>>>>> ---------------: " + exchange.getIn().getBody());
+                })
             .choice().when(or(body().isNull(), body().isEqualTo("")))
                 .log(LoggingLevel.ERROR, "Response from producer is empty")
                 .process(handleEmptyResponseProcessor)

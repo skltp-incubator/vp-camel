@@ -31,6 +31,8 @@ public class HandleEmptyResponseProcessorImpl implements HandleEmptyResponseProc
                     addr + ". Empty message when server responded with status code: " + SoapFaultHelper
                         .getStatusMessage(httpResponseCode.toString(), "NULL"));
                 SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
+                System.out.println(">>>>>>>>>> HandleEmptyResponseProcessorImpl " + exchange.getExchangeId());
+                System.out.println(">>>>>>>>>> HandleEmptyResponseProcessorImpl Out body: " + exchange.getIn().getBody());
             }
         } catch (Exception e) {
             log.error("An error occured in CheckPayloadTransformer!.", e);
