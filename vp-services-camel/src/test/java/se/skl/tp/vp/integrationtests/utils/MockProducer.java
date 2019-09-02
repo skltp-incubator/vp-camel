@@ -51,7 +51,7 @@ public class MockProducer {
     camelContext.addRoutes(new RouteBuilder() {
       @Override
       public void configure() throws Exception {
-        from(NETTY4_HTTP + "http://" + producerAddress).id(producerAddress).routeDescription("Producer")
+        from(NETTY4_HTTP + producerAddress).id(producerAddress).routeDescription("Producer")
             .streamCaching()
             .process((Exchange exchange) -> {
               inHeaders.putAll(exchange.getIn().getHeaders());

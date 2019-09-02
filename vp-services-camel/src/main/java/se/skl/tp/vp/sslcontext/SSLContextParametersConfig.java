@@ -1,6 +1,8 @@
 package se.skl.tp.vp.sslcontext;
 
+import javax.net.ssl.HostnameVerifier;
 import org.apache.camel.util.jsse.*;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,6 +57,11 @@ public class SSLContextParametersConfig  {
         SecureSocketProtocolsParameters sspp = createSecureProtocolParameters(securityProperies.getAllowedOutgoingProtocols());
         sslContextParameters.setSecureSocketProtocols(sspp);
         return sslContextParameters;
+    }
+
+    @Bean
+    public HostnameVerifier noopHostnameVerifier() {
+        return NoopHostnameVerifier.INSTANCE;
     }
 
     private SecureSocketProtocolsParameters createSecureProtocolParameters(String allowedProtocolsString) {

@@ -1,6 +1,9 @@
 package se.skl.tp.vp;
 
+import static org.apache.camel.builder.PredicateBuilder.or;
+
 import io.netty.handler.timeout.ReadTimeoutException;
+import java.net.SocketException;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
@@ -27,10 +30,6 @@ import se.skl.tp.vp.vagval.RivTaProfilProcessor;
 import se.skl.tp.vp.vagval.VagvalProcessor;
 import se.skl.tp.vp.wsdl.WsdlProcessor;
 
-import java.net.SocketException;
-
-import static org.apache.camel.builder.PredicateBuilder.or;
-
 @Component
 public class VPRouter extends RouteBuilder {
 
@@ -51,7 +50,7 @@ public class VPRouter extends RouteBuilder {
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?"
         + "matchOnUriPrefix=true&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}";
-    public static final String NETTY4_HTTP_TOD = "http4://${property.vagval}?"
+    public static final String NETTY4_HTTP_TOD = "http4://${property.vagvalRoute}?"
 //        + "useRelativePath=true&"
 //        + "nettyHttpBinding=VPNettyHttpBinding&"
 //        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
@@ -60,15 +59,15 @@ public class VPRouter extends RouteBuilder {
         + "bridgeEndpoint=true&"
             + "throwExceptionOnFailure=false"
         + "connectTimeout={{vp.connection.timeout}}";
-    public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagval}?"
+    public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagvalRoute}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
-        + "ssl=true&"
+        + "x509HostnameVerifier=noopHostnameVerifier&"
         + "disableStreamCache=false&"
-            + "ignoreResponseBody=false&"
+        + "ignoreResponseBody=false&"
 //        + "useRelativePath=true&"
 //        + "nettyHttpBinding=VPNettyHttpBinding&"
         + "bridgeEndpoint=true&"
-            + "throwExceptionOnFailure=false"
+        + "throwExceptionOnFailure=false"
 //        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
         + "connectTimeout={{vp.connection.timeout}}";
 
@@ -209,9 +208,11 @@ public class VPRouter extends RouteBuilder {
             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
             .bean(MessageInfoLogger.class, LOG_REQ_OUT_METHOD)
             .choice().when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
-                    .recipientList(simple(NETTY4_HTTPS_OUTGOING_TOD))
+                    .log(LoggingLevel.ERROR,"https")
+                    .toD(NETTY4_HTTPS_OUTGOING_TOD)
                     .endChoice()
                 .otherwise()
+                    .log(LoggingLevel.ERROR,"http")
                     .recipientList(simple(NETTY4_HTTP_TOD))
                     .endChoice()
             .end()

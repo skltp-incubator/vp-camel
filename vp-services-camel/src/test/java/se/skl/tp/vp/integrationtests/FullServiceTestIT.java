@@ -34,8 +34,8 @@ import se.skl.tp.vp.util.TestLogAppender;
 @StartTakService
 public class FullServiceTestIT {
 
-  public static final String HTTP_PRODUCER_URL = "localhost:19000/vardgivare-b/tjanst2";
-  public static final String HTTPS_PRODUCER_URL = "localhost:19001/vardgivare-b/tjanst2";
+  public static final String HTTP_PRODUCER_URL = "http://localhost:19000/vardgivare-b/tjanst2";
+  public static final String HTTPS_PRODUCER_URL = "https://localhost:19001/vardgivare-b/tjanst2";
 
   @Autowired
   TestConsumer testConsumer;
