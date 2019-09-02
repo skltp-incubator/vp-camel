@@ -1,5 +1,6 @@
 package se.skl.tp.vp.charset;
 
+import java.io.InputStream;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ConvertResponseCharset implements Processor {
 
   private void convertPayloadToString(Exchange exchange) {
     Object body = exchange.getIn().getBody();
-    if(body instanceof byte[]){
+    if(body instanceof byte[] || body instanceof InputStream){
       exchange.getIn().setBody(exchange.getIn().getBody(String.class));
     }
   }

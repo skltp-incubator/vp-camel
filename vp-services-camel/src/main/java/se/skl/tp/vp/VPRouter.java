@@ -7,6 +7,7 @@ import java.net.SocketException;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.http4.HttpMethods;
 import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,14 +62,12 @@ public class VPRouter extends RouteBuilder {
         + "connectTimeout={{vp.connection.timeout}}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagvalRoute}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
+        // TODO Check if we should use host name verification
         + "x509HostnameVerifier=noopHostnameVerifier&"
         + "disableStreamCache=false&"
         + "ignoreResponseBody=false&"
-//        + "useRelativePath=true&"
-//        + "nettyHttpBinding=VPNettyHttpBinding&"
         + "bridgeEndpoint=true&"
         + "throwExceptionOnFailure=false"
-//        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
         + "connectTimeout={{vp.connection.timeout}}";
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
@@ -207,13 +206,12 @@ public class VPRouter extends RouteBuilder {
             .process(convertRequestCharset)
             .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
             .bean(MessageInfoLogger.class, LOG_REQ_OUT_METHOD)
+            .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
             .choice().when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
-                    .log(LoggingLevel.ERROR,"https")
                     .toD(NETTY4_HTTPS_OUTGOING_TOD)
                     .endChoice()
                 .otherwise()
-                    .log(LoggingLevel.ERROR,"http")
-                    .recipientList(simple(NETTY4_HTTP_TOD))
+                    .toD(NETTY4_HTTP_TOD)
                     .endChoice()
             .end()
             .bean(MessageInfoLogger.class, LOG_RESP_IN_METHOD)
