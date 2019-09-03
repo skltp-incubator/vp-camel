@@ -138,7 +138,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
                 .setHeader(HttpHeaders.X_VP_SENDER_ID, constant("UnitTest"))
                 .setHeader(HttpHeaders.X_VP_INSTANCE_ID, constant("dev_env"))
                 .setHeader("X-Forwarded-For", constant("1.2.3.4"))
-                .to("netty4-http:http://localhost:12312/vp?throwExceptionOnFailure=false")
+                .to("http4://localhost:12312/vp?throwExceptionOnFailure=false")
                 .to("mock:result");
             ;
             from("netty4-http:http://localhost:12123/vp")

@@ -54,16 +54,17 @@ public class VPRouter extends RouteBuilder {
         + "chunkedMaxContentLength={{vp.max.receive.length}}";
     public static final String NETTY4_HTTP_TOD = "http4://${property.vagvalRoute}?"
         + "bridgeEndpoint=true&"
-//        + "connectionTimeToLive=5000&"
-//        + "socketTimeout=5000&"
-        + "connectTimeout={{vp.connection.timeout}}";
+        + "throwExceptionOnFailure=false&"
+        + "connectTimeout={{vp.connection.timeout}}&"
+        + "camel.component.http.connection-time-to-live=${property.request_timeout}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagvalRoute}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
+        // TODO Check if we should use host name verification
         + "x509HostnameVerifier=#noopHostnameVerifier&"
         + "bridgeEndpoint=true&"
-//        + "connectionTimeToLive=5000&"
-//        + "socketTimeout=8000&"
-        + "connectTimeout={{vp.connection.timeout}}";
+        + "throwExceptionOnFailure=false&"
+        + "connectTimeout={{vp.connection.timeout}}&"
+        +"camel.component.http.connection-time-to-live=${property.request_timeout}";
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";

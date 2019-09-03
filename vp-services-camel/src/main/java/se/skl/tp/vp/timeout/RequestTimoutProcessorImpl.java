@@ -8,6 +8,7 @@ import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 
 import static org.apache.camel.component.netty4.NettyConstants.NETTY_REQUEST_TIMEOUT;
+import static se.skl.tp.vp.constants.VPExchangeProperties.REQUEST_TIMEOUT;
 
 @Service
 public class RequestTimoutProcessorImpl implements RequestTimoutProcessor {
@@ -26,10 +27,10 @@ public class RequestTimoutProcessorImpl implements RequestTimoutProcessor {
     public void process(Exchange exchange) throws Exception {
         TimeoutConfig timoutConfig = timeoutConfiguration.getOnTjanstekontrakt(exchange.getProperty(VPExchangeProperties.SERVICECONTRACT_NAMESPACE, String.class));
         if(timoutConfig != null) {
-            exchange.getIn().setHeader(NETTY_REQUEST_TIMEOUT, timoutConfig.getProducertimeout());
+            exchange.setProperty(VPExchangeProperties.REQUEST_TIMEOUT,  timoutConfig.getProducertimeout());
         } else {
             TimeoutConfig defaultConfig = timeoutConfiguration.getOnTjanstekontrakt(DEFAULT_TJANSTEKONTRAKT);
-            exchange.getIn().setHeader(NETTY_REQUEST_TIMEOUT, defaultConfig.getProducertimeout());
+            exchange.setProperty(VPExchangeProperties.REQUEST_TIMEOUT,  defaultConfig.getProducertimeout());
         }
 
     }

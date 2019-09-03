@@ -155,7 +155,7 @@
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-http4</artifactId>
+        <artifactId>camel-http4-starter</artifactId>
         <version>${camel.version}</version>
       </dependency>
       <!--hawt.io-->
