@@ -26,6 +26,7 @@ public class HeadersTestData {
       ,"User-Agent"
       ,"Content-Type"
       ,"SoapAction"
+      ,"Accept-Encoding"
       ));
 
   private  Set<String> expectedHeadersIgnoreCase;
@@ -114,7 +115,6 @@ public class HeadersTestData {
             randomCase("PEER_CERTIFICATES")
         )
     );
-
 
   }
 

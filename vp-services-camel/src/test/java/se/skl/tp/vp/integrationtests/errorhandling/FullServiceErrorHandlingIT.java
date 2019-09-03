@@ -196,7 +196,7 @@ public class FullServiceErrorHandlingIT {
     System.out.printf("Code:%s FaultString:%s\n", soapBody.getFault().getFaultCode(),
         soapBody.getFault().getFaultString());
 
-    assertErrorLog(VP009.getCode(), "Stacktrace=java.net.ConnectException: Cannot connect to");
+    assertErrorLog(VP009.getCode(), "org.apache.http.conn.HttpHostConnectException: Connect to localhost:1974");
 
     String respOutLogMsg = getAndAssertRespOutLog();
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");

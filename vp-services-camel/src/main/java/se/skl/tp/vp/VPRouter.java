@@ -9,6 +9,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http4.HttpMethods;
 import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
+import org.apache.camel.http.common.HttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
@@ -52,22 +53,16 @@ public class VPRouter extends RouteBuilder {
         + "matchOnUriPrefix=true&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}";
     public static final String NETTY4_HTTP_TOD = "http4://${property.vagvalRoute}?"
-//        + "useRelativePath=true&"
-//        + "nettyHttpBinding=VPNettyHttpBinding&"
-//        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
-            + "ignoreResponseBody=false&"
-            + "disableStreamCache=false&"
         + "bridgeEndpoint=true&"
-            + "throwExceptionOnFailure=false"
+//        + "connectionTimeToLive=5000&"
+//        + "socketTimeout=5000&"
         + "connectTimeout={{vp.connection.timeout}}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "http4://${property.vagvalRoute}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
-        // TODO Check if we should use host name verification
-        + "x509HostnameVerifier=noopHostnameVerifier&"
-        + "disableStreamCache=false&"
-        + "ignoreResponseBody=false&"
+        + "x509HostnameVerifier=#noopHostnameVerifier&"
         + "bridgeEndpoint=true&"
-        + "throwExceptionOnFailure=false"
+//        + "connectionTimeToLive=5000&"
+//        + "socketTimeout=8000&"
         + "connectTimeout={{vp.connection.timeout}}";
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
@@ -168,7 +163,6 @@ public class VPRouter extends RouteBuilder {
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
-
             .process(requestReaderProcessor)
             .process(correlationIdProcessor)
             .process(originalConsumerIdProcessor)
@@ -198,7 +192,7 @@ public class VPRouter extends RouteBuilder {
                 .to(DIRECT_PRODUCER_ERROR)
                 .handled(true)
             .end()
-            .onException(ReadTimeoutException.class, NettyHttpOperationFailedException.class)
+            .onException(ReadTimeoutException.class, NettyHttpOperationFailedException.class, HttpOperationFailedException.class)
                 .to(DIRECT_PRODUCER_ERROR)
                 .handled(true)
             .end()
@@ -208,10 +202,10 @@ public class VPRouter extends RouteBuilder {
             .bean(MessageInfoLogger.class, LOG_REQ_OUT_METHOD)
             .setHeader(Exchange.HTTP_METHOD, constant(HttpMethods.POST))
             .choice().when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
-                    .toD(NETTY4_HTTPS_OUTGOING_TOD)
+                    .recipientList(simple(NETTY4_HTTPS_OUTGOING_TOD))
                     .endChoice()
                 .otherwise()
-                    .toD(NETTY4_HTTP_TOD)
+                    .recipientList(simple(NETTY4_HTTP_TOD))
                     .endChoice()
             .end()
             .bean(MessageInfoLogger.class, LOG_RESP_IN_METHOD)
