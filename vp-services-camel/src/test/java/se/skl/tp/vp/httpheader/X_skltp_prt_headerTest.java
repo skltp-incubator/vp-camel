@@ -65,7 +65,7 @@ public class X_skltp_prt_headerTest {
     @Test
     public void headerTest() {
         List<RoutingInfo> list = new ArrayList<>();
-        list.add(createRoutingInfo("localhost:11111/vp",RIV20));
+        list.add(createRoutingInfo("http://localhost:11111/vp",RIV20));
         Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(list);
         Mockito.when(takCache.isAuthorized("UnitTest", "urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1", "UnitTest")).thenReturn(true);
 

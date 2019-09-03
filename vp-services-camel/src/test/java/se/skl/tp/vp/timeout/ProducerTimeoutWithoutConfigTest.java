@@ -78,7 +78,7 @@ public class ProducerTimeoutWithoutConfigTest extends CamelTestSupport {
   @Test
   public void noConfigAtAllShouldGetDefaultTimeoutInReqOutTest() throws Exception {
     List<RoutingInfo> list = new ArrayList<>();
-    list.add(createRoutingInfo("localhost:12123/vp", RIV20));
+    list.add(createRoutingInfo("http://localhost:12123/vp", RIV20));
     Mockito.when(takCache.getRoutingInfo("urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1",
             "UnitTest")).thenReturn(list);
     Mockito.when(takCache.isAuthorized("UnitTest","urn:riv:insuranceprocess:healthreporting:GetCertificateResponder:1",

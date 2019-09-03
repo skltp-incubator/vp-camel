@@ -56,8 +56,8 @@ public class FullServiceStandardVagvalIT {
 
   @Before
   public void before() throws Exception {
-    defaultRoutedProducer.start("localhost:1900/default/GetActivitiesResponder");
-    explicedRoutedProducer.start("localhost:1900/explicit/GetActivitiesResponder");
+    defaultRoutedProducer.start("http://localhost:1900/default/GetActivitiesResponder");
+    explicedRoutedProducer.start("http://localhost:1900/explicit/GetActivitiesResponder");
     testLogAppender.clearEvents();
   }
 
@@ -76,7 +76,7 @@ public class FullServiceStandardVagvalIT {
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "-senderid=SenderWithDefaultBehorighet");
     assertStringContains(respOutLogMsg, "-receiverid=AnyReceiver");
-    assertStringContains(respOutLogMsg, "-endpoint_url=localhost:1900/default/GetActivitiesResponder");
+    assertStringContains(respOutLogMsg, "-endpoint_url=http://localhost:1900/default/GetActivitiesResponder");
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=AnyReceiver,(parent)SE,(default)*");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=AnyReceiver,(parent)SE,(default)*");
   }
@@ -96,7 +96,7 @@ public class FullServiceStandardVagvalIT {
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "-senderid=SenderWithDefaultBehorighet");
     assertStringContains(respOutLogMsg, "-receiverid=HttpProducer");
-    assertStringContains(respOutLogMsg, "-endpoint_url=localhost:1900/explicit/GetActivitiesResponder");
+    assertStringContains(respOutLogMsg, "-endpoint_url=http://localhost:1900/explicit/GetActivitiesResponder");
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=HttpProducer\n");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=HttpProducer,(parent)SE,(default)*");
   }
@@ -117,7 +117,7 @@ public class FullServiceStandardVagvalIT {
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "-senderid=AnySender");
     assertStringContains(respOutLogMsg, "-receiverid=AnyReceiver");
-    assertStringContains(respOutLogMsg, "-endpoint_url=localhost:1900/default/GetActivitiesResponder");
+    assertStringContains(respOutLogMsg, "-endpoint_url=http://localhost:1900/default/GetActivitiesResponder");
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=AnyReceiver,(parent)SE,(default)*");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=AnyReceiver,(parent)SE,(default)*");
     assertStringContains(respOutLogMsg, "-errorCode=VP007");
@@ -139,14 +139,14 @@ public class FullServiceStandardVagvalIT {
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "-senderid=tp");
     assertStringContains(respOutLogMsg, "-receiverid=GetActivitiesReceiverWithNoExplicitVagval");
-    assertStringContains(respOutLogMsg, "-endpoint_url=localhost:1900/default/GetActivitiesResponder");
+    assertStringContains(respOutLogMsg, "-endpoint_url=http://localhost:1900/default/GetActivitiesResponder");
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=GetActivitiesReceiverWithNoExplicitVagval,(parent)SE,(default)*");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=GetActivitiesReceiverWithNoExplicitVagval");
   }
 
   @Test
   public void testHsaRoutingShouldBeDoneBeforeStandardVagval() throws Exception {
-    hsaTreeRoutedProducer.start("localhost:1900/treeclimbing/GetActivitiesResponder");
+    hsaTreeRoutedProducer.start("http://localhost:1900/treeclimbing/GetActivitiesResponder");
     hsaTreeRoutedProducer.setResponseBody(ANSWER_FROM_HSATREE_PRODUCER);
 
     Map<String, Object> headers = new HashMap<>();
@@ -160,7 +160,7 @@ public class FullServiceStandardVagvalIT {
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "-senderid=SenderWithDefaultBehorighet");
     assertStringContains(respOutLogMsg, "-receiverid=SE0000000001-1234");
-    assertStringContains(respOutLogMsg, "-endpoint_url=localhost:1900/treeclimbing/GetActivitiesResponder");
+    assertStringContains(respOutLogMsg, "-endpoint_url=http://localhost:1900/treeclimbing/GetActivitiesResponder");
     assertStringContains(respOutLogMsg, "-routerVagvalTrace=SE0000000001-1234,(parent)SE0000000002-1234,SE0000000003-1234\n");
     assertStringContains(respOutLogMsg, "-routerBehorighetTrace=SE0000000001-1234,(parent)SE0000000002-1234,SE0000000003-1234\n");
   }

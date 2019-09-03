@@ -39,7 +39,7 @@ import se.skltp.takcache.TakCache;
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HttpRegExpFilterIT implements RouteProcessEventListener {
-  private static final String MOCK_PRODUCER_ADDRESS = "localhost:12126/vp";
+  private static final String MOCK_PRODUCER_ADDRESS = "http://localhost:12126/vp";
   private static final String VP_ADDRESS = "http://localhost:12312/vp";
   private static boolean isContextStarted = false;
   private Map<String, Object> lastCopyOfReceivedHeadersAtMockProducer = new HashMap<>();

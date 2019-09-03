@@ -48,8 +48,8 @@ public class ErrorInResponseTest {
                   "Message payload is of type: ReversibleXMLStreamReader</faultstring>\n" +
           "    </soap:Fault>  </soapenv:Body></soapenv:Envelope>";
   public static final String VP_ADDRESS = "localhost:12312/vp";
-  public static final String NO_EXISTING_PRODUCER = "localhost:12100/vp";
-  public static final String MOCK_PRODUCER_ADDRESS = "localhost:12126/vp";
+  public static final String NO_EXISTING_PRODUCER = "http://localhost:12100/vp";
+  public static final String MOCK_PRODUCER_ADDRESS = "http://localhost:12126/vp";
 
   @Autowired
   private CamelContext camelContext;
