@@ -112,6 +112,7 @@ public class FullServiceTestIT {
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
     headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     String response = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_HTTPS), headers);
+    String response2 = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_HTTPS), headers);
 
     assertEquals("<mocked answer/>", response);
 

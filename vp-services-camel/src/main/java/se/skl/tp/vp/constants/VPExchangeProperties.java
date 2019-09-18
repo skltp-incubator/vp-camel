@@ -7,6 +7,7 @@ public class VPExchangeProperties {
   }
 
   public static final String VAGVAL = "vagval";
+  public static final String VAGVAL_HOST = "vagvalHost";
   public static final String SENDER_ID = "senderid";
   public static final String SENDER_IP_ADRESS = "senderIpAdress";
   public static final String OUT_ORIGINAL_SERVICE_CONSUMER_HSA_ID = "originalServiceconsumerHsaidOut";
