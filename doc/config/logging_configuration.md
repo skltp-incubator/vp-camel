@@ -3,16 +3,16 @@
 Denna sida handlar om loggning. För allmän information om konfiguration av VP Camel, se [VP Camel konfigurering].
 ### Allmänt
 Som logg-ramverk används Log4j2, se [log4j2s dokumentation] för mer information.
-En grundkonfigurering finns i projektet under resources/log4j2.xml som default loggar till konsollen.
+En grundkonfigurering finns i projektet under `resources/log4j2.xml` som default loggar till konsollen.
 
 ### Extern konfiguration
-För att använda en extern log4j2.xml konfigurationsfil kan man starta applikationen med parametern "-Dlog4j.configurationFile", 
+För att använda en extern log4j2.xml konfigurationsfil kan man starta applikationen med parametern `-Dlog4j.configurationFile`, 
 till exempel:
  `java -jar -Xms256m -Xmx1024m -Dlog4j.configurationFile=file:///opt/vp/config/log4j2.xml vp-services.jar"`
 ### Ändring av loggnivåer i runtime
 Här beskivs två sätt att ändra loggnivåer i runtime (det finns förmodligen fler), .
 
- 1. Om en extern konfiguration används räcker det att ändra i konfigureringsfilen förutsatt att den är grundkonfigurerad att upptäcka förändringar i runtime se. <Configuration  monitorInterval="30">
+ 1. Om en extern konfiguration används räcker det att ändra i konfigureringsfilen förutsatt att den är grundkonfigurerad att upptäcka förändringar i runtime. Kontrollera att parametern `monitorInterval="30"` är satt.
  2. Ändra loggnivåer med Hawtio (eller på annat sätt via jmx)
  ### Rekommenderade loggers
 Vissa loggers kan vara av extra intresse för att följa VPs uppstart och flöden. Se beskrivning nedan:

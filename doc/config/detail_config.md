@@ -10,30 +10,30 @@ Om SSL/TLS trafik termineras framför VP, i t ex en reverse-proxy, behöver dess
 
 ##### Konfigurationer i proxyn:
  1. Propagera certifikat och inkommande HTTP-header(s) från reverse-proxy till VP:
-    - Sätta certifikat för inkommande anrop i HTTP-header: x-vp-auth-cert
-    - Propagera HTTP-header : x-rivta-original-serviceconsumer-hsaid   
+    - Sätta certifikat för inkommande anrop i HTTP-header: `x-vp-auth-cert`
+    - Propagera HTTP-header : `x-rivta-original-serviceconsumer-hsaid`   
     __Observera! Endast om den är satt i inkommande request.__
-    - Propagera IP-nr för inkommande anrop i HTTP-header med namn enligt property http.forwarded.header.xfor i application.properties (se nedan).   
+    - Propagera IP-nr för inkommande anrop i HTTP-header med namn enligt property `http.forwarded.header.xfor` i `application.properties` (se nedan).   
     För information om detta, se FK-5 i [Arkitekturella krav] samt anvisning i [RIV-TA] kapitel 8.5
 
   2. Sätta HTTP Forwarded headers för att stödja WSDL-lookup (t ex som: `https://vp/service_x?wsdl`):
    Ref: [SKLTP - Lastbalanserare / Reverse-proxy]
 
 ##### Konfigurationer i VP Camel application-custom.properties
- 1. Namn på HTTP Forwarded headers kan (men behöver inte) ändras i application-custom.properties:
-     - http.forwarded.header.host=X-VP-Forwarded-Host
-     - http.forwarded.header.port=X-VP-Forwarded-Port
-     - http.forwarded.header.proto=X-VP-Forwarded-Proto
-     - http.forwarded.header.xfor=X-Forwarded-For
+ 1. Namn på HTTP Forwarded headers kan (men behöver inte) ändras i `application-custom.properties`:
+     - `http.forwarded.header.host=X-VP-Forwarded-Host`
+     - `http.forwarded.header.port=X-VP-Forwarded-Port`
+     - `http.forwarded.header.proto=X-VP-Forwarded-Proto`
+     - `http.forwarded.header.xfor=X-Forwarded-For`
    
- 2. Lägga till IP-nr (inre) för reverse-proxy’n till VP Camel's whitelist property (i application-custom.properties): 
-     - ip.whitelist=proxy inre ip-adress
+ 2. Lägga till IP-nr (inre) för reverse-proxy’n till VP Camel's whitelist property (i `application-custom.properties`): 
+     - `ip.whitelist=proxy inre ip-adress`
 
 
 ### Response Timeout
 För de virtuella tjänster i VP som har stöd för individuell inställning av timeout går detta att styra per tjänst.
-Det default-värde som används kan överlagras genom att redigera en fil timeout-config.json. Se information här: Timeoutconfig.json 
-Default sätts connection timeout i nedanstående parameter i application.properties: 
+Det default-värde som används kan överlagras genom att redigera en fil `timeout-config.json`. Se [VP Camel konfigurering]. 
+Default sätts connection timeout i nedanstående parameter i `application.properties`: 
 `vp.connection.timeout=2000`
 
 ### Konfigurera loggning
