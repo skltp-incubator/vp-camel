@@ -130,19 +130,12 @@ I `application.properties` pekas denna fil ut av nyckeln `wsdl.json.file`. Om ma
   }
 ]
 ```
-Nycklarna och deras default-värden är:
-
-|Nyckel|Defaultvärde/Exempel|
-|------|--------------------|
-|"tjanstekontrakt"|“urn:riv:clinicalprocess:actiity:actions:DeleteActivityResponder:1”|
-|"wsdlfilepath"|“classpath:testfiles/wsdl/clinicalprocess.activity.actions.GetActivities.1.rivtab21/schemas/interactions/GetActivitiesInteraction/GetActivitiesInteraction_1.0_RIVTAB21.wsdl”|
-|"wsdlurl"|“vp/SomeWeirdUrlNotFollowingNamingConventions”|
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
 
 
-   [Detaljerad konfiguration]: <https://github.com/skltp/vp-camel/docs/detail_config.md>
-   [Loggning konfiguration]: <https://github.com/skltp/vp-camel/docs/logconfig.md>
+   [Detaljerad konfiguration]: <../detail_config.md>
+   [Loggning konfiguration]: <../logconfig.md>
    [Tips på hur man konfigurerar undertow]: <https://howtodoinjava.com/spring-boot2/embedded-server-logging-config/>
    [Spring-boot doc's]: <https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html>
    [SKLTP VP - Status tjänst]: <https://skl-tp.atlassian.net/wiki/spaces/FT/pages/674136339/SKLTP+VP+-+Status+tj+nst>
