@@ -1,5 +1,6 @@
 package se.skl.tp.vp.vagval;
 
+import java.net.URI;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -36,6 +37,13 @@ public class VagvalProcessor implements Processor {
         exchange.setProperty(VPExchangeProperties.VAGVAL, routingInfo.getAddress() );
         exchange.setProperty(VPExchangeProperties.RIV_VERSION_OUT, routingInfo.getRivProfile() );
 
+        URI uri = new URI(routingInfo.getAddress());
+        if(uri.getPort() == -1) {
+            exchange.setProperty(VPExchangeProperties.VAGVAL_HOST, uri.getHost());
+        } else {
+            exchange.setProperty(VPExchangeProperties.VAGVAL_HOST, String.format("%s:%d", uri.getHost(), uri.getPort()));
+        }
+        exchange.getIn().setHeader(Exchange.HTTP_PATH, uri.getPath());
 
     }
 
