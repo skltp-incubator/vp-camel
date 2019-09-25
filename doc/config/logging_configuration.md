@@ -1,7 +1,8 @@
 # Logging konfigurering
 
+Denna sida handlar om loggning. För allmän information om konfiguration av VP Camel, se [VP Camel konfigurering].
 ### Allmänt
-Som loggramverk används Log4j2, se [log4j2s dokumentation] för mer information.
+Som logg-ramverk används Log4j2, se [log4j2s dokumentation] för mer information.
 En grundkonfigurering finns i projektet under resources/log4j2.xml som default loggar till konsollen.
 
 ### Extern konfiguration
@@ -51,8 +52,8 @@ log4j2.xml
 ```
 ### Meddelande-loggning
 Det finns fyra speciella loggers som hanterar meddelanden som går genom VP.
-INFO nivå - innebär att meddelanden loggas utan payload.
-DEBUG nivå - innebär att meddelanden loggas med payload. 
+   - INFO nivå - innebär att meddelanden loggas utan payload.
+   - DEBUG nivå - innebär att meddelanden loggas med payload. 
 
 Dessa kan individuellt slås av och genom att ställa upp lognivån alternativt ta bort loggers.
  - se.skl.tp.vp.logging.req.in - Loggar inkommande meddelanden från konsumenten.
@@ -94,3 +95,4 @@ Payload=<test answer from testproducer/>
 
 
    [log4j2s dokumentation]: <https://logging.apache.org/log4j/2.x/>
+   [VP Camel konfigurering]: <configuration.md>

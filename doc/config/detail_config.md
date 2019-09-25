@@ -2,6 +2,7 @@
 
 I det här dokumentet finns dels information om hur man hanterar en proxy eller lastbalanserare framför VP Camel.
 Längre ner finns också exempelfiler som visar hur VP Camel kan konfigureras.
+Huvudsidan för konfigurering finns här: [VP Camel konfigurering]
 
 ### Terminering av SSL/TLS framför VP Camel
 
@@ -11,21 +12,22 @@ Om SSL/TLS trafik termineras framför VP, i t ex en reverse-proxy, behöver dess
  1. Propagera certifikat och inkommande HTTP-header(s) från reverse-proxy till VP:
     - Sätta certifikat för inkommande anrop i HTTP-header: x-vp-auth-cert
     - Propagera HTTP-header : x-rivta-original-serviceconsumer-hsaid   
-    __Observera! Endast om den är satt.__
-    - Propagera IP-nr för inkommande anrop i HTTP-header med namn enligt property http.forwarded.header.xfor i                 application.properties (se nedan):   
-Ref: SKLTP VP SAD - Arkitekturella krav#Arkitekturellakrav-FK-5,Ursprungligavsändare
+    __Observera! Endast om den är satt i inkommande request.__
+    - Propagera IP-nr för inkommande anrop i HTTP-header med namn enligt property http.forwarded.header.xfor i application.properties (se nedan).   
+    För information om detta, se FK-5 i [Arkitekturella krav] samt anvisning i [RIV-TA] kapitel 8.5
 
   2. Sätta HTTP Forwarded headers för att stödja WSDL-lookup (t ex som: `https://vp/service_x?wsdl`):
-Ref: [SKLTP - Lastbalanserare / Reverse-proxy]
+   Ref: [SKLTP - Lastbalanserare / Reverse-proxy]
 
 ##### Konfigurationer i VP Camel application-custom.properties
  1. Namn på HTTP Forwarded headers kan (men behöver inte) ändras i application-custom.properties:
-http.forwarded.header.host=X-VP-Forwarded-Host
-http.forwarded.header.port=X-VP-Forwarded-Port
-http.forwarded.header.proto=X-VP-Forwarded-Proto
-http.forwarded.header.xfor=X-Forwarded-For
+     - http.forwarded.header.host=X-VP-Forwarded-Host
+     - http.forwarded.header.port=X-VP-Forwarded-Port
+     - http.forwarded.header.proto=X-VP-Forwarded-Proto
+     - http.forwarded.header.xfor=X-Forwarded-For
+   
  2. Lägga till IP-nr (inre) för reverse-proxy’n till VP Camel's whitelist property (i application-custom.properties): 
-ip.whitelist=<inre ip>
+     - ip.whitelist=proxy inre ip-adress
 
 
 ### Response Timeout
@@ -35,7 +37,7 @@ Default sätts connection timeout i nedanstående parameter i application.proper
 `vp.connection.timeout=2000`
 
 ### Konfigurera loggning
-Se anvisningar på SKLTP VP - Loggning 
+Se anvisningar på sidan [Loggning konfigurering]
 
 ### Exempel på application-custom.properties
 ```
@@ -159,5 +161,7 @@ TP_TLS_STORE_CONSUMER_KEY_PASSWORD=password
 
 
    [SKLTP - Lastbalanserare / Reverse-proxy]: <https://skl-tp.atlassian.net/wiki/spaces/SKLTP/pages/22773796/SKLTP+-+Lastbalanserare+Reverse-proxy>
-   [git-repo-url]: <https://github.com/joemccann/dillinger.git>
-   
+   [Loggning konfigurering]: <logging_configuration.md>
+   [VP Camel konfigurering]: <configuration.md>
+   [Arkitekturella krav]: <https://skl-tp.atlassian.net/wiki/spaces/SKLTP/pages/44892313/SKLTP+VP+SAD+-+Arkitekturella+krav#SKLTPVPSAD-Arkitekturellakrav-Arkitekturellakrav-FK-5,Ursprungligavs%C3%A4ndare>
+   [RIV-TA]: <http://rivta.se/documents/ARK_0001/RIV_Tekniska_Anvisningar_Oversikt_revE.pdf>
