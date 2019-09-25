@@ -9,11 +9,13 @@ Konfigurering kan göras i filerna listade nedan. Vid respektive avsnitt finns i
 
 För mer information om hur eventuell proxy eller lastbalanserare ska konfigureras, samt exempelfiler, se [Detaljerad konfiguration].
 Loggning och hur det går till och kan konfigureras kan man läsa om här: [Loggning konfiguration]
+
 ### Application.properties ###
 Denna fil i original ligger under resources i jaren. Den kan överlagras (hela eller delar) genom att man skapar filen application-custom.properties som läggs i en mapp config. Den mappen ska läggas i mappen där programmet körs. 
+
 |Nyckel|Defaultvärde/Exempel|Beskrivning|
-| ---- | ------------------ | --------- |
-|server.port|8880|Porten som servern ska starta på|
+|----|------------------|---------|
+| server.port | 8880 | Porten som servern ska starta på |
 |server.use.forward.headers|false|Om VP Camel befinner sig bakom en proxy, sätt denna till true. Se vidare här: VP Camel Detaljerad konfiguration. Om propertyn saknas är defaultvärdet ```false```.|
 |server.undertow.accesslog.dir|var/log/camel|Konfiguration för undertow accesslog: Var filerna ska lagras. Se till exempel [Tips på hur man konfigurerar undertow] eller sök på undertow på sidan [Spring-boot doc's]|
 |server.undertow.accesslog.enabled|true|Konfiguration för undertow accesslog: På/av|
@@ -67,6 +69,7 @@ Denna fil i original ligger under resources i jaren. Den kan överlagras (hela e
 
 ### Application-security.properties ###
 Denna fil i original ligger under resources i jaren. Den kan överlagras (hela eller delar) genom att man skapar en fil `application-security.properties` som man lägger i en mapp `config`. Den mappen ska ligga i mappen där programmet körs. 
+
 |Nyckel|Defaultvärde/Exempel|Beskrivning|
 |------|--------------------|----------|
 |tp.tls.store.location|/certs/|Mapp där certifikaten kan hittas|
