@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import se.skl.tp.vp.certificate.CertificateExtractorProcessor;
 import se.skl.tp.vp.charset.ConvertRequestCharset;
 import se.skl.tp.vp.charset.ConvertResponseCharset;
-import se.skl.tp.vp.config.HttpHeaderFilterRegexp;
+import se.skl.tp.vp.config.HttpHeaderFilterProperties;
 import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
@@ -54,21 +54,21 @@ public class VPRouter extends RouteBuilder {
         + "useRelativePath=true&"
         + "nettyHttpBinding=#VPNettyHttpBinding&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}&"
-        + "disconnect={{producer.disconnect}}&"
-        + "keepAlive={{producer.keepAlive}}&"
+        + "disconnect={{producer.http.disconnect}}&"
+        + "keepAlive={{producer.http.keepAlive}}&"
         + "workerGroup=#sharedClientHttpPool&"
-        + "connectTimeout={{producer.connect.timeout}}";
+        + "connectTimeout={{producer.http.connect.timeout}}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
         + "ssl=true&"
         + "useRelativePath=true&"
         + "nettyHttpBinding=#VPNettyHttpBinding&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}&"
-        + "disconnect={{producer.disconnect}}&"
-        + "keepAlive={{producer.keepAlive}}&"
+        + "disconnect={{producer.https.disconnect}}&"
+        + "keepAlive={{producer.https.keepAlive}}&"
         + "workerGroup=#sharedClientHttpsPool&"
         + "clientInitializerFactory=#VPHttpClientPipelineFactory&"
-        + "connectTimeout={{producer.connect.timeout}}";
+        + "connectTimeout={{producer.https.connect.timeout}}";
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
@@ -121,7 +121,7 @@ public class VPRouter extends RouteBuilder {
     HandleProducerExceptionProcessor handleProducerExceptionProcessor;
 
     @Autowired
-    private HttpHeaderFilterRegexp reg;
+    private HttpHeaderFilterProperties headerFilter;
 
     @Autowired
     private ConvertRequestCharset convertRequestCharset;
@@ -138,6 +138,7 @@ public class VPRouter extends RouteBuilder {
             .log(LoggingLevel.ERROR, "Catched exception: ${exception}")
             .process(exceptionMessageProcessor)
             .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+            .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
             .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .handled(true);
 
@@ -149,6 +150,7 @@ public class VPRouter extends RouteBuilder {
             .otherwise()
                 .process(certificateExtractorProcessor)
                 .to(DIRECT_VP)
+                .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
                 .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .end();
 
@@ -159,6 +161,7 @@ public class VPRouter extends RouteBuilder {
             .otherwise()
                 .process(httpSenderIdExtractorProcessor)
                 .to(DIRECT_VP)
+                .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
                 .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .end();
 
@@ -203,7 +206,7 @@ public class VPRouter extends RouteBuilder {
             .end()
 
             .process(convertRequestCharset)
-            .removeHeaders(reg.getRemoveRegExp(),reg.getKeepRegExp())
+            .removeHeaders(headerFilter.getRequestHeadersToRemove(), headerFilter.getRequestHeadersToKeep())
             .bean(MessageInfoLogger.class, LOG_REQ_OUT_METHOD)
             .choice().when(exchangeProperty(VPExchangeProperties.VAGVAL).contains("https://"))
                     .recipientList(simple(NETTY4_HTTPS_OUTGOING_TOD))
@@ -221,6 +224,7 @@ public class VPRouter extends RouteBuilder {
             .process(handleProducerExceptionProcessor)
             .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
             .process(convertResponseCharset)
+            .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
             .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .end();
 

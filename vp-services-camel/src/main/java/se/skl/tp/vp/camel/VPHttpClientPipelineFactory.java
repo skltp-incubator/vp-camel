@@ -7,11 +7,13 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SNIHostName;
-import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
@@ -29,7 +31,8 @@ This is a override of HttpClientInitializerFactory class from
 camel-netty4-http component.To configure the netty4-http component
 to use this class use the "clientInitializerFactory" configuration option.
 
-The intention of this class is to implement handling the TLS SNI extension.
+The reason for overriding camel default client initializer
+is to implement handling of the TLS SNI extension.
  */
 @Log4j2
 @Component
@@ -63,7 +66,7 @@ public class VPHttpClientPipelineFactory extends ClientInitializerFactory {
   }
 
   @Override
-  protected void initChannel(Channel ch) throws Exception {
+  protected void initChannel(Channel ch) throws URISyntaxException {
     // create a new pipeline
     ChannelPipeline pipeline = ch.pipeline();
 
@@ -88,7 +91,7 @@ public class VPHttpClientPipelineFactory extends ClientInitializerFactory {
     pipeline.addLast("handler", new HttpClientChannelHandler(nettyProducer));
   }
 
-  private SSLContext createSSLContext(NettyProducer producer) throws Exception {
+  private SSLContext createSSLContext(NettyProducer producer) throws GeneralSecurityException, IOException {
 
     if (configuration.getSslContextParameters() == null) {
       log.error("No getSslContextParameters configured for this ssl connection");
@@ -98,22 +101,21 @@ public class VPHttpClientPipelineFactory extends ClientInitializerFactory {
     return configuration.getSslContextParameters().createSSLContext(producer.getContext());
   }
 
-  private SslHandler configureClientSSLOnDemand() throws Exception {
+  private SslHandler configureClientSSLOnDemand() throws URISyntaxException {
 
     if (sslContext != null) {
       URI uri = new URI(nettyProducer.getEndpoint().getEndpointUri());
-//      SSLEngine sllEngine = sslContext.createSSLEngine();
       SSLEngine sllEngine = sslContext.createSSLEngine(uri.getHost(), uri.getPort());
       sllEngine.setUseClientMode(true);
       SSLParameters sslParameters = sllEngine.getSSLParameters();
-      sslParameters.setServerNames(new ArrayList<SNIServerName>(1) {{
-        add(new SNIHostName(uri.getHost()));
-      }});
+      sslParameters.setServerNames(Arrays.asList(new SNIHostName(uri.getHost())));
       sllEngine.setSSLParameters(sslParameters);
-      SslHandler sslHandler = new SslHandler(sllEngine);
-      //TODO must close on SSL exception
-      // sslHandler.setCloseOnSSLException(true);
-      return sslHandler;
+
+      //TODO must close sslHandler on SSL exception
+      //
+      // The lines above was commented in the original Camel
+      // initializer so I leave it here to be checked later (gerkstam)
+      return new SslHandler(sllEngine);
     }
 
     return null;

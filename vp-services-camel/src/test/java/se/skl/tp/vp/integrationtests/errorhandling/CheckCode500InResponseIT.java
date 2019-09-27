@@ -65,7 +65,7 @@ public class CheckCode500InResponseIT {
   @Test
   public void checkCode500InHttpResponseTest() {
     String body = TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST_NO_VAGVAL_RECEIVER;
-    Map headers = HeadersUtil.getHttpHeadersWithoutMembers();
+    Map headers = HeadersUtil.createHttpHeaders();
 
     try {
       addConsumerRoute(camelContext);
@@ -78,7 +78,7 @@ public class CheckCode500InResponseIT {
   @Test
   public void checkCode500InHttpsResponseTest() {
     String body = TestSoapRequests.GET_CERT_HTTPS_REQUEST;
-    Map headers = HeadersUtil.getHttpsHeadersWithoutMembers();
+    Map headers = HeadersUtil.createHttpsHeaders();
 
     try {
       addHttpsConsumerRoute(camelContext);

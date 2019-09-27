@@ -1,11 +1,10 @@
 package se.skl.tp.vp.integrationtests.httpheader;
 
-import se.skl.tp.vp.constants.HttpHeaders;
+import static org.apache.camel.language.constant.ConstantLanguage.constant;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.apache.camel.language.constant.ConstantLanguage.constant;
+import se.skl.tp.vp.constants.HttpHeaders;
 
 public class HeadersUtil {
 
@@ -13,13 +12,13 @@ public class HeadersUtil {
   public static String TEST_CORRELATION_ID = "aTestCorrelationId";
   public static String TEST_SENDER = "tp";
 
-  public static Map<String, Object> getHttpsHeadersWithoutMembers() {
+  public static Map<String, Object> createHttpsHeaders() {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.SOAP_ACTION, "action");
     return headers;
   }
 
-  public static Map<String, Object> getHttpHeadersWithoutMembers() {
+  public static Map<String, Object> createHttpHeaders() {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_SENDER_ID, TEST_SENDER);
     // This param is set by config, but is needed by HttpSenderIdExtractorProcessor.java before that.
@@ -30,15 +29,20 @@ public class HeadersUtil {
     return headers;
   }
 
-  public static Map<String, Object> getHttpsHeadersWithMembers() {
-    Map<String, Object> headers = getHttpsHeadersWithoutMembers();
-    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+  public static Map<String, Object> createHttpsHeadersWithCorrId() {
+    Map<String, Object> headers = createHttpsHeaders();
     headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, TEST_CORRELATION_ID);
     return headers;
   }
 
-  public static Map<String, Object> getHttpHeadersWithMembers() {
-    Map<String, Object> headers = getHttpHeadersWithoutMembers();
+  public static Map<String, Object> createHttpsHeadersWithOriginalServiceConsumerId() {
+    Map<String, Object> headers = createHttpsHeaders();
+    headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
+    return headers;
+  }
+
+  public static Map<String, Object> createHttpHeadersWithMembers() {
+    Map<String, Object> headers = createHttpHeaders();
     headers.put(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, TEST_CONSUMER);
     headers.put(HttpHeaders.X_SKLTP_CORRELATION_ID, TEST_CORRELATION_ID);
     return headers;

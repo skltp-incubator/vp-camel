@@ -73,7 +73,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     try (Stream<Path> paths = Files.walk(Paths.get(wsdlDirectory))) {
       paths
           .filter(f -> f.toString().endsWith(".wsdl"))
-          .forEach(this::createConfigFromWsdlFile);
+          .forEach(this::fillConfigFromWsdlFile);
     } catch (IOException e) {
       log.warn(
           "Problem when trying to read wsdl files in "
@@ -83,7 +83,7 @@ public class WsdlConfigurationJson implements WsdlConfiguration {
     }
   }
 
-  private void createConfigFromWsdlFile(Path file) {
+  private void fillConfigFromWsdlFile(Path file) {
     WsdlInfo wsdlInfo = getWsdlInfoFromFile(file);
     String serviceInteractionNameSpace = wsdlInfo.getServiceInteractionNameSpace();
 

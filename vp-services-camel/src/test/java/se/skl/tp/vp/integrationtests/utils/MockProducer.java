@@ -27,6 +27,7 @@ public class MockProducer {
   String inBody;
   XMLStreamReader inBodyXmlReader;
   Map<String, Object> inHeaders = new HashMap<>();
+  Map<String, Object> outHeaders = new HashMap<>();
 
   @Autowired
   public MockProducer(CamelContext camelContext){
@@ -41,6 +42,7 @@ public class MockProducer {
 
   public void start(String producerAddress) throws Exception {
     inHeaders.clear();
+    outHeaders.clear();
     inBody=null;
     Route route = camelContext.getRoute(producerAddress);
     if(route!=null){
@@ -58,7 +60,8 @@ public class MockProducer {
               inBody = exchange.getIn().getBody(String.class);
               inBodyXmlReader = exchange.getIn().getBody(XMLStreamReader.class);
               exchange.getOut().setBody(responseBody);
-              exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, responseHttpStatus);
+              outHeaders.put(Exchange.HTTP_RESPONSE_CODE, responseHttpStatus);
+              exchange.getOut().setHeaders(outHeaders);
               Thread.sleep(timeout);
             });
       }
@@ -69,4 +72,7 @@ public class MockProducer {
     return (String)inHeaders.get(header);
   }
 
+  public void addResponseHeader(String key, Object value){
+    outHeaders.put(key, value);
+  }
 }

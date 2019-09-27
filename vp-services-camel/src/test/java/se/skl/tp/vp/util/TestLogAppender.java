@@ -22,9 +22,14 @@ public class TestLogAppender extends AbstractAppender {
   private static TestLogAppender instance;
 
   public static TestLogAppender getInstance() {
+    if(instance != null && !instance.isStarted()){
+      instance.start();
+    }
+
     if(instance != null){
       instance.clearEvents();
     }
+
     return instance;
   }
 
