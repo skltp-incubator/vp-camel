@@ -223,7 +223,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
   /**
    * Gets the Camel {@link Message} to use as the message to be set on the current {@link Exchange} when
    * we have received a reply message.
-   * <p/>
+   *
    *
    * @param exchange      the current exchange
    * @param ctx       the channel handler context
