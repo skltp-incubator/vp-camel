@@ -57,6 +57,7 @@ public class VPRouter extends RouteBuilder {
         + "disconnect={{producer.http.disconnect}}&"
         + "keepAlive={{producer.http.keepAlive}}&"
         + "workerGroup=#sharedClientHttpPool&"
+        + "clientInitializerFactory=#VPHttpClientPipelineFactory&"
         + "connectTimeout={{producer.http.connect.timeout}}";
     public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"

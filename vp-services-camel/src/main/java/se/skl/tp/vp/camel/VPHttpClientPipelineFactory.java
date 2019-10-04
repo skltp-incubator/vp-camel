@@ -22,7 +22,6 @@ import org.apache.camel.component.netty4.ClientInitializerFactory;
 import org.apache.camel.component.netty4.NettyProducer;
 import org.apache.camel.component.netty4.http.NettyHttpConfiguration;
 import org.apache.camel.component.netty4.http.NettyHttpProducer;
-import org.apache.camel.component.netty4.http.handlers.HttpClientChannelHandler;
 import org.apache.camel.util.ObjectHelper;
 import org.springframework.stereotype.Component;
 
@@ -78,6 +77,7 @@ public class VPHttpClientPipelineFactory extends ClientInitializerFactory {
 
     pipeline.addLast("http", new HttpClientCodec());
     pipeline.addLast("aggregator", new HttpObjectAggregator(configuration.getChunkedMaxContentLength()));
+
 
     if (configuration.getRequestTimeout() > 0) {
       if (log.isTraceEnabled()) {
