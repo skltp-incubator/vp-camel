@@ -50,7 +50,7 @@ public class VPRouter extends RouteBuilder {
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?"
         + "matchOnUriPrefix=true&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}";
-    public static final String NETTY4_HTTP_TOD = "netty4-http:${property.vagval}?"
+    public static final String NETTY4_HTTP_TOD = "netty4-http:http://${property.vagvalHost}?"
         + "useRelativePath=true&"
         + "nettyHttpBinding=#VPNettyHttpBinding&"
         + "chunkedMaxContentLength={{vp.max.receive.length}}&"
@@ -59,7 +59,7 @@ public class VPRouter extends RouteBuilder {
         + "workerGroup=#sharedClientHttpPool&"
         + "clientInitializerFactory=#VPHttpClientPipelineFactory&"
         + "connectTimeout={{producer.http.connect.timeout}}";
-    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:${property.vagval}?"
+    public static final String NETTY4_HTTPS_OUTGOING_TOD = "netty4-http:https://${property.vagvalHost}?"
         + "sslContextParameters=#outgoingSSLContextParameters&"
         + "ssl=true&"
         + "useRelativePath=true&"

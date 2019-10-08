@@ -43,7 +43,11 @@ public class VagvalProcessor implements Processor {
         } else {
             exchange.setProperty(VPExchangeProperties.VAGVAL_HOST, String.format("%s:%d", uri.getHost(), uri.getPort()));
         }
-        exchange.getIn().setHeader(Exchange.HTTP_PATH, uri.getPath());
+        if(uri.getQuery()!=null && !uri.getQuery().isEmpty()) {
+            exchange.getIn().setHeader(Exchange.HTTP_PATH, uri.getPath());
+        } else {
+            exchange.getIn().setHeader(Exchange.HTTP_PATH, String.format("%s?%s",uri.getPath(), uri.getQuery()));
+        }
 
     }
 
