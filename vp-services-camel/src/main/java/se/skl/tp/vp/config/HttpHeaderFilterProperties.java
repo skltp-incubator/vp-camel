@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class HttpHeaderFilterProperties {
 
   // Following headers will be removed from request to producer
-  String requestHeadersToRemove = "(?i)x-vp.*|PEER_CERTIFICATES|X-Forwarded.*|MULE_.*|X-MULE_.*";
+  String requestHeadersToRemove = "(?i)x-vp.*|PEER_CERTIFICATES|X-Forwarded.*|MULE_.*|X-MULE_.*|Connection|accept-encoding";
 
   // Following headers will be kept in request to producer
   String requestHeadersToKeep = "(?i)x-vp-sender-id|x-vp-instance-id";

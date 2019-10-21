@@ -3,7 +3,6 @@ package se.skl.tp.vp.camel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -24,6 +23,7 @@ import org.apache.camel.component.netty4.http.NettyHttpConfiguration;
 import org.apache.camel.component.netty4.http.NettyHttpProducer;
 import org.apache.camel.util.ObjectHelper;
 import org.springframework.stereotype.Component;
+import se.skl.tp.vp.netty.HttpClientCodec;
 
 /*
 This is a override of HttpClientInitializerFactory class from
