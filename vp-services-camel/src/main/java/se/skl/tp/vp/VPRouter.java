@@ -172,8 +172,8 @@ public class VPRouter extends RouteBuilder {
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
-            .process(requestReaderProcessor)
             .process(correlationIdProcessor)
+            .process(requestReaderProcessor)
             .process(originalConsumerIdProcessor)
             .bean(MessageInfoLogger.class, LOG_REQ_IN_METHOD)
             .process(vagvalProcessor).id(VAGVAL_PROCESSOR_ID)
@@ -221,7 +221,7 @@ public class VPRouter extends RouteBuilder {
             .end();
 
         from(DIRECT_PRODUCER_ERROR)
-            .log(LoggingLevel.ERROR, "Catched when calling producer: ${exception}")
+            .log(LoggingLevel.ERROR, "Exception callig producer. CorrId: '${property.skltp_correlationId}': ${exception}")
             .process(handleProducerExceptionProcessor)
             .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
             .process(convertResponseCharset)
