@@ -24,7 +24,8 @@
 
     <takdatahandler.version>1.0.1</takdatahandler.version>
 
-
+    <maven.javadoc.skip>true</maven.javadoc.skip>
+    
     <!-- ************************-->
     <!-- Sonar/Reporting settings -->
     <!-- ************************-->
