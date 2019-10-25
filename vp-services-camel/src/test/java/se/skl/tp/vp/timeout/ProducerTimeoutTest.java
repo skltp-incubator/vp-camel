@@ -104,7 +104,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR, 0);
     assertStringContains(errorLogMsg, "-errorCode=VP009");
-    assertStringContains(errorLogMsg, "Stacktrace=io.netty.handler.timeout.ReadTimeoutException:");
+    assertStringContains(errorLogMsg, "Stacktrace=io.netty.handler.timeout.ReadTimeoutException");
 
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_OUT));
     String reqOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_OUT, 0);

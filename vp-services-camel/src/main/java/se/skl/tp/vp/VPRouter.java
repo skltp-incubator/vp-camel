@@ -18,7 +18,6 @@ import se.skl.tp.vp.constants.VPExchangeProperties;
 import se.skl.tp.vp.errorhandling.ExceptionMessageProcessor;
 import se.skl.tp.vp.errorhandling.HandleEmptyResponseProcessor;
 import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
-import se.skl.tp.vp.httpheader.CorrelationIdProcessor;
 import se.skl.tp.vp.httpheader.HttpSenderIdExtractorProcessor;
 import se.skl.tp.vp.httpheader.OriginalConsumerIdProcessor;
 import se.skl.tp.vp.httpheader.OutHeaderProcessor;
@@ -46,10 +45,12 @@ public class VPRouter extends RouteBuilder {
         + "sslClientCertHeaders=true&"
         + "needClientAuth=true&"
         + "matchOnUriPrefix=true&"
-        + "chunkedMaxContentLength={{vp.max.receive.length}}";
+        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+        + "nettyHttpBinding=#VPNettyHttpBinding";
     public static final String NETTY4_HTTP_FROM = "netty4-http:{{vp.http.route.url}}?"
         + "matchOnUriPrefix=true&"
-        + "chunkedMaxContentLength={{vp.max.receive.length}}";
+        + "chunkedMaxContentLength={{vp.max.receive.length}}&"
+        + "nettyHttpBinding=#VPNettyHttpBinding";
     public static final String NETTY4_HTTP_TOD = "netty4-http:http://${property.vagvalHost}?"
         + "useRelativePath=true&"
         + "nettyHttpBinding=#VPNettyHttpBinding&"
@@ -73,14 +74,11 @@ public class VPRouter extends RouteBuilder {
 
     public static final String VAGVAL_PROCESSOR_ID = "VagvalProcessor";
     public static final String BEHORIGHET_PROCESSOR_ID = "BehorighetProcessor";
-    public static final String LOG_ERROR_METHOD = "logError(*)";
+    public static final String LOG_ERROR_METHOD = "logError(*,${exception.stacktrace})";
     public static final String LOG_RESP_OUT_METHOD = "logRespOut(*)";
     public static final String LOG_REQ_IN_METHOD = "logReqIn(*)";
     public static final String LOG_REQ_OUT_METHOD = "logReqOut(*)";
     public static final String LOG_RESP_IN_METHOD = "logRespIn(*)";
-
-    @Autowired
-    CorrelationIdProcessor correlationIdProcessor;
 
     @Autowired
     OriginalConsumerIdProcessor originalConsumerIdProcessor;
@@ -133,10 +131,7 @@ public class VPRouter extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-
-
         onException(Exception.class)
-            .log(LoggingLevel.ERROR, "Catched exception: ${exception}")
             .process(exceptionMessageProcessor)
             .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
             .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
@@ -172,7 +167,6 @@ public class VPRouter extends RouteBuilder {
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_HOST,  header("{{http.forwarded.header.host}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PORT,  header("{{http.forwarded.header.port}}"))
             .setProperty(VPExchangeProperties.VP_X_FORWARDED_PROTO,  header("{{http.forwarded.header.proto}}"))
-            .process(correlationIdProcessor)
             .process(requestReaderProcessor)
             .process(originalConsumerIdProcessor)
             .bean(MessageInfoLogger.class, LOG_REQ_IN_METHOD)
@@ -183,7 +177,7 @@ public class VPRouter extends RouteBuilder {
             .process(setOutHeadersProcessor)
             .to(DIRECT_PRODUCER_ROUTE)
             .choice().when(or(body().isNull(), body().isEqualTo("")))
-                .log(LoggingLevel.ERROR, "Response from producer is empty")
+                .log(LoggingLevel.WARN, "Response from producer is empty")
                 .process(handleEmptyResponseProcessor)
                 .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
             .end();
@@ -192,11 +186,10 @@ public class VPRouter extends RouteBuilder {
             .routeId(TO_PRODUCER_ROUTE)
 
             .onException(SocketException.class)
-                .log(LoggingLevel.ERROR, "OnBefore Redelivery Global")
                 .redeliveryDelay("{{vp.producer.retry.delay}}")
                 .maximumRedeliveries("{{vp.producer.retry.attempts}}")
                     .logRetryAttempted(true)
-                    .retryAttemptedLogLevel(LoggingLevel.ERROR)
+                    .retryAttemptedLogLevel(LoggingLevel.WARN)
                     .logRetryStackTrace(false)
                 .to(DIRECT_PRODUCER_ERROR)
                 .handled(true)
@@ -221,7 +214,6 @@ public class VPRouter extends RouteBuilder {
             .end();
 
         from(DIRECT_PRODUCER_ERROR)
-            .log(LoggingLevel.ERROR, "Exception callig producer. CorrId: '${property.skltp_correlationId}': ${exception}")
             .process(handleProducerExceptionProcessor)
             .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
             .process(convertResponseCharset)

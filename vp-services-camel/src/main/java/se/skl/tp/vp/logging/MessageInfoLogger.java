@@ -48,12 +48,12 @@ public class MessageInfoLogger {
     log(LOGGER_RESP_OUT, exchange, MSG_TYPE_LOG_RESP_OUT);
   }
 
-  public void logError(Exchange exchange) {
+  public void logError(Exchange exchange, String stackTrace) {
 
     try {
       LogEntry logEntry = LogEntryBuilder.createLogEntry(MSG_TYPE_ERROR, exchange);
       logEntry.getExtraInfo().put(LogExtraInfoBuilder.SOURCE, getClass().getName());
-      logEntry.getMessageInfo().setException(LogEntryBuilder.createMessageException(exchange));
+      logEntry.getMessageInfo().setException(LogEntryBuilder.createMessageException(exchange, stackTrace));
       String logMsg = LogMessageFormatter.format(LOG_EVENT_ERROR, logEntry);
       LOGGER_ERROR.error(logMsg);
 
@@ -61,7 +61,6 @@ public class MessageInfoLogger {
       LOGGER_ERROR.error("Failed log message: {}",MSG_TYPE_ERROR, e);
     }
   }
-
 
   public void log(Logger log, Exchange exchange, String messageType) {
     try {
