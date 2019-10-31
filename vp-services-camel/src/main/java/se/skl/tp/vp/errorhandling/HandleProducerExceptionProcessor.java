@@ -28,12 +28,7 @@ public class HandleProducerExceptionProcessor implements Processor {
     try {
       Exception exception = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
       if (exception != null) {
-         if (exception instanceof NettyHttpOperationFailedException) {
-               NettyHttpOperationFailedException operationFailedException = (NettyHttpOperationFailedException) exception;
-              if (operationFailedException.getStatusCode() == HTTP_STATUS_500 && operationFailedException.getContentAsString().contains(SOAP_XMLNS)) {
-                  return;  //Pass on error message..
-              }
-          }
+        //TODO: Check for exception.getContentAsString().contains(SOAP_XMLNS) ??
         String message = exception.getMessage();
         if (exception instanceof ReadTimeoutException) {
           message = "Timeout when waiting on response from producer.";
@@ -61,6 +56,4 @@ public class HandleProducerExceptionProcessor implements Processor {
     int i = s.length() > len ? len : s.length();
     return s.substring(0, i);
   }
-
-
 }
