@@ -96,7 +96,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
                 "UnitTest")).thenReturn(true);
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
 
-    resultEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
+    resultEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 500);
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "Timeout");
     resultEndpoint.assertIsSatisfied();

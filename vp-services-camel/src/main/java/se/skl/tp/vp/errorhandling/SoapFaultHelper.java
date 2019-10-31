@@ -73,9 +73,13 @@ public class SoapFaultHelper {
   }
 
   public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
+    setSoapFaultInResponseWithBoolean(exchange, cause, errorCode, false);
+  }
+
+  public static void setSoapFaultInResponseWithBoolean(Exchange exchange, String cause, String errorCode, boolean nettyExceptionAndContainsSoap){
 
     exchange.getOut().setBody(createSoapFault(cause));
-    if (errorCode.equals(VpSemanticErrorCodeEnum.VP009.getCode())) {
+    if (nettyExceptionAndContainsSoap) {
       exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
     } else {
       exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
