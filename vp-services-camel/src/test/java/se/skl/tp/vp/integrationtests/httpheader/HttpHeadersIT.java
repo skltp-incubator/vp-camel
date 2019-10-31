@@ -6,12 +6,15 @@ import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
 
+import java.util.Map;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
@@ -125,6 +128,21 @@ public class HttpHeadersIT extends CamelTestSupport {
     boolean b = reqInLogMsg.contains(LogExtraInfoBuilder.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     assertFalse(b);
     assertLogExistAndContainsMessages(MessageInfoLogger.RESP_OUT, "LogMessage=resp-out", X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + "=" + TEST_SENDER);
+  }
+
+  @Test
+  public void checkSenderNotAllowedToSetXrivtaOriginalConsumer() {
+    Map<String, Object> headers = HeadersUtil.getHttpHeadersWithMembers();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "SENDER3");
+    try {
+      template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, headers);
+    } catch (CamelExecutionException e) {
+      NettyHttpOperationFailedException ne = (NettyHttpOperationFailedException) e.getExchange().getException();
+      String err = ne.getContentAsString();
+      assert(err.contains("VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid"));
+      assertLogExistAndContainsMessages(MessageInfoLogger.RESP_OUT, "LogMessage=resp-out",
+          "VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid");
+    }
   }
 
   private void assertLogExistAndContainsMessages(String logger, String msg1, String msg2) {
