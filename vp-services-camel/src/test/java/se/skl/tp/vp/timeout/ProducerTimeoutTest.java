@@ -96,7 +96,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
                 "UnitTest")).thenReturn(true);
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
 
-    resultEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 500);
+    resultEndpoint.expectedHeaderReceived(Exchange.HTTP_RESPONSE_CODE, 200);
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "Timeout");
     resultEndpoint.assertIsSatisfied();
@@ -113,6 +113,9 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     } else {
       assertStringContains(reqOutLogMsg, "CamelNettyRequestTimeout=460");
     }
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "VP009 Error connecting to service producer at address");
+    assertStringContains(respOutLogMsg, "Timeout when waiting on response from producer");
   }
 
   private HashMap<String, TimeoutConfig> getConfigMap(boolean defaultOnly) {
