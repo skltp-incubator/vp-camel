@@ -201,7 +201,6 @@ public class FullServiceErrorHandlingIT {
     String respOutLogMsg = getAndAssertRespOutLog();
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "VP009 Error connecting to service producer at address");
     assertExtraInfoLog(respOutLogMsg, RECEIVER_NO_PRODUCER_AVAILABLE, "https://localhost:1974/Im/not/available");
   }
 
