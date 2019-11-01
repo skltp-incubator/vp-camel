@@ -28,12 +28,14 @@ public class HandleProducerExceptionProcessor implements Processor {
     try {
       Exception exception = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
       if (exception != null) {
-         if (exception instanceof NettyHttpOperationFailedException) {
-               NettyHttpOperationFailedException operationFailedException = (NettyHttpOperationFailedException) exception;
-              if (operationFailedException.getStatusCode() == HTTP_STATUS_500 && operationFailedException.getContentAsString().contains(SOAP_XMLNS)) {
-                  return;  //Pass on error message..
-              }
+        boolean nettyExceptionAndContainsSoap = false;
+        if (exception instanceof NettyHttpOperationFailedException) {
+          NettyHttpOperationFailedException operationFailedException = (NettyHttpOperationFailedException) exception;
+          if (operationFailedException.getStatusCode() == HTTP_STATUS_500 && operationFailedException.getContentAsString().contains(SOAP_XMLNS)) {
+            nettyExceptionAndContainsSoap = true;
           }
+        }
+        //TODO: First impl of this just removed the 7 rows above.. maybe the way to do it?
         String message = exception.getMessage();
         if (exception instanceof ReadTimeoutException) {
           message = "Timeout when waiting on response from producer.";
@@ -44,7 +46,7 @@ public class HandleProducerExceptionProcessor implements Processor {
         String vpMsg = String.format("%s. Exception Caught by Camel when contacting producer. Exception information: (%s: %s)",
             addr, exception.getClass().getName(), message);
         String cause = exceptionUtil.createMessage(VpSemanticErrorCodeEnum.VP009, vpMsg);
-        SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
+        SoapFaultHelper.setSoapFaultInResponseWithBoolean(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString(), nettyExceptionAndContainsSoap);
       }
     } catch (Exception e) {
       log.error("An error occured in HandleProducerExceptionProcessor", e);
@@ -61,6 +63,4 @@ public class HandleProducerExceptionProcessor implements Processor {
     int i = s.length() > len ? len : s.length();
     return s.substring(0, i);
   }
-
-
 }

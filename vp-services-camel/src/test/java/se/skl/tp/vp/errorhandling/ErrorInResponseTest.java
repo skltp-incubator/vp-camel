@@ -145,7 +145,7 @@ public class ErrorInResponseTest {
     resultEndpoint.assertIsSatisfied();
   }
 
-  @Test // Om producent skickar soap fel ska vi skicka den fel vidare
+  @Test // If a producer sends soap fault, we shall return with ResponseCode 200, with the fault embedded in the body.
   public void soapFaultPropagatedToCustomerTest() throws InterruptedException {
     mockProducer.setResponseHttpStatus(500);
     mockProducer.setResponseBody(SoapFaultHelper.generateSoap11FaultWithCause(REMOTE_SOAP_FAULT));
@@ -155,12 +155,11 @@ public class ErrorInResponseTest {
     setTakCacheMockResult(list);
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
-    assertStringContains(resultBody, "soap:Fault");
-    assertStringContains(resultBody, "VP011 Caller was not on the white list of accepted IP-addresses");
+    assertStringContains(resultBody, "SOAP-ENV:Fault");
+    assertStringContains(resultBody, "VP009 Error connecting to service producer at address");
     resultEndpoint.assertIsSatisfied();
     String header = (String) resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME);
     assertNotNull(header);
-
   }
 
   private void setTakCacheMockResult(List<RoutingInfo> list) {

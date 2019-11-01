@@ -73,8 +73,7 @@ public class FullServiceTestIT {
   public void before() {
     try {
       mockProducer.start(HTTP_PRODUCER_URL);
-      mockHttpsProducer
-          .start(HTTPS_PRODUCER_URL + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
+      mockHttpsProducer.start(HTTPS_PRODUCER_URL + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
     } catch (Exception e) {
       e.printStackTrace();
     }
