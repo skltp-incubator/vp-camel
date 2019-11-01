@@ -10,7 +10,6 @@ import org.apache.camel.Exchange;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 
 public class SoapFaultHelper {
 
@@ -73,17 +72,9 @@ public class SoapFaultHelper {
   }
 
   public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
-    setSoapFaultInResponseWithBoolean(exchange, cause, errorCode, false);
-  }
-
-  public static void setSoapFaultInResponseWithBoolean(Exchange exchange, String cause, String errorCode, boolean nettyExceptionAndContainsSoap){
 
     exchange.getOut().setBody(createSoapFault(cause));
-    if (nettyExceptionAndContainsSoap) {
-      exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
-    } else {
-      exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
-    }
+    exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR, Boolean.TRUE);
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR_CODE, errorCode);
     exchange.setProperty(VPExchangeProperties.SESSION_HTML_STATUS, SoapFaultHelper.getStatusMessage(nvl(exchange.getIn().getHeader(Exchange.HTTP_RESPONSE_CODE)), null));

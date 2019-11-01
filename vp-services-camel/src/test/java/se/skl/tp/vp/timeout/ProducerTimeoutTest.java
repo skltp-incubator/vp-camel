@@ -113,9 +113,6 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     } else {
       assertStringContains(reqOutLogMsg, "CamelNettyRequestTimeout=460");
     }
-    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
-    assertStringContains(respOutLogMsg, "VP009 Error connecting to service producer at address");
-    assertStringContains(respOutLogMsg, "Timeout when waiting on response from producer");
   }
 
   private HashMap<String, TimeoutConfig> getConfigMap(boolean defaultOnly) {
