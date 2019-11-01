@@ -27,7 +27,7 @@ public class ExceptionUtil {
 
   public String createMessage(VpSemanticErrorCodeEnum codeEnum, Object ...suffix) {
     String errorMsg = vpCodeMessages.getMessage(codeEnum);
-    return codeEnum + " " + String.format(errorMsg, suffix);
+    return codeEnum+" "+ String.format(errorMsg, suffix);
   }
 
 
