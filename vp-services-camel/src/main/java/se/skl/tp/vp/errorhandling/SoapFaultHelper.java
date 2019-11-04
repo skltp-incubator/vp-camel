@@ -74,15 +74,16 @@ public class SoapFaultHelper {
 
   public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
     exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
-    setSessionParameters(exchange, errorCode);
+    setSessionParameters(exchange, cause, errorCode);
   }
 
   public static void setSoapFaultInResponseWithRespCode200(Exchange exchange, String cause, String errorcode) {
     exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
-    setSessionParameters(exchange, errorcode);
+    setSessionParameters(exchange, cause, errorcode);
   }
 
-  public static void setSessionParameters(Exchange exchange, String errorCode) {
+  public static void setSessionParameters(Exchange exchange, String cause, String errorCode) {
+    exchange.getOut().setBody(createSoapFault(cause));
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR, Boolean.TRUE);
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR_CODE, errorCode);
     exchange.setProperty(VPExchangeProperties.SESSION_HTML_STATUS, SoapFaultHelper.getStatusMessage(nvl(exchange.getIn().getHeader(Exchange.HTTP_RESPONSE_CODE)), null));
