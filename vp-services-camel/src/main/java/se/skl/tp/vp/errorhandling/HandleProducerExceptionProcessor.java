@@ -46,7 +46,11 @@ public class HandleProducerExceptionProcessor implements Processor {
         String vpMsg = String.format("%s. Exception Caught by Camel when contacting producer. Exception information: (%s: %s)",
             addr, exception.getClass().getName(), message);
         String cause = exceptionUtil.createMessage(VpSemanticErrorCodeEnum.VP009, vpMsg);
-        SoapFaultHelper.setSoapFaultInResponseWithBoolean(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString(), nettyExceptionAndContainsSoap);
+        if (nettyExceptionAndContainsSoap) {
+          SoapFaultHelper.setSoapFaultInResponseWithRespCode200(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
+        } else {
+          SoapFaultHelper.setSoapFaultInResponse(exchange, cause, VpSemanticErrorCodeEnum.VP009.toString());
+        }
       }
     } catch (Exception e) {
       log.error("An error occured in HandleProducerExceptionProcessor", e);

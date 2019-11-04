@@ -73,17 +73,16 @@ public class SoapFaultHelper {
   }
 
   public static void setSoapFaultInResponse(Exchange exchange, String cause, String errorCode){
-    setSoapFaultInResponseWithBoolean(exchange, cause, errorCode, false);
+    exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
+    setSessionParameters(exchange, errorCode);
   }
 
-  public static void setSoapFaultInResponseWithBoolean(Exchange exchange, String cause, String errorCode, boolean nettyExceptionAndContainsSoap){
+  public static void setSoapFaultInResponseWithRespCode200(Exchange exchange, String cause, String errorcode) {
+    exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+    setSessionParameters(exchange, errorcode);
+  }
 
-    exchange.getOut().setBody(createSoapFault(cause));
-    if (nettyExceptionAndContainsSoap) {
-      exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
-    } else {
-      exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
-    }
+  public static void setSessionParameters(Exchange exchange, String errorCode) {
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR, Boolean.TRUE);
     exchange.setProperty(VPExchangeProperties.SESSION_ERROR_CODE, errorCode);
     exchange.setProperty(VPExchangeProperties.SESSION_HTML_STATUS, SoapFaultHelper.getStatusMessage(nvl(exchange.getIn().getHeader(Exchange.HTTP_RESPONSE_CODE)), null));
