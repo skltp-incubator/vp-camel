@@ -22,13 +22,14 @@ import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
 @StartTakService
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class FullServiceStandardVagvalIT {
+public class FullServiceStandardVagvalIT extends LeakDetectionBaseTest {
 
   public static final String ANSWER_FROM_DEFAULT_PRODUCER = "<Answer from default producer>";
   public static final String ANSWER_FROM_EXPLICIT_PRODUCER = "<Answer from explicit producer>";

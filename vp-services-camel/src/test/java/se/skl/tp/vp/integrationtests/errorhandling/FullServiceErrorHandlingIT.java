@@ -48,6 +48,7 @@ import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
 
@@ -56,7 +57,7 @@ import se.skl.tp.vp.util.soaprequests.SoapUtils;
 @TestPropertySource(locations = {"classpath:application.properties","classpath:vp-messages.properties"})
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @StartTakService
-public class FullServiceErrorHandlingIT {
+public class FullServiceErrorHandlingIT extends LeakDetectionBaseTest {
 
   @Autowired
   TestConsumer testConsumer;

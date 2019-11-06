@@ -19,13 +19,14 @@ import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @StartTakService
-public class GetStatusIT {
+public class GetStatusIT extends LeakDetectionBaseTest {
 
   @Produce
   protected ProducerTemplate producerTemplate;

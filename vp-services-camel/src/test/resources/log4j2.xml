@@ -66,6 +66,11 @@
             <AppenderRef ref="Console"/>
         </Logger>
 
+        <Logger name="io.netty.util.ResourceLeakDetector" level="INFO" additivity="false">
+            <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
         <Root level="WARN">
             <!--<AppenderRef ref="RollingRandomAccessFile"/>-->
             <AppenderRef ref="Console"/>

@@ -13,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 
 
 public class BaseNettyTest extends CamelTestSupport {
@@ -34,7 +35,7 @@ public class BaseNettyTest extends CamelTestSupport {
       // use next free port
       port = AvailablePortFinder.getNextAvailable(port + 1);
     }
-
+    LeakDetectionBaseTest.startLeakDetection();
   }
 
   @AfterClass
@@ -48,6 +49,7 @@ public class BaseNettyTest extends CamelTestSupport {
     } finally {
       fos.close();
     }
+    LeakDetectionBaseTest.verifyNoLeaks();
   }
 
 

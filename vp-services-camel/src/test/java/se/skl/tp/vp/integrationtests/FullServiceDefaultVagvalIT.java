@@ -1,5 +1,12 @@
 package se.skl.tp.vp.integrationtests;
 
+import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetActivitiesRiv21Request;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,21 +21,14 @@ import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TakMockWebService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetActivitiesRiv21Request;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
 @StartTakService
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class FullServiceDefaultVagvalIT {
+public class FullServiceDefaultVagvalIT extends LeakDetectionBaseTest {
 
   public static final String ANSWER_FROM_DEFAULT_PRODUCER = "<Answer from default producer>";
 
