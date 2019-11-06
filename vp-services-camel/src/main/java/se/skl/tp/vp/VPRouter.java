@@ -215,11 +215,13 @@ public class VPRouter extends RouteBuilder {
 
         from(DIRECT_PRODUCER_ERROR)
             .process(handleProducerExceptionProcessor)
-            .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+            .choice()
+            .when(header(Exchange.HTTP_RESPONSE_CODE).isNotEqualTo("200"))
+                .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+            .end()
             .process(convertResponseCharset)
             .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
             .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .end();
-
     }
 }

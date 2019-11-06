@@ -10,7 +10,6 @@ import org.apache.camel.Exchange;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
 import se.skl.tp.vp.constants.VPExchangeProperties;
-import se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum;
 
 public class SoapFaultHelper {
 
@@ -77,9 +76,8 @@ public class SoapFaultHelper {
     setSessionParameters(exchange, cause, errorCode);
   }
 
-  public static void setSoapFaultInResponseWithRespCode200(Exchange exchange, String cause, String errorcode) {
+  public static void setSoapFaultInResponseWithRespCode200(Exchange exchange) {
     exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
-    setSessionParameters(exchange, cause, errorcode);
   }
 
   public static void setSessionParameters(Exchange exchange, String cause, String errorCode) {
