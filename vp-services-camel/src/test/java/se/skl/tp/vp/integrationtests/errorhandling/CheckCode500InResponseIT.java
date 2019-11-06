@@ -1,6 +1,14 @@
 package se.skl.tp.vp.integrationtests.errorhandling;
 
-import org.apache.camel.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static se.skl.tp.vp.VPRouter.DIRECT_PRODUCER_ROUTE;
+
+import java.util.Map;
+import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Produce;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
@@ -18,20 +26,15 @@ import se.skl.tp.vp.constants.PropertyConstants;
 import se.skl.tp.vp.errorhandling.HandleProducerExceptionProcessor;
 import se.skl.tp.vp.integrationtests.httpheader.HeadersUtil;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
-
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static se.skl.tp.vp.VPRouter.DIRECT_PRODUCER_ROUTE;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @StartTakService
-public class CheckCode500InResponseIT {
+public class CheckCode500InResponseIT extends LeakDetectionBaseTest {
 
   @Value("${" + PropertyConstants.VP_HTTP_ROUTE_URL + "}")
   private String httpRoute;

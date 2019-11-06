@@ -27,6 +27,7 @@ import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
@@ -34,7 +35,7 @@ import se.skltp.takcache.TakCache;
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class ReSendIT {
+public class ReSendIT extends LeakDetectionBaseTest {
 
   private static final String MOCK_PRODUCER_ADDRESS = "http://localhost:12126/vp";
   private static final String VP_ADDRESS = "http://localhost:12312/vp";

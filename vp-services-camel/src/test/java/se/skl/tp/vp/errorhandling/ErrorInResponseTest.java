@@ -30,13 +30,14 @@ import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest(classes = TestBeanConfiguration.class)
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class ErrorInResponseTest {
+public class ErrorInResponseTest extends LeakDetectionBaseTest {
 
   public static final String REMOTE_EXCEPTION_MESSAGE = "Fel fel fel";
   public static final String REMOTE_SOAP_FAULT =

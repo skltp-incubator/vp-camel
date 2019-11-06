@@ -40,7 +40,8 @@ public class TestLogAppender extends AbstractAppender {
     return instance;
   }
 
-  private List<LogEvent> events = new ArrayList<>();
+  private static List<LogEvent> events = new ArrayList<>();
+  private static List<LogEvent> leakEvents = new ArrayList<>();
 
   protected TestLogAppender(String name, Filter filter, Layout<? extends Serializable> layout) {
     super(name, filter, layout);
@@ -58,14 +59,26 @@ public class TestLogAppender extends AbstractAppender {
       clearEvents();
     }
 
-    events.add(event.toImmutable());
+    if(event.getLoggerName().equalsIgnoreCase("io.netty.util.ResourceLeakDetector")){
+     leakEvents.add(event.toImmutable());
+    }else {
+      events.add(event.toImmutable());
+    }
   }
 
-  public void clearEvents(){
+  public static void clearEvents(){
     events.clear();
   }
 
-  public String getEventMessage(String loggerName, int index) {
+  public static void clearLeakEvents(){
+    leakEvents.clear();
+  }
+
+  public static List<LogEvent> getLeakEvents() {
+    return leakEvents;
+  }
+
+  public static String getEventMessage(String loggerName, int index) {
 
     List<LogEvent> newEvents = getEvents(loggerName);
 
@@ -75,7 +88,7 @@ public class TestLogAppender extends AbstractAppender {
     return newEvents.get(index).getMessage().getFormattedMessage();
   }
 
-  public LogEvent getEvent(String loggerName, int index) {
+  public static LogEvent getEvent(String loggerName, int index) {
 
     List<LogEvent> newEvents = getEvents(loggerName);
 
@@ -85,11 +98,11 @@ public class TestLogAppender extends AbstractAppender {
     return newEvents.get(index);
   }
 
-  public List<LogEvent> getEvents(String loggerName) {
+  public static List<LogEvent> getEvents(String loggerName) {
     return events.stream().filter(lg -> loggerName.equals(lg.getLoggerName())).collect(Collectors.toList());
   }
 
-  public int getNumEvents(String loggerName) {
+  public static int getNumEvents(String loggerName) {
     return events.stream().filter(lg -> loggerName.equals(lg.getLoggerName())).collect(Collectors.toList()).size();
   }
 
