@@ -14,6 +14,7 @@ import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP010;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP011;
 import static se.skl.tp.vp.exceptions.VpSemanticErrorCodeEnum.VP013;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST_NO_VAGVAL_RECEIVER;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_LEADING_WHITESPACE;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_MULTIPLE_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_NOT_AUHORIZED;
@@ -25,6 +26,7 @@ import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNKNOWN_R
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_WITH_NO_VAGVAL;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.TJANSTEKONTRAKT_GET_CERTIFICATE_KEY;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetActivitiesRiv21Request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +42,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.TestPropertySource;
 import se.skl.tp.vp.constants.HttpHeaders;
+import se.skl.tp.vp.errorhandling.SoapFaultHelper;
+import se.skl.tp.vp.integrationtests.httpheader.HeadersUtil;
+import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
@@ -56,13 +61,32 @@ public class FullServiceErrorHandlingIT {
   @Autowired
   TestConsumer testConsumer;
 
+  @Autowired
+  MockProducer mockHttpsProducer;
+
+  public static final String HTTPS_PRODUCER_URL = "https://localhost:19001/vardgivare-b/tjanst2";
+
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
+
+  public static final String REMOTE_SOAP_FAULT =
+      "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+          "  <soapenv:Header/>  <soapenv:Body>    <soap:Fault xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+          "      <faultcode>soap:Server</faultcode>\n" +
+          "      <faultstring>VP011 Caller was not on the white list of accepted IP-addresses. IP-address: 84.17.194.105. " +
+          "HTTP header that caused checking: x-vp-sender-id (se.skl.tp.vp.exceptions.VpSemanticException). " +
+          "Message payload is of type: ReversibleXMLStreamReader</faultstring>\n" +
+          "    </soap:Fault>  </soapenv:Body></soapenv:Envelope>";
 
   @Value("VP013")
   String msgVP013;
 
   @Before
   public void beforeTest(){
+    try {
+      mockHttpsProducer.start(HTTPS_PRODUCER_URL + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     testLogAppender.clearEvents();
   }
 
@@ -94,6 +118,21 @@ public class FullServiceErrorHandlingIT {
 
     assertErrorLog(VP003.getCode(), "Stacktrace=se.skl.tp.vp.exceptions.VpSemanticException: VP003");
     assertRespOutLog("VP003 No receiverId (logical address) found in message header. null");
+  }
+
+  public static final String RECEIVER_HTTPS = "HttpsProducer";
+
+  @Test // If a producer sends soap fault, we shall return to consumer with ResponseCode 200, with the fault embedded in the body.
+  public void soapFaultPropagatedToConsumerTestIT() throws Exception {
+    mockHttpsProducer.setResponseHttpStatus(500);
+    mockHttpsProducer.setResponseBody(SoapFaultHelper.generateSoap11FaultWithCause(REMOTE_SOAP_FAULT));
+    Map<String, Object> headers = new HashMap<>();
+    String result = testConsumer.sendHttpsRequestToVP(createGetCertificateRequest(RECEIVER_HTTPS), headers);
+
+    SOAPBody soapBody = SoapUtils.getSoapBody(result);
+    assertSoapFault(soapBody, VP011.getCode(), "VP011 Caller was not on the white list of accepted IP-addresses");
+    assertEquals(0, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    assertRespOutLogWithRespCode200("VP011 Caller was not on the white list of accepted IP-addresses");
   }
 
   @Test
@@ -221,7 +260,7 @@ public class FullServiceErrorHandlingIT {
   }
 
   @Test
-  public void   shouldGetVP011ifIpAddressIsNotWhitelisted() throws Exception {
+  public void shouldGetVP011ifIpAddressIsNotWhitelisted() throws Exception {
     Map<String, Object> headers = new HashMap<>();
     headers.put(HttpHeaders.X_VP_SENDER_ID, "Urken");
     headers.put(HttpHeaders.X_VP_INSTANCE_ID, "dev_env");
@@ -284,6 +323,13 @@ public class FullServiceErrorHandlingIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
     assertStringContains(respOutLogMsg, msg);
     assertStringContains(respOutLogMsg,"-Headers={CamelHttpResponseCode=500}");
+  }
+
+  private void assertRespOutLogWithRespCode200(String msg) {
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
+    assertStringContains(respOutLogMsg, msg);
+    assertStringContains(respOutLogMsg,"-Headers={CamelHttpResponseCode=200");
   }
 
   private String getAndAssertRespOutLog() {

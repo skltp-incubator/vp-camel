@@ -1,6 +1,7 @@
 package se.skl.tp.vp.errorhandling;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static se.skl.tp.vp.util.soaprequests.RoutingInfoUtil.createRoutingInfo;
 import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.RECEIVER_UNIT_TEST;
@@ -29,7 +30,9 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.skl.tp.vp.TestBeanConfiguration;
 import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.integrationtests.utils.MockProducer;
+import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.util.TestLogAppender;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
 
@@ -62,6 +65,8 @@ public class ErrorInResponseTest {
 
   @MockBean
   TakCache takCache;
+
+  TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
   @Autowired
   TakCacheService takCacheService;
@@ -112,6 +117,10 @@ public class ErrorInResponseTest {
     assertStringContains(resultBody, "address");
     assertStringContains(resultBody, "Exception Caught by Camel when contacting producer.");
     resultEndpoint.assertIsSatisfied();
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0);
+    assertStringContains(respOutLogMsg, "-Headers={CamelHttpResponseCode=500}");
+    assertStringContains(respOutLogMsg, "-sessionErrorTechnicalDescription=java.net.ConnectException: Cannot connect to localhost:12100");
   }
 
   @Test //Test för när en Producent svarar med ett tomt svar
@@ -143,6 +152,10 @@ public class ErrorInResponseTest {
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
     assertStringContains(resultBody, "java.lang.NullPointerException");
     resultEndpoint.assertIsSatisfied();
+
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
+    assertStringContains(respOutLogMsg, "Payload=java.lang.NullPointerException");
   }
 
   @Test // If a producer sends soap fault, we shall return with ResponseCode 200, with the fault embedded in the body.
@@ -155,11 +168,16 @@ public class ErrorInResponseTest {
     setTakCacheMockResult(list);
     template.sendBody(createGetCertificateRequest(RECEIVER_UNIT_TEST));
     String resultBody = resultEndpoint.getExchanges().get(0).getIn().getBody(String.class);
-    assertStringContains(resultBody, "SOAP-ENV:Fault");
-    assertStringContains(resultBody, "VP009 Error connecting to service producer at address");
+    assertStringContains(resultBody, "<faultcode>soap:Server</faultcode>");
+    assertStringContains(resultBody, "VP011 Caller was not on the white list of accepted IP-addresses");
     resultEndpoint.assertIsSatisfied();
-    String header = (String) resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_SKLTP_PRODUCER_RESPONSETIME);
-    assertNotNull(header);
+    assertEquals(0, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
+    assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
+    assertStringContains(respOutLogMsg, "CamelHttpResponseCode=200");
+    assertStringContains(respOutLogMsg, "Internal Server Error");
+    assertStringContains(respOutLogMsg, "Payload=<soapenv:Envelope");
+    assertStringContains(respOutLogMsg, "VP011 Caller was not on the white list of accepted IP-addresses");
   }
 
   private void setTakCacheMockResult(List<RoutingInfo> list) {
