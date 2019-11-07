@@ -44,6 +44,9 @@ public class VPNettyHttpBinding extends DefaultNettyHttpBinding {
       request.headers().set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
       request.headers().remove(HttpHeaderNames.CONTENT_LENGTH);
     }
+    if(log.isDebugEnabled()){
+      log.debug("Outgoing request headers:\n{}", request.headers().toString());
+    }
     ThreadContext.clearAll();
     return request;
   }
@@ -51,6 +54,9 @@ public class VPNettyHttpBinding extends DefaultNettyHttpBinding {
   @Override
   public HttpResponse toNettyResponse(Message message, NettyHttpConfiguration configuration) throws Exception {
     HttpResponse response = super.toNettyResponse(message, configuration);
+    if(log.isDebugEnabled()){
+      log.debug("Outgoing response headers:\n{}", response.headers().toString());
+    }
     ThreadContext.clearAll();
     return response;
   }
@@ -61,6 +67,9 @@ public class VPNettyHttpBinding extends DefaultNettyHttpBinding {
     Message msg = super.toCamelMessage(response, exchange, configuration);
     String correlationId = exchange.getProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, String.class);
     ThreadContext.put("corr.id", String.format("[%s]", correlationId ));
+    if(log.isDebugEnabled()){
+      log.debug("Incomming response headers:\n{}", response.headers().toString());
+    }
     return msg;
   }
 
@@ -71,6 +80,9 @@ public class VPNettyHttpBinding extends DefaultNettyHttpBinding {
     String correlationId = getCorrelationId(request);
     exchange.setProperty(VPExchangeProperties.SKLTP_CORRELATION_ID, correlationId);
     ThreadContext.put("corr.id", String.format("[%s]", correlationId ));
+    if(log.isDebugEnabled()){
+      log.debug("Incomming request headers:\n{}", request.headers().toString());
+    }
     return msg;
   }
 
