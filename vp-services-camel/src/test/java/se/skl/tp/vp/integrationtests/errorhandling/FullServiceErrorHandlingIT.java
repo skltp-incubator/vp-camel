@@ -320,14 +320,14 @@ public class FullServiceErrorHandlingIT extends LeakDetectionBaseTest {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
     assertStringContains(respOutLogMsg, msg);
-    assertStringContains(respOutLogMsg,"-Headers={CamelHttpResponseCode=500}");
+    assertStringContains(respOutLogMsg,"CamelHttpResponseCode=500");
   }
 
   private void assertRespOutLogWithRespCode200(String msg) {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.RESP_OUT));
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT,0);
     assertStringContains(respOutLogMsg, msg);
-    assertStringContains(respOutLogMsg,"-Headers={CamelHttpResponseCode=200");
+    assertStringContains(respOutLogMsg,"CamelHttpResponseCode=200");
   }
 
   private String getAndAssertRespOutLog() {
