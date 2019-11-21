@@ -22,7 +22,7 @@ public class CheckSenderAllowedToUseHeaderImpl implements CheckSenderAllowedToUs
 
   private static final String MSG_SENDERID_MISSING = "The sender was null/empty. Could not check address in list {}. HTTP header that caused checking: {}.";
   private static final String MSG_SENDER_ALLOWED_SET_HEADER = "Sender '{}' allowed to set x-rivta-original-serviceconsumer-hsaid";
-  private static final String LIST_EMPTY_WARNING = "The list of approved senders, that can use header {} was empty or null";
+  private static final String LIST_EMPTY_WARNING = "The list of approved senders, that can use header {} was empty or null. SenderId was {}";
   private static final String MSG_SENDER_NOT_ALLOWED_SET_HEADER = "Sender '{}' not allowed to set header {}, accepted senderId's in '{}': [{}]";
 
   @Autowired
@@ -42,7 +42,7 @@ public class CheckSenderAllowedToUseHeaderImpl implements CheckSenderAllowedToUs
     }
 
     if (senderIdArray == null || senderIdArray.length == 0) {
-      log.warn(LIST_EMPTY_WARNING, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
+      log.warn(LIST_EMPTY_WARNING, HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID, senderId);
       return false;
     }
 
