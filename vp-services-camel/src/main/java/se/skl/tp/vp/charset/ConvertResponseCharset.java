@@ -18,6 +18,8 @@ public class ConvertResponseCharset implements Processor {
       convertPayloadToString(exchange);
       exchange.setProperty(Exchange.CHARSET_NAME, originalEncoding);
       exchange.getIn().setHeader(Exchange.CONTENT_TYPE, String.format(VARIABLE_CONTENT_TYPE, originalEncoding));
+    } else {
+      exchange.getIn().setHeader(Exchange.CONTENT_TYPE, "text/xml; charset=UTF-8");
     }
   }
 

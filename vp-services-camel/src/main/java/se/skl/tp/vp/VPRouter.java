@@ -134,6 +134,7 @@ public class VPRouter extends RouteBuilder {
         onException(Exception.class)
             .process(exceptionMessageProcessor)
             .bean(MessageInfoLogger.class, LOG_ERROR_METHOD)
+            .process(convertResponseCharset)
             .removeHeaders(headerFilter.getResponseHeadersToRemove(), headerFilter.getResponseHeadersToKeep())
             .bean(MessageInfoLogger.class, LOG_RESP_OUT_METHOD)
             .handled(true);

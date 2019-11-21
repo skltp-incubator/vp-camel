@@ -123,5 +123,31 @@ public class HttpResponseHeadersIT {
 
   }
 
+  @Test
+  public void testCorrectContentTypeInResponse() {
+    mockProducer.setResponseBody("<mocked answer/>");
+    mockProducer.addResponseHeader("Content-Type", "text/plain;charset=UTF-8");
+
+    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRequest(RECEIVER_HTTPS));
+    assertEquals("<mocked answer/>", response);
+    assertEquals( "text/xml; charset=UTF-8", testConsumer.getReceivedHeader("Content-Type"));
+
+    String respInLog = testLogAppender.getEventMessage(MessageInfoLogger.RESP_IN, 0);
+    assertTrue(respInLog.contains("Content-Type=text/plain;charset=UTF-8"));
+
+    String respOutLog = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertTrue(respOutLog.contains("Content-Type=text/xml; charset=UTF-8"));
+
+  }
+
+  @Test
+  public void testCorrectContentTypeWhenErrorInResponse() {
+    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRequest("Unknown"));
+    assertTrue(response.contains("VP004"));
+    assertEquals( "text/xml; charset=UTF-8", testConsumer.getReceivedHeader("Content-Type"));
+
+    String respOutLog = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertTrue(respOutLog.contains("Content-Type=text/xml; charset=UTF-8"));
+  }
 
 }
