@@ -53,7 +53,7 @@ public class CheckSenderAllowedToUseHeaderTest {
   public void listMissingTest() {
     CheckSenderAllowedToUseHeader emptyCheckSenderIdAgainstList = new CheckSenderAllowedToUseHeaderImpl(null);
     Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
-    testLogMessage(1, "The list of approved senders, that can use header " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + " was empty or null");
+    testLogMessage(1, "The list of approved senders, that can use header " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + " was empty or null. SenderId was SENDER2");
   }
 
   @Test
