@@ -17,7 +17,9 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -33,6 +35,7 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.httpheader.SenderIpExtractor;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
 import se.skltp.takcache.RoutingInfo;
 import se.skltp.takcache.TakCache;
@@ -62,6 +65,16 @@ public class ProducerTimeoutTest extends CamelTestSupport {
   TestLogAppender testLogAppender = TestLogAppender.getInstance();
 
   private static boolean isContextStarted = false;
+
+  @BeforeClass
+  public static void startLeakDetection() {
+    LeakDetectionBaseTest.startLeakDetection();
+  }
+
+  @AfterClass
+  public static void verifyNoLeaks() throws Exception {
+    LeakDetectionBaseTest.verifyNoLeaks();
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -104,7 +117,7 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
     String errorLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR, 0);
     assertStringContains(errorLogMsg, "-errorCode=VP009");
-    assertStringContains(errorLogMsg, "Stacktrace=io.netty.handler.timeout.ReadTimeoutException:");
+    assertStringContains(errorLogMsg, "Stacktrace=io.netty.handler.timeout.ReadTimeoutException");
 
     assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_OUT));
     String reqOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_OUT, 0);
@@ -113,6 +126,9 @@ public class ProducerTimeoutTest extends CamelTestSupport {
     } else {
       assertStringContains(reqOutLogMsg, "CamelNettyRequestTimeout=460");
     }
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "VP009 Error connecting to service producer at address");
+    assertStringContains(respOutLogMsg, "Timeout when waiting on response from producer");
   }
 
   private HashMap<String, TimeoutConfig> getConfigMap(boolean defaultOnly) {

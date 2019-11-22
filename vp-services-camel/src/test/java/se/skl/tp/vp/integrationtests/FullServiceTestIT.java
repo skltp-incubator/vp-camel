@@ -26,13 +26,14 @@ import se.skl.tp.vp.integrationtests.utils.MockProducer;
 import se.skl.tp.vp.integrationtests.utils.StartTakService;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @StartTakService
-public class FullServiceTestIT {
+public class FullServiceTestIT extends LeakDetectionBaseTest {
 
   public static final String HTTP_PRODUCER_URL = "http://localhost:19000/vardgivare-b/tjanst2";
   public static final String HTTPS_PRODUCER_URL = "https://localhost:19001/vardgivare-b/tjanst2";
@@ -73,8 +74,7 @@ public class FullServiceTestIT {
   public void before() {
     try {
       mockProducer.start(HTTP_PRODUCER_URL);
-      mockHttpsProducer
-          .start(HTTPS_PRODUCER_URL + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
+      mockHttpsProducer.start(HTTPS_PRODUCER_URL + "?sslContextParameters=#outgoingSSLContextParameters&ssl=true");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -128,12 +128,33 @@ public class FullServiceTestIT {
   }
 
   @Test
+  public void testVagvalContainingWsdlQuery() {
+    mockHttpsProducer.setResponseBody("<mocked https answer/>");
+
+    Map<String, Object> headers = new HashMap<>();
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
+    String response = testConsumer.sendHttpRequestToVP(createGetCertificateRequest("HttpsProducerWsdl"), headers);
+    assertEquals("<mocked https answer/>", response);
+
+    assertMessageLogsExists();
+
+    String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
+    assertStringContains(respOutLogMsg, "LogMessage=resp-out");
+    assertStringContains(respOutLogMsg, "ComponentId=vp-services");
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
+    assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
+    assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
+    assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));
+  }
+
+  @Test
   public void callHttpVPEndpointDeclaredUTF16ButIsUTF8() {
     mockProducer.setResponseBody("<mocked answer/>");
 
     Map<String, Object> headers = new HashMap<>();
-    headers.put(HttpHeaders.X_VP_INSTANCE_ID,vpInstanceId);
-    headers.put(HttpHeaders.X_VP_SENDER_ID,"tp");
+    headers.put(HttpHeaders.X_VP_INSTANCE_ID, vpInstanceId);
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "tp");
     String response = testConsumer.sendHttpRequestToVP(createGetCertificateRiv20UTF16Request(RECEIVER_HTTPS), headers);
 
     assertEquals("<mocked answer/>", response);
@@ -143,7 +164,7 @@ public class FullServiceTestIT {
     String respOutLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.RESP_OUT, 0);
     assertStringContains(respOutLogMsg, "LogMessage=resp-out");
     assertStringContains(respOutLogMsg, "ComponentId=vp-services");
-    assertStringContains(respOutLogMsg, "Endpoint="+vpHttpUrl);
+    assertStringContains(respOutLogMsg, "Endpoint=" + vpHttpUrl);
     assertExtraInfoLog(respOutLogMsg, RECEIVER_HTTPS, HTTPS_PRODUCER_URL);
     assertStringContains(respOutLogMsg, "-originalServiceconsumerHsaid=tp");
     assertTrue(!respOutLogMsg.contains("-originalServiceconsumerHsaid_in"));

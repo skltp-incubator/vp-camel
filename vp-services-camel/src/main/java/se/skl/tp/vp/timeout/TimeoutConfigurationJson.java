@@ -21,7 +21,7 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
 
   private static Logger LOGGER = LogManager.getLogger(TimeoutConfigurationJson.class);
 
-  private List<TimeoutConfig> wsdlConfigs;
+  private List<TimeoutConfig> timeoutConfigs;
   private HashMap<String, TimeoutConfig> mapOnTjanstekontrakt;
 
   public void setMapOnTjansteKontrakt(HashMap<String, TimeoutConfig> map) {
@@ -36,17 +36,17 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
       throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
-      wsdlConfigs = objectMapper.readValue(new File(timeout_json_file), new TypeReference<List<TimeoutConfig>>() {});
+      timeoutConfigs = objectMapper.readValue(new File(timeout_json_file), new TypeReference<List<TimeoutConfig>>() {});
     } catch (FileNotFoundException e) {
       LOGGER.warn("Json file for timeouts not found at " + timeout_json_file + ".");
     } catch (JsonParseException e) {
       LOGGER.warn("Json file for timeouts " + timeout_json_file + " could not be parsed.");
     }
-    if (wsdlConfigs == null) {
-      wsdlConfigs = new ArrayList<>();
+    if (timeoutConfigs == null) {
+      timeoutConfigs = new ArrayList<>();
     }
     boolean defaultTimeoutsExist = false;
-    for (TimeoutConfig timeoutConfig : wsdlConfigs) {
+    for (TimeoutConfig timeoutConfig : timeoutConfigs) {
       if (timeoutConfig.getTjanstekontrakt().equalsIgnoreCase(timeout_json_file_default_tjanstekontrakt_name)) {
         defaultTimeoutsExist = true;
       }
@@ -65,12 +65,12 @@ public class TimeoutConfigurationJson implements TimeoutConfiguration {
     timeoutConfig.setTjanstekontrakt(defaultTjanstekontrakt);
     timeoutConfig.setProducertimeout(29000);
     timeoutConfig.setRoutetimeout(30000);
-    wsdlConfigs.add(timeoutConfig);
+    timeoutConfigs.add(timeoutConfig);
   }
 
   private void initMaps() {
     mapOnTjanstekontrakt = new HashMap<>();
-    for (TimeoutConfig timeoutConfig : wsdlConfigs) {
+    for (TimeoutConfig timeoutConfig : timeoutConfigs) {
       mapOnTjanstekontrakt.put(timeoutConfig.getTjanstekontrakt(), timeoutConfig);
     }
   }

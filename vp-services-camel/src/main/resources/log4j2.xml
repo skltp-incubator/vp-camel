@@ -2,7 +2,7 @@
 
   <Properties>
     <Property name="LOG_PATTERN">
-      %d %-5p [%t] %-30c - %m%n
+      %d %-5p [%t] %-30c - %X{corr.id} %m%n
     </Property>
   </Properties>
 

@@ -29,4 +29,6 @@ public class PropertyConstants {
     public static final String VP_HTTPS_ROUTE_URL = "vp.https.route.url";
     public static final String VP_HTTP_GET_ROUTE = "vp.status.url";
 
+    public static final String PRODUCER_CHUNKED_ENCODING = "producer.chunked.encoding";
+
 }

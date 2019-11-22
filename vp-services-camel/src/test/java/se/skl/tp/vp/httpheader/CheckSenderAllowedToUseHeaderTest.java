@@ -45,7 +45,7 @@ public class CheckSenderAllowedToUseHeaderTest {
   @Test
   public void senderIdNotInListTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER3"));
-    testLogMessage(1, "Sender 'SENDER3' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '"
+    testLogMessage(1, "Sender 'SENDER3' not allowed to set header " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + ", accepted senderId's in '"
         + SENDER_ID_ALLOWED_LIST + "': [" + allowedUsers + "]");
   }
 
@@ -53,22 +53,21 @@ public class CheckSenderAllowedToUseHeaderTest {
   public void listMissingTest() {
     CheckSenderAllowedToUseHeader emptyCheckSenderIdAgainstList = new CheckSenderAllowedToUseHeaderImpl(null);
     Assert.assertFalse(emptyCheckSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader("SENDER2"));
-    testLogMessage(1, "Sender 'SENDER2' not allowed to set x-rivta-original-serviceconsumer-hsaid, accepted senderId's in '"
-        + SENDER_ID_ALLOWED_LIST + "': [null]");
+    testLogMessage(1, "The list of approved senders, that can use header " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + " was empty or null. SenderId was SENDER2");
   }
 
   @Test
   public void senderIDNullTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(null));
     testLogMessage(1, "The sender was null/empty. Could not check address in list " + SENDER_ID_ALLOWED_LIST +
-        ". HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
+        ". HTTP header that caused checking: " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + ".");
   }
 
   @Test
   public void senderIDEmptyTest() {
     Assert.assertFalse(checkSenderIdAgainstList.isSenderIdAllowedToUseXrivtaOriginalConsumerIdHeader(""));
     testLogMessage(1, "The sender was null/empty. Could not check address in list " + SENDER_ID_ALLOWED_LIST +
-        ". HTTP header that caused checking: x-rivta-original-serviceconsumer-hsaid.");
+        ". HTTP header that caused checking: " + HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + ".");
   }
 
   private void testLogMessage(int num, String message) {

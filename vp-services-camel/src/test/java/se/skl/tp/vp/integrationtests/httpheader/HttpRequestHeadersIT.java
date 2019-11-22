@@ -6,12 +6,15 @@ import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CONSUMER
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_CORRELATION_ID;
 import static se.skl.tp.vp.integrationtests.httpheader.HeadersUtil.TEST_SENDER;
 
+import java.util.Map;
 import org.apache.camel.CamelContext;
+import org.apache.camel.CamelExecutionException;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.component.netty4.http.NettyHttpOperationFailedException;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Before;
@@ -36,7 +39,7 @@ import se.skl.tp.vp.util.soaprequests.TestSoapRequests;
 @TestPropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @StartTakService
-public class HttpHeadersIT extends CamelTestSupport {
+public class HttpRequestHeadersIT extends CamelTestSupport {
 
   @Value("${" + PropertyConstants.VP_HEADER_USER_AGENT + "}")
   private String vpHeaderUserAgent;
@@ -74,14 +77,14 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkSoapActionSetTest() {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.createHttpHeaders());
     String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.SOAP_ACTION);
     assertEquals("action", s);
   }
 
   @Test
   public void checkHeadersSetByConfigTest() {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.createHttpHeaders());
     assertEquals(vpInstanceId, resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_VP_INSTANCE_ID));
     assertEquals(headerContentType, resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.HEADER_CONTENT_TYPE));
     assertEquals(vpHeaderUserAgent, resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.HEADER_USER_AGENT));
@@ -90,7 +93,7 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkCorrelationIdPropagatedWhenIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.createHttpHeadersWithMembers());
     assertEquals(TEST_CORRELATION_ID, resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_SKLTP_CORRELATION_ID));
     assertLogExistAndContainsMessages(MessageInfoLogger.REQ_IN, "LogMessage=req-in", "BusinessCorrelationId=" + TEST_CORRELATION_ID);
     assertLogExistAndContainsMessages(MessageInfoLogger.RESP_OUT, "LogMessage=resp-out", X_SKLTP_CORRELATION_ID + "=" + TEST_CORRELATION_ID);
@@ -98,7 +101,7 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkXrivtaOriginalConsumerIdPropagatedWhenIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.createHttpHeadersWithMembers());
     assertEquals(TEST_CONSUMER, resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
     assertLogExistAndContainsMessages(MessageInfoLogger.REQ_IN, "LogMessage=req-in", LogExtraInfoBuilder.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID + "=" + TEST_CONSUMER);
     assertLogExistAndContainsMessages(MessageInfoLogger.RESP_OUT, "LogMessage=resp-out", X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + "=" + TEST_CONSUMER);
@@ -106,7 +109,7 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkCorrelationIdPropagatedWithoutIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.createHttpHeaders());
     String s = (String) resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_SKLTP_CORRELATION_ID);
     assertNotNull(s);
     assertNotEquals(TEST_CORRELATION_ID, s);
@@ -117,7 +120,7 @@ public class HttpHeadersIT extends CamelTestSupport {
 
   @Test
   public void checkXrivtaOriginalConsumerIdPropagatedWithoutIncomingHeaderSetTest() {
-    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.getHttpHeadersWithoutMembers());
+    template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, HeadersUtil.createHttpHeaders());
     assertEquals(TEST_SENDER, resultEndpoint.getExchanges().get(0).getIn().getHeader(HttpHeaders.X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID));
 
     String reqInLogMsg = testLogAppender.getEventMessage(MessageInfoLogger.REQ_IN, 0);
@@ -125,6 +128,21 @@ public class HttpHeadersIT extends CamelTestSupport {
     boolean b = reqInLogMsg.contains(LogExtraInfoBuilder.IN_ORIGINAL_SERVICE_CONSUMER_HSA_ID);
     assertFalse(b);
     assertLogExistAndContainsMessages(MessageInfoLogger.RESP_OUT, "LogMessage=resp-out", X_RIVTA_ORIGINAL_SERVICE_CONSUMER_HSA_ID + "=" + TEST_SENDER);
+  }
+
+  @Test
+  public void checkSenderNotAllowedToSetXrivtaOriginalConsumer() {
+    Map<String, Object> headers = HeadersUtil.createHttpHeadersWithMembers();
+    headers.put(HttpHeaders.X_VP_SENDER_ID, "SENDER3");
+    try {
+      template.sendBodyAndHeaders(TestSoapRequests.GET_NO_CERT_HTTP_SOAP_REQUEST, headers);
+    } catch (CamelExecutionException e) {
+      NettyHttpOperationFailedException ne = (NettyHttpOperationFailedException) e.getExchange().getException();
+      String err = ne.getContentAsString();
+      assert(err.contains("VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid"));
+      assertLogExistAndContainsMessages(MessageInfoLogger.RESP_OUT, "LogMessage=resp-out",
+          "VP013 Sender is not approved to set header x-rivta-original-serviceconsumer-hsaid");
+    }
   }
 
   private void assertLogExistAndContainsMessages(String logger, String msg1, String msg2) {

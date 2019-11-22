@@ -1,6 +1,5 @@
 package se.skl.tp.vp.logging;
 
-import java.util.ArrayList;
 import java.util.Map;
 import org.apache.camel.Exchange;
 import se.skl.tp.vp.constants.VPExchangeProperties;
@@ -36,7 +35,7 @@ public class LogEntryBuilder {
     return logEntry;
   }
 
-  public static LogMessageExceptionType createMessageException(Exchange exchange) {
+  public static LogMessageExceptionType createMessageException(Exchange exchange, String stackTrace) {
     Throwable throwable = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
     if (throwable == null) {
       return null;
@@ -45,12 +44,8 @@ public class LogEntryBuilder {
     LogMessageExceptionType lme = new LogMessageExceptionType();
     lme.setExceptionClass(throwable.getClass().getName());
     lme.setExceptionMessage(throwable.getMessage());
-    lme.setStackTrace(new ArrayList<>());
-    StackTraceElement[] stArr = throwable.getStackTrace();
-    // we are just interested in the first lines.
-    for (int i = 0; i < stArr.length && i < 10; i++) {
-      lme.getStackTrace().add(stArr[i].toString());
-    }
+    lme.setStackTrace(stackTrace);
+
     return lme;
   }
 

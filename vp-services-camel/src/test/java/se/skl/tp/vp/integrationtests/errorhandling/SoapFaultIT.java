@@ -27,13 +27,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
+import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
 import se.skl.tp.vp.util.soaprequests.SoapUtils;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class SoapFaultIT {
+public class SoapFaultIT extends LeakDetectionBaseTest {
 
   public static final String TEST_EXCEPTION_MESSAGE = "Test exception message!";
   @EndpointInject(uri = "mock:vagvalprocessor")

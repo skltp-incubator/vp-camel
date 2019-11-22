@@ -1,5 +1,7 @@
 package se.skl.tp.vp.status;
 
+import io.netty.buffer.PooledByteBufAllocatorMetric;
+import java.lang.management.MemoryUsage;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +23,7 @@ import se.skl.tp.vp.constants.HttpHeaders;
 import se.skl.tp.vp.service.HsaCacheService;
 import se.skl.tp.vp.service.HsaCacheStatus;
 import se.skl.tp.vp.service.TakCacheService;
+import se.skl.tp.vp.utils.MemoryUtil;
 import se.skltp.takcache.TakCacheLog;
 
 @Service
@@ -42,6 +45,10 @@ public class GetStatusProcessor implements Processor {
   public static final String KEY_JVM_FREE_MEMORY = "JvmFreeMemory";
   public static final String KEY_JVM_USED_MEMORY = "JvmUsedMemory";
   public static final String KEY_JVM_MAX_MEMORY = "JvmMaxMemory";
+  public static final String KEY_DIRECT_MEMORY = "DirectMemBufferPool";
+  public static final String KEY_NON_HEAP_MEMORY = "NonHeapMemory";
+  public static final String KEY_VM_MAX_DIRECT_MEMORY = "MaxDirectMemory";
+  public static final String KEY_NETTY_DIRECT_MEMORY = "NettyDirectMemory";
   public static final String KEY_ENDPOINTS = "Endpoints";
   @Autowired
   private CamelContext camelContext;
@@ -57,8 +64,8 @@ public class GetStatusProcessor implements Processor {
 
   @Override
   public void process(Exchange exchange) {
-
-    Map<String, Object> map = registerInfo();
+    boolean showMemory = exchange.getIn().getHeaders().containsKey("memory");
+    Map<String, Object> map = registerInfo(showMemory);
     JSONObject obj = new JSONObject(map);
     try {
       exchange.getIn().setBody(obj.toString(2).replace("\\/", "/"));
@@ -68,7 +75,7 @@ public class GetStatusProcessor implements Processor {
     exchange.getIn().getHeaders().put(HttpHeaders.HEADER_CONTENT_TYPE, "application/json");
   }
 
-  private Map<String, Object> registerInfo() {
+  private Map<String, Object> registerInfo(boolean showMemory) {
     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
 
     map.put(KEY_APP_NAME, buildProperties.getName());
@@ -89,14 +96,49 @@ public class GetStatusProcessor implements Processor {
     map.put(KEY_HSA_CACHE_INITIALIZED, "" + hsaCacheStatus.isInitialized());
     map.put(KEY_HSA_CACHE_RESET_INFO, getHsaRefreshInfo(hsaCacheStatus));
 
-    int mb = 1024 * 1024;
     Runtime instance = Runtime.getRuntime();
-    map.put(KEY_JVM_TOTAL_MEMORY, "" + instance.totalMemory() / mb + " mB");
-    map.put(KEY_JVM_FREE_MEMORY, "" + instance.freeMemory() / mb + " mB");
-    map.put(KEY_JVM_USED_MEMORY, "" + (instance.totalMemory() - instance.freeMemory()) / mb + " mB");
-    map.put(KEY_JVM_MAX_MEMORY, "" + instance.maxMemory() / mb + " mB");
+    map.put(KEY_JVM_TOTAL_MEMORY, "" + MemoryUtil.bytesReadable(instance.totalMemory()));
+    map.put(KEY_JVM_FREE_MEMORY, "" + MemoryUtil.bytesReadable(instance.freeMemory()));
+    map.put(KEY_JVM_USED_MEMORY, "" + MemoryUtil.bytesReadable((instance.totalMemory() - instance.freeMemory())));
+    map.put(KEY_JVM_MAX_MEMORY, "" + MemoryUtil.bytesReadable(instance.maxMemory()));
+    if(showMemory) {
+      map.put(KEY_DIRECT_MEMORY, "" + GetDirectMemoryString());
+      map.put(KEY_VM_MAX_DIRECT_MEMORY, "" + MemoryUtil.getVMMaxMemory());
+      map.put(KEY_NON_HEAP_MEMORY, "" + getNonHeapMemory());
+      map.put(KEY_NETTY_DIRECT_MEMORY, "" + getNettyDirectMemory());
+    }
     map.put(KEY_ENDPOINTS, getEndpointInfo());
     return map;
+  }
+
+  private String getNonHeapMemory() {
+    MemoryUsage nonHeapMemoryUsage = MemoryUtil.getNonHeapMemoryUsage();
+
+    return String.format("Init: %s Used: %s, Commited: %s, Max: %s",
+        MemoryUtil.bytesReadable(nonHeapMemoryUsage.getInit()),
+        MemoryUtil.bytesReadable(nonHeapMemoryUsage.getUsed()),
+        MemoryUtil.bytesReadable(nonHeapMemoryUsage.getCommitted()),
+        MemoryUtil.bytesReadable(nonHeapMemoryUsage.getMax()));
+  }
+
+  private String getNettyDirectMemory() {
+    PooledByteBufAllocatorMetric nettyMetrics = MemoryUtil.getNettyPooledByteBufMetrics();
+    String usedDirectMem = MemoryUtil.bytesReadable(nettyMetrics.usedDirectMemory());
+    String usedHeapMem = MemoryUtil.bytesReadable(nettyMetrics.usedHeapMemory());
+
+    return String.format("Direct: %s(Arenas:%d), Heap: %s(Arenas:%d), ThreadCaches: %d",
+        usedDirectMem,
+        nettyMetrics.numDirectArenas(),
+        usedHeapMem,
+        nettyMetrics.numHeapArenas(),
+        nettyMetrics.numThreadLocalCaches());
+  }
+
+  private String GetDirectMemoryString() {
+    return String.format("Used: %s, Count: %d, Max Capacity: %s",
+        MemoryUtil.getMemoryUsed(),
+        MemoryUtil.getCount(),
+        MemoryUtil.getTotalCapacity());
   }
 
   private List getEndpointInfo() {

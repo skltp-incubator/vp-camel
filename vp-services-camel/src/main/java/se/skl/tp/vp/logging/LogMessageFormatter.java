@@ -1,7 +1,6 @@
 package se.skl.tp.vp.logging;
 
 import java.net.InetAddress;
-import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.slf4j.helpers.MessageFormatter;
@@ -57,14 +56,7 @@ public class LogMessageFormatter {
     StringBuilder stackTrace = new StringBuilder();
     LogMessageExceptionType lmeException = logEntry.getMessageInfo().getException();
     if (lmeException != null) {
-      String ex = lmeException.getExceptionClass();
-      String msg = lmeException.getExceptionMessage();
-      List<String> st = lmeException.getStackTrace();
-
-      stackTrace.append('\n').append("Stacktrace=").append(ex).append(": ").append(msg);
-      for (String stLine : st) {
-        stackTrace.append('\n').append("\t at ").append(stLine);
-      }
+      stackTrace.append('\n').append("Stacktrace=").append(lmeException.getStackTrace());
     }
     return MessageFormatter
         .arrayFormat(LOG_STRING, new String[] {logEventName, logMessage, serviceImplementation,
