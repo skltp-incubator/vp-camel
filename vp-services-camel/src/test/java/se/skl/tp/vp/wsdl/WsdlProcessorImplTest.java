@@ -33,9 +33,11 @@ public class WsdlProcessorImplTest {
 
   private static String AUTOMATIC_DETECTED_WSDL_URL =
       "http://some.server.se/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?wsdl";
+  private static String CONFIGURED_WSDL_URL ="http://0.0.0.0:8080/vp/SomWeirdUrlNotFollowingNamingConventions?wsdl";
 
-  private static String CONFIGURED_WSDL_URL =
-      "http://0.0.0.0:8080/vp/SomWeirdUrlNotFollowingNamingConventions?wsdl";
+  //The wsdl has a UTF8 boom (That shouldn't bee there)
+  private static String CONFIGURED_WSDL_URL_UTF8_BOOM =
+      "http://0.0.0.0:8080/vp/infrastructure/directory/authorizationmanagement/GetCredentialsForPerson/1/rivtabp21?wsdl";
 
   private static String XSD_REFERENCED_IN_WSDL = "http://some.server.se/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?xsd=GetCertificateResponder_2.1.xsd";
   private static String XSD_REFERENCED_IN_XSD = "http://some.server.se/vp/clinicalprocess/healthcond/certificate/GetCertificate/2/rivtabp21?xsd=GetCertificateResponder_2.1.xsd";
@@ -64,6 +66,17 @@ public class WsdlProcessorImplTest {
     Document document = DocumentHelper.parseText((String) ex.getIn().getBody());
     String name = selectXPathStringValue(document,"wsdl:definitions/@name","wsdl=http://schemas.xmlsoap.org/wsdl/");
     assertEquals("GetActivitiesInteraction", name);
+  }
+
+  @Test
+  public void getWsdlDefinedInConfigFileHappyDaysUTF8BomIncluded() throws Exception {
+    //Exchange ex = createExchangeWithHttpUrl(CONFIGURED_WSDL_URL);
+    Exchange ex = createExchangeWithHttpUrl(CONFIGURED_WSDL_URL_UTF8_BOOM);
+    wsdlProcessor.process(ex);
+    Document document = DocumentHelper.parseText((String) ex.getIn().getBody());
+    String name = selectXPathStringValue(document,"wsdl:definitions/@name","wsdl=http://schemas.xmlsoap.org/wsdl/");
+    assertEquals("GetCredentialsForPersonInteraction", name);
+    //assertEquals("GetActivitiesInteraction", name);
   }
 
   @Test

@@ -1,5 +1,6 @@
 package se.skl.tp.vp.wsdl.utils;
 
+import static se.skl.tp.vp.wsdl.utils.WsdlBomHandler.removeCharsBeforeXmlDeclaration;
 import static se.skl.tp.vp.xmlutil.XmlHelper.applyHandlingToNodes;
 import static se.skl.tp.vp.xmlutil.XmlHelper.createXPath;
 
@@ -26,23 +27,21 @@ public class WsdlQueryUrlTransformer {
           "xsd=http://www.w3.org/2001/XMLSchema");
 
   // Static utility class
-  private WsdlQueryUrlTransformer() {
-  }
+  private WsdlQueryUrlTransformer() {}
 
   public static String replaceUrlParts(String wsdlOrXsdSource, URL url) throws DocumentException {
-    Document wsdl = DocumentHelper.parseText(wsdlOrXsdSource);
+    Document wsdl = DocumentHelper.parseText(removeCharsBeforeXmlDeclaration(wsdlOrXsdSource));
+
     replaceUrlPartsToService(url, wsdl);
     replaceUrlPartsToXsd(url, wsdl);
     return wsdl.asXML();
   }
 
   private static void replaceUrlPartsToXsd(URL url, Document wsdlOrXsd) {
-    applyHandlingToNodes(
-        wsdlOrXsd, getAlladressLocation, new WsdlAddressNodeHandler(url));
+    applyHandlingToNodes(wsdlOrXsd, getAlladressLocation, new WsdlAddressNodeHandler(url));
   }
 
   private static void replaceUrlPartsToService(URL url, Document wsdlOrXsd) {
-    applyHandlingToNodes(
-        wsdlOrXsd, getAllXsdImports, new WsdlSchemaImportNodeHandler(url));
+    applyHandlingToNodes(wsdlOrXsd, getAllXsdImports, new WsdlSchemaImportNodeHandler(url));
   }
 }
