@@ -39,15 +39,19 @@
         dont know for sure when its logged to appender.-->
         <Logger name="se.skl.tp.vp.logging.req.in" level="DEBUG" additivity="false">
             <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="se.skl.tp.vp.logging.req.out" level="DEBUG" additivity="false">
             <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="se.skl.tp.vp.logging.resp.in" level="DEBUG" additivity="false">
             <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="se.skl.tp.vp.logging.resp.out" level="DEBUG" additivity="false">
             <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="se.skl.tp.vp.logging.error" level="DEBUG" additivity="false">
             <AppenderRef ref="TestLogAppender"/>
@@ -68,6 +72,14 @@
 
         <Logger name="io.netty.util.ResourceLeakDetector" level="INFO" additivity="false">
             <AppenderRef ref="TestLogAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <!--Communication logging, should only be turned for a troubleshooting -->
+        <Logger name="org.apache.camel.component.netty4" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="io.netty" level="DEBUG" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
 

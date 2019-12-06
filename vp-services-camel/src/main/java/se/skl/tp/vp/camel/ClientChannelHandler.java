@@ -103,7 +103,13 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
       NettyHelper.close(ctx.channel());
 
       // signal callback
-      callback.done(false);
+
+        if(exchange.getUnitOfWork() == null){
+          LOG.warn("Exception without UnitOfWork, this is not propagated to Camel", cause);
+      } else {
+          callback.done(false);
+      }
+
     }
   }
 
