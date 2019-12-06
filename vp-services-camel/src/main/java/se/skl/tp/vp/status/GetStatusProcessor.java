@@ -1,6 +1,11 @@
 package se.skl.tp.vp.status;
 
+import static se.skl.tp.vp.wsdl.PathHelper.getPath;
+
 import io.netty.buffer.PooledByteBufAllocatorMetric;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.management.MemoryUsage;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +20,7 @@ import org.apache.camel.Route;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.impl.EventDrivenConsumerRoute;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.info.BuildProperties;
@@ -31,6 +37,7 @@ public class GetStatusProcessor implements Processor {
 
   public static final String KEY_APP_NAME = "Name";
   public static final String KEY_APP_VERSION = "Version";
+  public static final String KEY_CONF_VERSION = "VersionConfig";
   public static final String KEY_APP_BUILD_TIME = "BuildTime";
   public static final String KEY_SERVICE_STATUS = "ServiceStatus";
   public static final String KEY_UPTIME = "Uptime";
@@ -62,6 +69,9 @@ public class GetStatusProcessor implements Processor {
   @Autowired
   BuildProperties buildProperties;
 
+  @Value("${configuration.version.file}")
+  String configVersionFile;
+
   @Override
   public void process(Exchange exchange) {
     boolean showMemory = exchange.getIn().getHeaders().containsKey("memory");
@@ -81,6 +91,11 @@ public class GetStatusProcessor implements Processor {
     map.put(KEY_APP_NAME, buildProperties.getName());
     map.put(KEY_APP_VERSION, buildProperties.getVersion());
     map.put(KEY_APP_BUILD_TIME, buildProperties.getTime());
+
+    String confVersion = getConfigVersion();
+    if(confVersion!=null) {
+      map.put(KEY_CONF_VERSION, confVersion);
+    }
 
     ServiceStatus serviceStatus = camelContext.getStatus();
     map.put(KEY_SERVICE_STATUS, "" + serviceStatus);
@@ -102,7 +117,7 @@ public class GetStatusProcessor implements Processor {
     map.put(KEY_JVM_USED_MEMORY, "" + MemoryUtil.bytesReadable((instance.totalMemory() - instance.freeMemory())));
     map.put(KEY_JVM_MAX_MEMORY, "" + MemoryUtil.bytesReadable(instance.maxMemory()));
     if(showMemory) {
-      map.put(KEY_DIRECT_MEMORY, "" + GetDirectMemoryString());
+      map.put(KEY_DIRECT_MEMORY, "" + getDirectMemoryString());
       map.put(KEY_VM_MAX_DIRECT_MEMORY, "" + MemoryUtil.getVMMaxMemory());
       map.put(KEY_NON_HEAP_MEMORY, "" + getNonHeapMemory());
       map.put(KEY_NETTY_DIRECT_MEMORY, "" + getNettyDirectMemory());
@@ -134,7 +149,7 @@ public class GetStatusProcessor implements Processor {
         nettyMetrics.numThreadLocalCaches());
   }
 
-  private String GetDirectMemoryString() {
+  private String getDirectMemoryString() {
     return String.format("Used: %s, Count: %d, Max Capacity: %s",
         MemoryUtil.getMemoryUsed(),
         MemoryUtil.getCount(),
@@ -177,6 +192,20 @@ public class GetStatusProcessor implements Processor {
   private String getFormattedDate(Date date){
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
     return date == null ? "" : dateFormat.format(date);
+  }
+
+  private String getConfigVersion(){
+    if(configVersionFile == null || configVersionFile.isEmpty()){
+      return null;
+    }
+    try {
+      File confVerFile = getPath(configVersionFile).toFile();
+      try ( BufferedReader br = new BufferedReader(new FileReader(confVerFile))){
+        return br.readLine(); // Just first line in file
+      }
+    } catch (Exception e) {
+      return null;
+    }
   }
 
 }

@@ -2,6 +2,7 @@ package se.skl.tp.vp.integrationtests.getstatus;
 
 import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
 import static org.junit.Assert.assertTrue;
+import static se.skl.tp.vp.status.GetStatusProcessor.KEY_CONF_VERSION;
 import static se.skl.tp.vp.status.GetStatusProcessor.KEY_HSA_CACHE_INITIALIZED;
 import static se.skl.tp.vp.status.GetStatusProcessor.KEY_MANAGEMENT_NAME;
 import static se.skl.tp.vp.status.GetStatusProcessor.KEY_SERVICE_STATUS;
@@ -42,6 +43,7 @@ public class GetStatusIT extends LeakDetectionBaseTest {
     assertStringContains(statusResponse, String.format("\"%s\": \"vp-services-test\"",KEY_MANAGEMENT_NAME));
     assertStringContains(statusResponse, String.format("\"%s\": \"true\"",KEY_TAK_CACHE_INITIALIZED));
     assertStringContains(statusResponse, String.format("\"%s\": \"true\"",KEY_HSA_CACHE_INITIALIZED));
+    assertStringContains(statusResponse, String.format("\"%s\": \"test_ver_1.0.0\"",KEY_CONF_VERSION));
   }
 
 }
