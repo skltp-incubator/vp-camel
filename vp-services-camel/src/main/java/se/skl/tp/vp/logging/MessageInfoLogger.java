@@ -30,6 +30,7 @@ public class MessageInfoLogger {
   private static final String MSG_TYPE_LOG_RESP_IN = "resp-in";
   private static final String MSG_TYPE_LOG_RESP_OUT = "resp-out";
   private static final String MSG_TYPE_ERROR = "error";
+  public static final int MAX_DEBUG_LOG_BODY_SIZE = 512*1024;//0,5MB
 
 
   public void logReqIn(Exchange exchange) {
@@ -48,12 +49,12 @@ public class MessageInfoLogger {
     log(LOGGER_RESP_OUT, exchange, MSG_TYPE_LOG_RESP_OUT);
   }
 
-  public void logError(Exchange exchange, String stackTrace) {
+  public void logError(Exchange exchange) {
 
     try {
       LogEntry logEntry = LogEntryBuilder.createLogEntry(MSG_TYPE_ERROR, exchange);
       logEntry.getExtraInfo().put(LogExtraInfoBuilder.SOURCE, getClass().getName());
-      logEntry.getMessageInfo().setException(LogEntryBuilder.createMessageException(exchange, stackTrace));
+      logEntry.getMessageInfo().setException(LogEntryBuilder.createMessageException(exchange));
       String logMsg = LogMessageFormatter.format(LOG_EVENT_ERROR, logEntry);
       LOGGER_ERROR.error(logMsg);
 
@@ -64,10 +65,15 @@ public class MessageInfoLogger {
 
   public void log(Logger log, Exchange exchange, String messageType) {
     try {
-      if (log.isDebugEnabled()) {
+      if (log.isTraceEnabled()) {
         LogEntry logEntry = LogEntryBuilder.createLogEntry(messageType, exchange);
         logEntry.getExtraInfo().put(LogExtraInfoBuilder.SOURCE, getClass().getName());
-        logEntry.setPayload(exchange.getIn().getBody(String.class));
+        logEntry.setPayload(getBody(exchange,0));
+        log.trace(LogMessageFormatter.format(LOG_EVENT_DEBUG, logEntry));
+      } if (log.isDebugEnabled()) {
+        LogEntry logEntry = LogEntryBuilder.createLogEntry(messageType, exchange);
+        logEntry.getExtraInfo().put(LogExtraInfoBuilder.SOURCE, getClass().getName());
+        logEntry.setPayload(getBody(exchange, MAX_DEBUG_LOG_BODY_SIZE));
         log.debug(LogMessageFormatter.format(LOG_EVENT_DEBUG, logEntry));
       } else if (log.isInfoEnabled()) {
         LogEntry logEntry = LogEntryBuilder.createLogEntry(messageType, exchange);
@@ -78,6 +84,14 @@ public class MessageInfoLogger {
     } catch (Exception e) {
       log.error("Failed log message: {}", messageType, e);
     }
+  }
+
+  private String getBody(Exchange exchange, int maxSize) {
+    String body = exchange.getIn().getBody(String.class);
+    if(maxSize<=0 || body.length() <= maxSize){
+      return body;
+    }
+    return String.format("%s...%nShowing first %d chars of total %d...", body.substring(0, maxSize), maxSize, body.length());
   }
 
 }

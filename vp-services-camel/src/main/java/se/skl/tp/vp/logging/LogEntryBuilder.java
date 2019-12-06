@@ -1,5 +1,8 @@
 package se.skl.tp.vp.logging;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Map;
 import org.apache.camel.Exchange;
 import se.skl.tp.vp.constants.VPExchangeProperties;
@@ -10,6 +13,8 @@ import se.skl.tp.vp.logging.logentry.LogMetadataInfoType;
 import se.skl.tp.vp.logging.logentry.LogRuntimeInfoType;
 
 public class LogEntryBuilder {
+
+  public static final int MAX_STACKTRACE_SIZE = 10000;
 
   private LogEntryBuilder() {
     // Static utility class
@@ -35,7 +40,7 @@ public class LogEntryBuilder {
     return logEntry;
   }
 
-  public static LogMessageExceptionType createMessageException(Exchange exchange, String stackTrace) {
+  public static LogMessageExceptionType createMessageException(Exchange exchange) {
     Throwable throwable = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
     if (throwable == null) {
       return null;
@@ -44,10 +49,25 @@ public class LogEntryBuilder {
     LogMessageExceptionType lme = new LogMessageExceptionType();
     lme.setExceptionClass(throwable.getClass().getName());
     lme.setExceptionMessage(throwable.getMessage());
-    lme.setStackTrace(stackTrace);
+    lme.setStackTrace(getStackTrace(throwable));
+
 
     return lme;
   }
+
+  private static String getStackTrace(Throwable throwable) {
+    try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
+      throwable.printStackTrace(pw);
+      if( sw.getBuffer().length() > MAX_STACKTRACE_SIZE){
+        String stackTrace =  sw.getBuffer().substring(0, MAX_STACKTRACE_SIZE);
+        return stackTrace + "\nShowing first " + MAX_STACKTRACE_SIZE + " chars of " + sw.getBuffer().length();
+      }
+      return sw.getBuffer().toString();
+    } catch (IOException e) {
+      return null;
+    }
+  }
+
 
   private static LogMessageType createLogMessage(String logMessageType) {
     LogMessageType lm = new LogMessageType();
