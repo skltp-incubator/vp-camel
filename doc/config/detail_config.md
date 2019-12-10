@@ -120,12 +120,18 @@ timeout.json.file.default.tjanstekontrakt.name=default_timeouts
 wsdl.json.file=${base.path}/wsdl/wsdlconfig.json
 wsdlfiles.directory=${base.path}/wsdl/
 
-# Max message size VP could recieve in bytes (15Mb=15*1024*1024=15728640)
+# Max message size VP could recieve in bytes (50Mb=50*1024*1024=52428800)
 # Applies for messages recieved from consumer and responses from producer
-vp.max.receive.length=15728640
+vp.max.receive.length=52428800
 
-headers.reg.exp.removeRegExp=(?i).*
-headers.reg.exp.keepRegExp=(?i)x-rivta.*|x-skltp.*|SOAPAction|x-vp-sender-id|x-vp-instance-id
+producer.http.keepAlive=true
+producer.https.keepAlive=true
+
+headers.reg.exp.requestHeadersToRemove=(?i)x-vp.*|PEER_CERTIFICATES|X-Forwarded.*|MULE_.*|X-MULE_.*|Connection|accept-encoding
+
+producer.http.workers=0
+producer.https.workers=0
+
 ```
 
 ### Exempel på application-security.properties

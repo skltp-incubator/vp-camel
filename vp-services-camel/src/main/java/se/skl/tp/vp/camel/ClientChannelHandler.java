@@ -26,6 +26,7 @@ This is a override of the org.apache.camel.component.netty4.handlers.ClientChann
  The intention is to implement ant test handling of HTTP respone 100-Continue, and later provide it for Camel.
  */
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -48,7 +49,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
   // use NettyProducer as logger to make it easier to read the logs as this is part of the producer
-  private static final Logger LOG = LoggerFactory.getLogger(NettyProducer.class);
+  private static final Logger NettyProducer_LOG = LoggerFactory.getLogger(NettyProducer.class);
+  private static final Logger VP_LOG = LoggerFactory.getLogger(ClientChannelHandler.class);
   private final NettyProducer producer;
   private volatile boolean messageReceived;
   private volatile boolean exceptionHandled;
@@ -59,8 +61,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Channel open: {}", ctx.channel());
+    if (NettyProducer_LOG.isTraceEnabled()) {
+      NettyProducer_LOG.trace("Channel open: {}", ctx.channel());
     }
     // to keep track of open sockets
     producer.getAllChannels().add(ctx.channel());
@@ -70,8 +72,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Exception caught at Channel: {}", ctx.channel(), cause);
+    if (NettyProducer_LOG.isTraceEnabled()) {
+      NettyProducer_LOG.trace("Exception caught at Channel: {}", ctx.channel(), cause);
     }
 
     if (exceptionHandled) {
@@ -81,8 +83,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
 
     exceptionHandled = true;
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Closing channel as an exception was thrown from Netty", cause);
+    if (NettyProducer_LOG.isDebugEnabled()) {
+      NettyProducer_LOG.debug("Closing channel as an exception was thrown from Netty", cause);
     }
 
     NettyCamelState state = getState(ctx, cause);
@@ -103,14 +105,21 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
       NettyHelper.close(ctx.channel());
 
       // signal callback
-      callback.done(false);
+      if(exchange.getUnitOfWork() == null){
+          Channel channel = ctx.channel();
+          String url = String.valueOf(channel.remoteAddress());
+        VP_LOG.warn("Exception without UnitOfWork, this is not propagated to Camel. Url: "  + url, cause);
+      } else {
+          callback.done(false);
+      }
+
     }
   }
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Channel closed: {}", ctx.channel());
+    if (NettyProducer_LOG.isTraceEnabled()) {
+      NettyProducer_LOG.trace("Channel closed: {}", ctx.channel());
     }
 
     NettyCamelState state = getState(ctx, null);
@@ -135,8 +144,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
         // session was closed but no message received. This could be because the remote server had an internal error
         // and could not return a response. We should count down to stop waiting for a response
         String address = configuration.getAddress();
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Channel is inactive but no message received from address: {}", address);
+        if (NettyProducer_LOG.isDebugEnabled()) {
+          NettyProducer_LOG.debug("Channel is inactive but no message received from address: {}", address);
         }
         // don't fail the exchange if we actually specify to disconnect
         if (!configuration.isDisconnect()) {
@@ -155,8 +164,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
   protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
     messageReceived = true;
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Message received: {}", msg);
+    if (NettyProducer_LOG.isTraceEnabled()) {
+      NettyProducer_LOG.trace("Message received: {}", msg);
     }
 
 
@@ -215,8 +224,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
       }
       // we should not close if we are reusing the channel
       if (!producer.getConfiguration().isReuseChannel() && disconnect) {
-        if (LOG.isTraceEnabled()) {
-          LOG.trace("Closing channel when complete at address: {}", producer.getConfiguration().getAddress());
+        if (NettyProducer_LOG.isTraceEnabled()) {
+          NettyProducer_LOG.trace("Closing channel when complete at address: {}", producer.getConfiguration().getAddress());
         }
         NettyHelper.close(ctx.channel());
       }
@@ -229,7 +238,7 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
   private void removeTimeoutHandlerFromPipeline(ChannelHandlerContext ctx) {
     ChannelHandler handler = ctx.pipeline().get("timeout");
     if (handler != null) {
-      LOG.trace("Removing timeout channel as we received message");
+      NettyProducer_LOG.trace("Removing timeout channel as we received message");
       ctx.pipeline().remove(handler);
     }
   }
@@ -255,8 +264,8 @@ public class ClientChannelHandler extends SimpleChannelInboundHandler<Object> {
   protected Message getResponseMessage(Exchange exchange, ChannelHandlerContext ctx, Object message) throws Exception {
     Object body = message;
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Channel: {} received body: {}", ctx.channel(), body);
+    if (NettyProducer_LOG.isDebugEnabled()) {
+      NettyProducer_LOG.debug("Channel: {} received body: {}", ctx.channel(), body);
     }
 
     // if textline enabled then covert to a String which must be used for textline
