@@ -1,6 +1,12 @@
 package se.skl.tp.vp.integrationtests.errorhandling.connectionResetByPeer;
 
 
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
+import static org.junit.Assert.assertEquals;
+import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
+
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -8,6 +14,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.util.CharsetUtil;
+import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.Test;
@@ -22,15 +29,6 @@ import se.skl.tp.vp.integrationtests.utils.TestConsumer;
 import se.skl.tp.vp.logging.MessageInfoLogger;
 import se.skl.tp.vp.util.LeakDetectionBaseTest;
 import se.skl.tp.vp.util.TestLogAppender;
-
-import java.util.Map;
-
-import static org.apache.camel.test.junit4.TestSupport.assertStringContains;
-import static org.junit.Assert.assertEquals;
-import static se.skl.tp.vp.util.soaprequests.TestSoapRequests.createGetCertificateRequest;
-
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
@@ -86,7 +84,7 @@ public class ConnectionResetByPeerProblemIT extends LeakDetectionBaseTest {
         testConsumer.sendHttpRequestToVP(request, headers);
 
         assertEquals(1, testLogAppender.getNumEvents(MessageInfoLogger.REQ_ERROR));
-        assertStringContains(testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0), "An existing connection was forcibly closed by");
+        assertStringContains(testLogAppender.getEventMessage(MessageInfoLogger.REQ_ERROR,0), "java.io.IOException");
 
         ResetByPeerServer.stopServer();
     }
