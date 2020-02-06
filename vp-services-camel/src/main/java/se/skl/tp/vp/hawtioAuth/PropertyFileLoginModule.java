@@ -96,7 +96,6 @@ public class PropertyFileLoginModule extends AbstractLoginModule {
     final Credential credential =
         (Credential) userIdentity.getSubject().getPrivateCredentials().iterator().next();
     log.debug("Found: " + userName + " in PropertyUserStore " + filename);
-    lastUser = userName;
     return new UserInfo(userName, credential, roles);
   }
 
