@@ -9,19 +9,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import lombok.extern.log4j.Log4j2;
 import org.eclipse.jetty.jaas.spi.AbstractLoginModule;
 import org.eclipse.jetty.jaas.spi.UserInfo;
 import org.eclipse.jetty.security.PropertyUserStore;
 import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.util.security.Credential;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/** PropertyFileLoginModule. */
+@Log4j2
 public class PropertyFileLoginModule extends AbstractLoginModule {
   public static final String DEFAULT_FILENAME = "realm.properties";
 
-  private static final Logger LOG = LoggerFactory.getLogger(PropertyFileLoginModule.class);
   private static ConcurrentHashMap<String, PropertyUserStore> PROPERTY_USERSTORES =
       new ConcurrentHashMap<>();
 
@@ -57,16 +55,12 @@ public class PropertyFileLoginModule extends AbstractLoginModule {
 
       final PropertyUserStore prev = PROPERTY_USERSTORES.putIfAbsent(filename, propertyUserStore);
       if (prev == null) {
-        LOG.info(
-            "setupPropertyUserStore: Starting new PropertyUserStore. PropertiesFile: "
-                + filename
-                + " hotReload: "
-                + hotReload);
-
+        log.info("setupPropertyUserStore: Starting new PropertyUserStore. PropertiesFile: "
+                + filename + " hotReload: " + hotReload);
         try {
           propertyUserStore.start();
         } catch (Exception e) {
-          LOG.warn("Exception while starting propertyUserStore: ", e);
+          log.warn("Exception while starting propertyUserStore: ", e);
         }
       }
     }
@@ -87,7 +81,7 @@ public class PropertyFileLoginModule extends AbstractLoginModule {
       throw new IllegalStateException("PropertyUserStore should never be null here!");
     }
 
-    LOG.trace("Checking PropertyUserStore " + filename + " for " + userName);
+    log.debug("Checking PropertyUserStore " + filename + " for " + userName);
     final UserIdentity userIdentity = propertyUserStore.getUserIdentity(userName);
     if (userIdentity == null) {
       return null;
@@ -101,7 +95,8 @@ public class PropertyFileLoginModule extends AbstractLoginModule {
 
     final Credential credential =
         (Credential) userIdentity.getSubject().getPrivateCredentials().iterator().next();
-    LOG.trace("Found: " + userName + " in PropertyUserStore " + filename);
+    log.debug("Found: " + userName + " in PropertyUserStore " + filename);
+    lastUser = userName;
     return new UserInfo(userName, credential, roles);
   }
 
