@@ -6,7 +6,7 @@
   <groupId>se.skltp.vp</groupId>
   <artifactId>vp-parent-camel</artifactId>
   <name>vp-parent-camel</name>
-  <version>4.0.0-RC14-SNAPSHOT</version>
+  <version>4.0.0-RC15-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>SKLTP VP Services byggt med Camel och Spring Boot</description>
 
@@ -299,6 +299,7 @@
                 <encoding.reporting>UTF-8</encoding.reporting>
                 <java.source>${maven.compiler.source}</java.source>
                 <java.target>${maven.compiler.target}</java.target>
+
               </additionalProperties>
             </configuration>
           </execution>
