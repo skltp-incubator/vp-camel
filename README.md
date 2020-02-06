@@ -1,2 +1,2 @@
 # vp-camel
-POC för att bygga VP med Apache Camel
+(Deprecated) Mergad till github.com/skltp/vp
